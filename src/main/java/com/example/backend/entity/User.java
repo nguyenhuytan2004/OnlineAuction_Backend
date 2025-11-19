@@ -1,0 +1,78 @@
+package com.example.backend.entity;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "USER")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
+    private Integer userId;
+
+    @NotBlank(message = "Full name must not be blank")
+    @Size(max = 100, message = "Full name must not exceed 100 characters")
+    @Column(name = "full_name", nullable = false, length = 100)
+    private String fullName;
+
+    @NotBlank(message = "Email must not be blank")
+    @Email(message = "Invalid email address")
+    @Size(max = 100, message = "Email must not exceed 100 characters")
+    @Column(name = "email", nullable = false, unique = true, length = 100)
+    private String email;
+
+    @NotBlank(message = "Password must not be blank")
+    @Size(max = 255, message = "Encrypted password must not exceed 255 characters")
+    @Column(name = "encrypted_password", nullable = false, length = 255)
+    private String encryptedPassword;
+
+    @Column(name = "is_seller", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isSeller = false;
+
+    @Min(value = 0, message = "Rating score must be greater than or equal to 0")
+    @Column(name = "rating_score", columnDefinition = "INT DEFAULT 0")
+    private Integer ratingScore = 0;
+
+    @Min(value = 0, message = "Rating count must be greater than or equal to 0")
+    @Column(name = "rating_count", columnDefinition = "INT DEFAULT 0")
+    private Integer ratingCount = 0;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Product> products;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<WatchList> watchLists;
+}
