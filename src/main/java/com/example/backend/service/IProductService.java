@@ -12,9 +12,9 @@ public interface IProductService {
 
     public Page<Product> getProductsByCategoryId(Integer categoryId, Pageable pageable);
 
-    public List<Product> getTop5ProductsEndingSoon();
+    public List<Product> getTop5EndingSoonProducts();
 
-    public List<Product> getTop5ProductsByBidCount();
+    public List<Product> getTop5MostAuctionedProducts();
 
-    public List<Product> getTop5ProductsByCurrentPrice();
+    public List<Product> getTop5HighestPricedProducts();
 }

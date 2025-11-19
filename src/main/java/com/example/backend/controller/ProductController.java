@@ -35,10 +35,10 @@ public class ProductController {
         }
     }
 
-    @GetMapping("ending_soon")
-    public ResponseEntity<?> getTop5ProductsEndingSoon() {
+    @GetMapping("top-5-ending-soon")
+    public ResponseEntity<?> getTop5EndingSoonProducts() {
         try {
-            List<Product> products = _productService.getTop5ProductsEndingSoon();
+            List<Product> products = _productService.getTop5EndingSoonProducts();
             if (products.isEmpty()) {
                 return new ResponseEntity<>("No products found", HttpStatus.NO_CONTENT);
             }
@@ -48,4 +48,29 @@ public class ProductController {
         }
     }
 
+    @GetMapping("top-5-most-auctioned")
+    public ResponseEntity<?> getTop5MostAuctionedProducts() {
+        try {
+            List<Product> products = _productService.getTop5MostAuctionedProducts();
+            if (products.isEmpty()) {
+                return new ResponseEntity<>("No products found", HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("top-5-highest-priced")
+    public ResponseEntity<?> getTop5HighestPricedProducts() {
+        try {
+            List<Product> products = _productService.getTop5HighestPricedProducts();
+            if (products.isEmpty()) {
+                return new ResponseEntity<>("No products found", HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

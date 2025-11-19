@@ -28,17 +28,17 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<Product> getTop5ProductsEndingSoon() {
+    public List<Product> getTop5EndingSoonProducts() {
         return _productRepository.findTop5ByOrderByEndTimeAsc();
     }
 
     @Override
-    public List<Product> getTop5ProductsByBidCount() {
+    public List<Product> getTop5MostAuctionedProducts() {
         return _productRepository.findTop5ByOrderByBidCountDesc();
     }
 
     @Override
-    public List<Product> getTop5ProductsByCurrentPrice() {
+    public List<Product> getTop5HighestPricedProducts() {
         return _productRepository.findTop5ByOrderByCurrentPriceDesc();
     }
 }
