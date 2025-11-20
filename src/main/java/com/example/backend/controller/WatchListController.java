@@ -22,7 +22,7 @@ import com.example.backend.service.IWatchListService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/watch_list")
+@RequestMapping("/api/watch-list")
 public class WatchListController {
 
     @Autowired
@@ -30,19 +30,19 @@ public class WatchListController {
     @Autowired
     private IProductService _productService;
 
-    @GetMapping("/{user_id}")
+    @GetMapping("{user_id}")
     public ResponseEntity<?> getWatchListByUserId(@PathVariable("user_id") Integer userId) {
 
         try {
             List<WatchList> watchLists = _watchListService.getWatchList(userId);
 
             if (watchLists == null || watchLists.isEmpty()) {
-                return new ResponseEntity<>("Watch list of user " + userId + " is empty", HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>("Watch list of user " + userId + " is empty", HttpStatus.NOT_FOUND);
             }
 
             List<Product> products = new ArrayList<>();
             for (WatchList watchList : watchLists) {
-                Product product = _productService.getProduct(watchList.getProduct().getProductId());
+                Product product = _productService.getProductById(watchList.getProduct().getProductId());
                 if (product != null) {
                     products.add(product);
                 }

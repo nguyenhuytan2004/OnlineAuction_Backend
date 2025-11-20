@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,6 +24,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "WATCH_LIST", uniqueConstraints = {
         @UniqueConstraint(name = "unique_watchlist", columnNames = { "user_id", "product_id" })
 })
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,10 +37,12 @@ public class WatchList {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    // @JsonBackReference("user-watchList")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
+    // @JsonBackReference("product-watchlists")
     private Product product;
 
     @CreationTimestamp

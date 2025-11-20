@@ -1,20 +1,16 @@
 package com.example.backend.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
@@ -68,11 +64,10 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Product> products;
+    // @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
+    // private List<Product> sellingProducts;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<WatchList> watchLists;
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    // @JsonManagedReference("user-watchList")
+    // private List<WatchList> watchList;
 }

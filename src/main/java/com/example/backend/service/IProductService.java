@@ -8,7 +8,9 @@ import org.springframework.data.domain.Pageable;
 import com.example.backend.entity.Product;
 
 public interface IProductService {
-    public Product getProduct(Integer productId);
+    public List<Product> getAllProducts();
+
+    public Product getProductById(Integer productId);
 
     public Page<Product> getProductsByCategoryId(Integer categoryId, Pageable pageable);
 
@@ -17,4 +19,6 @@ public interface IProductService {
     public List<Product> getTop5MostAuctionedProducts();
 
     public List<Product> getTop5HighestPricedProducts();
+
+    public List<Product> getTop5RelatedProducts(Integer categoryId, Integer productId);
 }

@@ -21,13 +21,39 @@ public class ProductController {
     @Autowired
     private IProductService _productService;
 
+    @GetMapping("")
+    public ResponseEntity<?> getAllProducts() {
+        try {
+            List<Product> productPage = _productService.getAllProducts();
+            if (productPage.isEmpty()) {
+                return new ResponseEntity<>(productPage, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(productPage, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("{product_id}")
+    public ResponseEntity<?> getProductById(@PathVariable("product_id") Integer productId) {
+        try {
+            Product product = _productService.getProductById(productId);
+            if (product == null) {
+                return new ResponseEntity<>("Product not found with ID: " + productId, HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(product, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("category/{category_id}")
     public ResponseEntity<?> getProductsByCategory(@PathVariable("category_id") Integer categoryId,
             Pageable pageable) {
         try {
             Page<Product> productPage = _productService.getProductsByCategoryId(categoryId, pageable);
             if (productPage.getContent().isEmpty()) {
-                return new ResponseEntity<>("No products found for category: " + categoryId, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>("No products found for category: " + categoryId, HttpStatus.NOT_FOUND);
             }
             return new ResponseEntity<>(productPage, HttpStatus.OK);
         } catch (Exception e) {
@@ -39,9 +65,6 @@ public class ProductController {
     public ResponseEntity<?> getTop5EndingSoonProducts() {
         try {
             List<Product> products = _productService.getTop5EndingSoonProducts();
-            if (products.isEmpty()) {
-                return new ResponseEntity<>("No products found", HttpStatus.NO_CONTENT);
-            }
             return new ResponseEntity<>(products, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -52,9 +75,6 @@ public class ProductController {
     public ResponseEntity<?> getTop5MostAuctionedProducts() {
         try {
             List<Product> products = _productService.getTop5MostAuctionedProducts();
-            if (products.isEmpty()) {
-                return new ResponseEntity<>("No products found", HttpStatus.NO_CONTENT);
-            }
             return new ResponseEntity<>(products, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -65,10 +85,22 @@ public class ProductController {
     public ResponseEntity<?> getTop5HighestPricedProducts() {
         try {
             List<Product> products = _productService.getTop5HighestPricedProducts();
-            if (products.isEmpty()) {
-                return new ResponseEntity<>("No products found", HttpStatus.NO_CONTENT);
-            }
             return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("{product_id}/top-5-related")
+    public ResponseEntity<?> getTop5RelatedProducts(@PathVariable("product_id") Integer productId) {
+        try {
+            Product product = _productService.getProductById(productId);
+            if (product == null) {
+                return new ResponseEntity<>("Product not found with ID: " + productId, HttpStatus.NOT_FOUND);
+            }
+            Integer categoryId = product.getCategory().getCategoryId();
+            List<Product> relatedProducts = _productService.getTop5RelatedProducts(categoryId, productId);
+            return new ResponseEntity<>(relatedProducts, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

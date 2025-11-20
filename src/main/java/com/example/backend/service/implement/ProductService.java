@@ -18,7 +18,12 @@ public class ProductService implements IProductService {
     private IProductRepository _productRepository;
 
     @Override
-    public Product getProduct(Integer productId) {
+    public List<Product> getAllProducts() {
+        return _productRepository.findAll();
+    }
+
+    @Override
+    public Product getProductById(Integer productId) {
         return _productRepository.findById(productId).orElse(null);
     }
 
@@ -40,5 +45,10 @@ public class ProductService implements IProductService {
     @Override
     public List<Product> getTop5HighestPricedProducts() {
         return _productRepository.findTop5ByOrderByCurrentPriceDesc();
+    }
+
+    @Override
+    public List<Product> getTop5RelatedProducts(Integer categoryId, Integer productId) {
+        return _productRepository.findTop5ByCategoryCategoryIdAndProductIdNotOrderByEndTimeAsc(categoryId, productId);
     }
 }

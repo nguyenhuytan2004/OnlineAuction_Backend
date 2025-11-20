@@ -16,4 +16,6 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
     List<Product> findTop5ByOrderByBidCountDesc();
 
     List<Product> findTop5ByOrderByCurrentPriceDesc();
+
+    List<Product> findTop5ByCategoryCategoryIdAndProductIdNotOrderByEndTimeAsc(Integer categoryId, Integer productId);
 }

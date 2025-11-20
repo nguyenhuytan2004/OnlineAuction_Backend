@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -47,12 +47,22 @@ public class Product {
     @NotNull(message = "Seller must not be null")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", nullable = false)
+    // @JsonBackReference("user-products")
     private User seller;
 
     @NotNull(message = "Category must not be null")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
+    // @JsonBackReference("category-products")
     private Category category;
+
+    @Column(name = "main_image_url")
+    private String mainImageUrl;
+
+    // Extra field
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonManagedReference("product-images")
+    private List<ProductImage> productImages;
 
     @NotBlank(message = "Product name must not be blank")
     @Size(max = 255, message = "Product name must not exceed 255 characters")
@@ -104,7 +114,7 @@ public class Product {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<WatchList> watchLists;
+    // @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    // // @JsonManagedReference("product-watchlists")
+    // private List<WatchList> watchLists;
 }
