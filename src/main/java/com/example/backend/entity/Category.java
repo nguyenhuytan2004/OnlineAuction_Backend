@@ -1,5 +1,11 @@
 package com.example.backend.entity;
 
+import org.hibernate.search.engine.backend.types.Sortable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
+
+import com.example.backend.config.SearchAnalyzerConfig;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
@@ -23,16 +29,19 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Indexed
 public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
+    @GenericField(sortable = Sortable.YES)
     private Integer categoryId;
 
     @NotBlank(message = "Category name must not be blank")
     @Size(max = 100, message = "Category name must not exceed 100 characters")
     @Column(name = "category_name", nullable = false, length = 100)
+    @FullTextField(analyzer = SearchAnalyzerConfig.VIETNAMESE_SEARCH)
     private String categoryName;
 
     @ManyToOne(fetch = FetchType.LAZY)

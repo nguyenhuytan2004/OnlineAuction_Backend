@@ -21,4 +21,6 @@ public interface IProductService {
     public List<Product> getTop5HighestPricedProducts();
 
     public List<Product> getTop5RelatedProducts(Integer categoryId, Integer productId);
+
+    public Page<Product> searchProducts(String keyword, Integer categoryId, Pageable pageable);
 }

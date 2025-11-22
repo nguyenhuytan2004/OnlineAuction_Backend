@@ -2,20 +2,30 @@ package com.example.backend.service.implement;
 
 import java.util.List;
 
+import org.hibernate.search.engine.search.query.SearchResult;
+import org.hibernate.search.mapper.orm.Search;
+import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.example.backend.config.SearchAnalyzerConfig;
 import com.example.backend.entity.Product;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.service.IProductService;
+
+import jakarta.persistence.EntityManager;
 
 @Service
 public class ProductService implements IProductService {
 
     @Autowired
     private IProductRepository _productRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Override
     public List<Product> getAllProducts() {
@@ -50,5 +60,70 @@ public class ProductService implements IProductService {
     @Override
     public List<Product> getTop5RelatedProducts(Integer categoryId, Integer productId) {
         return _productRepository.findTop5ByCategoryCategoryIdAndProductIdNotOrderByEndTimeAsc(categoryId, productId);
+    }
+
+    @Override
+    public Page<Product> searchProducts(String keyword, Integer categoryId, Pageable pageable) {
+        SearchSession searchSession = Search.session(entityManager.unwrap(org.hibernate.Session.class));
+        SearchResult<Product> result = searchSession.search(Product.class)
+                .where(f -> {
+                    var bool = f.bool();
+
+                    // Lọc ra sản phẩm đang hoạt động
+                    bool.must(f
+                            .match()
+                            .field("isActive")
+                            .matching(true));
+
+                    // Lọc theo keyword nếu có
+                    if (keyword != null && !keyword.isEmpty()) {
+                        bool.must(f
+                                .match()
+                                .fields("productName", "description", "category.categoryName")
+                                .matching(keyword)
+                                .fuzzy(1) // Cho phép lỗi chính tả nhỏ
+                                .analyzer(SearchAnalyzerConfig.VIETNAMESE_SEARCH));
+                    }
+
+                    // Lọc theo categoryId nếu có
+                    if (categoryId != null) {
+                        bool.must(f
+                                .match()
+                                .field("category.categoryId")
+                                .matching(categoryId));
+                    }
+
+                    return bool;
+                })
+                .sort(f -> {
+                    var sortStep = f.composite();
+
+                    // Ưu tiên 1 (luôn luôn): Sắp xếp điểm phù hợp giảm dần
+                    sortStep.add(f.score().desc());
+
+                    // Ưu tiên 2: Sắp xếp theo các trường được chỉ định trong pageable
+                    if (pageable.getSort().isSorted()) {
+                        for (var order : pageable.getSort()) {
+                            if (order.isAscending()) {
+                                sortStep.add(f.field(order.getProperty()).asc());
+                            } else {
+                                sortStep.add(f.field(order.getProperty()).desc());
+                            }
+                        }
+                        return sortStep;
+                    }
+
+                    // Ưu tiên 2(Mặc định): Sắp xếp theo endTime tăng dần nếu không có sắp xếp nào
+                    // được chỉ định
+                    return sortStep.add(f.field("endTime").asc());
+
+                })
+                .fetch(pageable.getPageNumber() * pageable.getPageSize(), pageable.getPageSize());
+
+        return result.hits().isEmpty() ? Page.empty()
+                : new PageImpl<>(
+                        result.hits(),
+                        pageable,
+                        result.total().hitCount());
     }
 }

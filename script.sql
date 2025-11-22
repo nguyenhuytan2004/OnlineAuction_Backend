@@ -114,36 +114,38 @@ CREATE TABLE `BID` (
 
 -- Dữ liệu mẫu cho bảng CATEGORY
 INSERT INTO `CATEGORY` (category_name, parent_id) VALUES
-('Electronics', NULL),
-('Fashion', NULL),
-('Mobile Phones', 1),
-('Laptops', 1),
-('Watches', 2),
-('Shoes', 2),
-('Books', NULL),
-('Home Appliances', NULL),
-('Toys', NULL),
-('Tablets', 1);
+('Điện tử', NULL),
+('Thời trang', NULL),
+('Điện thoại di động', 1),
+('Máy tính xách tay', 1),
+('Đồng hồ', 2),
+('Giày dép', 2),
+('Sách', NULL),
+('Đồ gia dụng', NULL),
+('Đồ chơi', NULL),
+('Máy tính bảng', 1);
 
 -- Dữ liệu mẫu cho bảng USER
 INSERT INTO `USER` (full_name, email, encrypted_password, is_seller, rating_score, rating_count) VALUES
-('Nguyen Van A (Bidder)', 'bidder_a@example.com', '$2a$10$5K7irzpbIRu8CobNZJFVDempz9WDIf.LDvGLOB0wxM0ElH5eQodhC', 0, 8, 10),
-('Tran Thi B (Bidder)', 'bidder_b@example.com', '$2a$10$savotgG5leGb/SwtvrRPguX76AwBumNxFZMJYegUUncRvegOucX4O', 0, 10, 10),
-('Le Van C (Seller)', 'seller_c@example.com', '$2a$10$BOtUAA6RN.v581tSt7vW4.vgDr8DdFrtXSkTKArazSZC.dWl.wLVm', 1, 12, 15),
-('Pham Thi D (Seller)', 'seller_d@example.com', '$2a$10$examplehashforsellerd', 1, 14, 20),
-('Hoang Van E (Seller)', 'seller_e@example.com', '$2a$10$examplehashforsellere', 1, 16, 25),
-('Nguyen Thi F (Bidder)', 'bidder_f@example.com', '$2a$10$examplehashforbidderf', 0, 9, 12);
+('Nguyễn Văn A (Người đấu giá)', 'bidder_a@example.com', '$2a$10$5K7irzpbIRu8CobNZJFVDempz9WDIf.LDvGLOB0wxM0ElH5eQodhC', 0, 8, 10),
+('Trần Thị B (Người đấu giá)', 'bidder_b@example.com', '$2a$10$savotgG5leGb/SwtvrRPguX76AwBumNxFZMJYegUUncRvegOucX4O', 0, 10, 10),
+('Lê Văn C (Người bán)', 'seller_c@example.com', '$2a$10$BOtUAA6RN.v581tSt7vW4.vgDr8DdFrtXSkTKArazSZC.dWl.wLVm', 1, 12, 15),
+('Phạm Thị D (Người bán)', 'seller_d@example.com', '$2a$10$examplehashforsellerd', 1, 14, 20),
+('Hoàng Văn E (Người bán)', 'seller_e@example.com', '$2a$10$examplehashforsellere', 1, 16, 25),
+('Nguyễn Thị F (Người đấu giá)', 'bidder_f@example.com', '$2a$10$examplehashforbidderf', 0, 9, 12);
 
 -- Dữ liệu mẫu cho bảng PRODUCT
+-- Dữ liệu mẫu cho bảng PRODUCT
 INSERT INTO `PRODUCT` (seller_id, category_id, product_name, current_price, buy_now_price, start_price, price_step, description, end_time) VALUES
-(3, 3, 'iPhone 13 Pro Max', 20000000.00, 25000000.00, 18000000.00, 100000.00, 'The latest iPhone model', DATE_ADD(NOW(), INTERVAL 5 DAY)),
-(3, 4, 'MacBook Pro M2', 35000000.00, NULL, 30000000.00, 200000.00, 'Laptop computer', DATE_ADD(NOW(), INTERVAL 1 DAY)),
-(3, 5, 'Casio G-Shock Watch', 1500000.00, 2000000.00, 1000000.00, 50000.00, 'Fashion watch', DATE_ADD(NOW(), INTERVAL 7 DAY)),(3, 8, 'Samsung Galaxy Tab S9', 12000000.00, 15000000.00, 10000000.00, 50000.00, 'High-end Android tablet', DATE_ADD(NOW(), INTERVAL 3 DAY)),
-(3, 7, 'Kindle Paperwhite', 3500000.00, 4000000.00, 3000000.00, 20000.00, 'E-book reader', DATE_ADD(NOW(), INTERVAL 2 DAY)),
-(3, 7, 'Harry Potter Book Set', 800000.00, 1000000.00, 600000.00, 10000.00, 'Full set of Harry Potter books', DATE_ADD(NOW(), INTERVAL 10 DAY)),
-(3, 9, 'LEGO City Police Station', 2000000.00, 2500000.00, 1800000.00, 50000.00, 'LEGO toy set', DATE_ADD(NOW(), INTERVAL 6 DAY)),
-(3, 6, 'Nike Air Max Shoes', 2500000.00, 3000000.00, 2000000.00, 50000.00, 'Popular running shoes', DATE_ADD(NOW(), INTERVAL 4 DAY)),
-(3, 5, 'Rolex Submariner Watch', 120000000.00, 150000000.00, 100000000.00, 1000000.00, 'Luxury watch', DATE_ADD(NOW(), INTERVAL 15 DAY));
+(3, 3, 'iPhone 13 Pro Max', 20000000.00, 25000000.00, 18000000.00, 100000.00, 'Mẫu iPhone mới nhất', DATE_ADD(NOW(), INTERVAL 5 DAY)), -- Điện thoại di động
+(3, 4, 'MacBook Pro M2', 35000000.00, NULL, 30000000.00, 200000.00, 'Máy tính xách tay', DATE_ADD(NOW(), INTERVAL 1 DAY)), -- Máy tính xách tay
+(3, 5, 'Đồng hồ Casio G-Shock', 1500000.00, 2000000.00, 1000000.00, 50000.00, 'Đồng hồ thời trang', DATE_ADD(NOW(), INTERVAL 7 DAY)), -- Đồng hồ
+(3, 10, 'Samsung Galaxy Tab S9', 12000000.00, 15000000.00, 10000000.00, 50000.00, 'Máy tính bảng Android cao cấp', DATE_ADD(NOW(), INTERVAL 3 DAY)), -- Máy tính bảng
+(3, 7, 'Kindle Paperwhite', 3500000.00, 4000000.00, 3000000.00, 20000.00, 'Máy đọc sách điện tử', DATE_ADD(NOW(), INTERVAL 2 DAY)), -- Sách
+(3, 7, 'Bộ truyện Harry Potter', 800000.00, 1000000.00, 600000.00, 10000.00, 'Trọn bộ truyện Harry Potter', DATE_ADD(NOW(), INTERVAL 10 DAY)), -- Sách
+(3, 9, 'LEGO Thành phố - Đồn cảnh sát', 2000000.00, 2500000.00, 1800000.00, 50000.00, 'Bộ đồ chơi LEGO', DATE_ADD(NOW(), INTERVAL 6 DAY)), -- Đồ chơi
+(3, 6, 'Giày Nike Air Max', 2500000.00, 3000000.00, 2000000.00, 50000.00, 'Giày chạy bộ nổi tiếng', DATE_ADD(NOW(), INTERVAL 4 DAY)), -- Giày dép
+(3, 5, 'Đồng hồ Rolex Submariner', 120000000.00, 150000000.00, 100000000.00, 1000000.00, 'Đồng hồ cao cấp', DATE_ADD(NOW(), INTERVAL 15 DAY)); -- Đồng hồ
 
 -- Dữ liệu mẫu cho bảng PRODUCT_IMAGE
 INSERT INTO `PRODUCT_IMAGE` (product_id, image_url) VALUES
