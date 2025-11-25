@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.example.backend.entity.AuctionResult;
 import com.example.backend.entity.Product;
 import com.example.backend.model.Product.CreateProductRequest;
 
@@ -27,4 +28,5 @@ public interface IProductService {
 
     Product createProduct(CreateProductRequest request, Integer sellerId);
 
+    AuctionResult buyNowProduct(Integer productId, Integer buyerId);
 }

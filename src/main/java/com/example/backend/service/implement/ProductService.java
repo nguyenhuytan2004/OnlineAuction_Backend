@@ -1,5 +1,6 @@
 package com.example.backend.service.implement;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.hibernate.search.engine.search.query.SearchResult;
@@ -13,10 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.config.SearchAnalyzerConfig;
+import com.example.backend.entity.AuctionResult;
 import com.example.backend.entity.Product;
 import com.example.backend.entity.ProductImage;
+import com.example.backend.entity.User;
 import com.example.backend.helper.HtmlSanitizerHelper;
 import com.example.backend.model.Product.CreateProductRequest;
+import com.example.backend.repository.IAuctionResultRepository;
 import com.example.backend.repository.ICategoryRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IUserRepository;
@@ -33,6 +37,8 @@ public class ProductService implements IProductService {
     private IUserRepository _userRepository;
     @Autowired
     private ICategoryRepository _categoryRepository;
+    @Autowired
+    private IAuctionResultRepository _auctionResultRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -89,13 +95,23 @@ public class ProductService implements IProductService {
 
                     // Lọc theo keyword nếu có
                     if (keyword != null && !keyword.isEmpty()) {
-                        bool.must(f
+
+                        // Tìm kiếm theo tên, mô tả, danh mục
+                        bool.should(f
                                 .match()
                                 .fields("productName", "description", "category.categoryName")
                                 .matching(keyword)
                                 .fuzzy(1) // Cho phép lỗi chính tả nhỏ
-                                .analyzer(SearchAnalyzerConfig.VIETNAMESE_SEARCH));
+                                .analyzer(SearchAnalyzerConfig.VIETNAMESE_SEARCH)
+                                .boost(2.0f)); // Tăng trọng số cho keyword matching
                     }
+
+                    // Nổi bật sản phẩm mới (đăng trong 1 giờ)
+                    bool.should(f
+                            .range()
+                            .field("createdAt")
+                            .atLeast(java.time.LocalDateTime.now().minusHours(1))
+                            .boost(1.5f)); // Tăng trọng số cho sản phẩm mới
 
                     // Lọc theo categoryId nếu có
                     if (categoryId != null) {
@@ -110,7 +126,8 @@ public class ProductService implements IProductService {
                 .sort(f -> {
                     var sortStep = f.composite();
 
-                    // Ưu tiên 1 (luôn luôn): Sắp xếp điểm phù hợp giảm dần
+                    // Ưu tiên 1: Sắp xếp theo điểm số (score) giảm dần
+                    // Sản phẩm mới được boost trong WHERE clause sẽ có score cao hơn
                     sortStep.add(f.score().desc());
 
                     // Ưu tiên 2: Sắp xếp theo các trường được chỉ định trong pageable
@@ -161,8 +178,15 @@ public class ProductService implements IProductService {
 
         newProduct.setProductName(request.getProductName());
         newProduct.setCurrentPrice(request.getStartPrice());
-        newProduct.setBuyNowPrice(request.getBuyNowPrice());
-        newProduct.setStartPrice(request.getStartPrice());
+
+        if (request.getBuyNowPrice() != null) {
+            if (request.getBuyNowPrice().compareTo(request.getStartPrice()) < 0) {
+                throw new IllegalArgumentException("Buy Now Price must be greater than or equal to Start Price.");
+            }
+            newProduct.setBuyNowPrice(request.getBuyNowPrice());
+            newProduct.setStartPrice(request.getStartPrice());
+        }
+
         newProduct.setPriceStep(request.getPriceStep());
 
         String safeHtmlDescription = HtmlSanitizerHelper.sanitize(request.getDescription());
@@ -172,5 +196,54 @@ public class ProductService implements IProductService {
         newProduct.setIsAutoRenew(request.getIsAutoRenew());
 
         return _productRepository.save(newProduct);
+    }
+
+    @Override
+    @Transactional
+    public AuctionResult buyNowProduct(Integer productId, Integer buyerId) {
+        Product product = _productRepository.findById(productId).orElse(null);
+        if (product == null) {
+            throw new IllegalArgumentException("Product not found with ID: " + productId);
+        }
+
+        if (product.getIsActive() == false) {
+            throw new IllegalStateException("Product is not active for auction.");
+        }
+
+        if (product.getBuyNowPrice() == null) {
+            throw new IllegalStateException("Product does not have a Buy Now option.");
+        }
+
+        // Check buyer ratings (implement in the future)
+        User buyer = _userRepository.findById(buyerId).orElse(null);
+        if (buyer == null) {
+            throw new IllegalArgumentException("Buyer not found with ID: " + buyerId);
+        }
+
+        if (product.getSeller().getUserId().equals(buyerId)) {
+            throw new IllegalArgumentException("Seller cannot buy their own product.");
+        }
+
+        AuctionResult existingResult = _auctionResultRepository
+                .findByProductProductId(productId);
+        if (existingResult != null) {
+            throw new IllegalStateException("Product has already been sold.");
+        }
+
+        // Update product status
+        product.setIsActive(false);
+        product.setEndTime(LocalDateTime.now().plusSeconds(1));
+        _productRepository.save(product);
+
+        // Create auction result
+        AuctionResult auctionResult = new AuctionResult();
+        auctionResult.setProduct(product);
+        auctionResult.setWinner(buyer);
+        auctionResult.setFinalPrice(product.getBuyNowPrice());
+        auctionResult.setResultTime(LocalDateTime.now());
+        auctionResult.setPaymentStatus(AuctionResult.PaymentStatus.PENDING);
+        AuctionResult savedAuctionResult = _auctionResultRepository.save(auctionResult);
+
+        return savedAuctionResult;
     }
 }

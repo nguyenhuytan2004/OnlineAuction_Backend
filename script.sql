@@ -112,6 +112,21 @@ CREATE TABLE `BID` (
     FOREIGN KEY (bidder_id) REFERENCES `USER`(user_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
+-- Bảng chứa kết quả đấu giá sau khi kết thúc
+CREATE TABLE `AUCTION_RESULT` (
+    result_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL UNIQUE, 
+    winner_id INT NOT NULL, 
+    final_price DECIMAL(18, 2) NOT NULL, 
+    result_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+
+    -- Trạng thái của giao dịch sau đấu giá (Ví dụ: PENDING, PAID, CANCELLED)
+    payment_status VARCHAR(50) DEFAULT 'PENDING',
+    
+    FOREIGN KEY (product_id) REFERENCES `PRODUCT`(product_id) ON DELETE CASCADE,
+    FOREIGN KEY (winner_id) REFERENCES `USER`(user_id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
 -- Dữ liệu mẫu cho bảng CATEGORY
 INSERT INTO `CATEGORY` (category_name, parent_id) VALUES
 ('Điện tử', NULL),
