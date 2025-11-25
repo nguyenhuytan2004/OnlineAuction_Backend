@@ -10,10 +10,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.config.SearchAnalyzerConfig;
 import com.example.backend.entity.Product;
+import com.example.backend.entity.ProductImage;
+import com.example.backend.helper.HtmlSanitizerHelper;
+import com.example.backend.model.Product.CreateProductRequest;
+import com.example.backend.repository.ICategoryRepository;
 import com.example.backend.repository.IProductRepository;
+import com.example.backend.repository.IUserRepository;
 import com.example.backend.service.IProductService;
 
 import jakarta.persistence.EntityManager;
@@ -23,6 +29,10 @@ public class ProductService implements IProductService {
 
     @Autowired
     private IProductRepository _productRepository;
+    @Autowired
+    private IUserRepository _userRepository;
+    @Autowired
+    private ICategoryRepository _categoryRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -32,6 +42,7 @@ public class ProductService implements IProductService {
         return _productRepository.findAll();
     }
 
+    @SuppressWarnings("null")
     @Override
     public Product getProductById(Integer productId) {
         return _productRepository.findById(productId).orElse(null);
@@ -62,6 +73,7 @@ public class ProductService implements IProductService {
         return _productRepository.findTop5ByCategoryCategoryIdAndProductIdNotOrderByEndTimeAsc(categoryId, productId);
     }
 
+    @SuppressWarnings("null")
     @Override
     public Page<Product> searchProducts(String keyword, Integer categoryId, Pageable pageable) {
         SearchSession searchSession = Search.session(entityManager.unwrap(org.hibernate.Session.class));
@@ -125,5 +137,40 @@ public class ProductService implements IProductService {
                         result.hits(),
                         pageable,
                         result.total().hitCount());
+    }
+
+    @SuppressWarnings("null")
+    @Override
+    @Transactional
+    public Product createProduct(CreateProductRequest request, Integer sellerId) {
+        Product newProduct = new Product();
+
+        newProduct.setSeller(_userRepository.findById(sellerId).orElse(null));
+
+        newProduct.setCategory(_categoryRepository.findById(request.getCategoryId()).orElse(null));
+
+        newProduct.setMainImageUrl(request.getMainImageUrl());
+
+        List<ProductImage> productImages = request.getAuxiliaryImageUrls().stream().map(url -> {
+            ProductImage img = new ProductImage();
+            img.setProduct(newProduct);
+            img.setImageUrl(url);
+            return img;
+        }).toList();
+        newProduct.setAuxiliaryImageUrls(productImages);
+
+        newProduct.setProductName(request.getProductName());
+        newProduct.setCurrentPrice(request.getStartPrice());
+        newProduct.setBuyNowPrice(request.getBuyNowPrice());
+        newProduct.setStartPrice(request.getStartPrice());
+        newProduct.setPriceStep(request.getPriceStep());
+
+        String safeHtmlDescription = HtmlSanitizerHelper.sanitize(request.getDescription());
+        newProduct.setDescription(safeHtmlDescription);
+
+        newProduct.setEndTime(request.getEndTime());
+        newProduct.setIsAutoRenew(request.getIsAutoRenew());
+
+        return _productRepository.save(newProduct);
     }
 }

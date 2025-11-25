@@ -136,16 +136,16 @@ INSERT INTO `USER` (full_name, email, encrypted_password, is_seller, rating_scor
 
 -- Dữ liệu mẫu cho bảng PRODUCT
 -- Dữ liệu mẫu cho bảng PRODUCT
-INSERT INTO `PRODUCT` (seller_id, category_id, product_name, current_price, buy_now_price, start_price, price_step, description, end_time) VALUES
-(3, 3, 'iPhone 13 Pro Max', 20000000.00, 25000000.00, 18000000.00, 100000.00, 'Mẫu iPhone mới nhất', DATE_ADD(NOW(), INTERVAL 5 DAY)), -- Điện thoại di động
-(3, 4, 'MacBook Pro M2', 35000000.00, NULL, 30000000.00, 200000.00, 'Máy tính xách tay', DATE_ADD(NOW(), INTERVAL 1 DAY)), -- Máy tính xách tay
-(3, 5, 'Đồng hồ Casio G-Shock', 1500000.00, 2000000.00, 1000000.00, 50000.00, 'Đồng hồ thời trang', DATE_ADD(NOW(), INTERVAL 7 DAY)), -- Đồng hồ
-(3, 10, 'Samsung Galaxy Tab S9', 12000000.00, 15000000.00, 10000000.00, 50000.00, 'Máy tính bảng Android cao cấp', DATE_ADD(NOW(), INTERVAL 3 DAY)), -- Máy tính bảng
-(3, 7, 'Kindle Paperwhite', 3500000.00, 4000000.00, 3000000.00, 20000.00, 'Máy đọc sách điện tử', DATE_ADD(NOW(), INTERVAL 2 DAY)), -- Sách
-(3, 7, 'Bộ truyện Harry Potter', 800000.00, 1000000.00, 600000.00, 10000.00, 'Trọn bộ truyện Harry Potter', DATE_ADD(NOW(), INTERVAL 10 DAY)), -- Sách
-(3, 9, 'LEGO Thành phố - Đồn cảnh sát', 2000000.00, 2500000.00, 1800000.00, 50000.00, 'Bộ đồ chơi LEGO', DATE_ADD(NOW(), INTERVAL 6 DAY)), -- Đồ chơi
-(3, 6, 'Giày Nike Air Max', 2500000.00, 3000000.00, 2000000.00, 50000.00, 'Giày chạy bộ nổi tiếng', DATE_ADD(NOW(), INTERVAL 4 DAY)), -- Giày dép
-(3, 5, 'Đồng hồ Rolex Submariner', 120000000.00, 150000000.00, 100000000.00, 1000000.00, 'Đồng hồ cao cấp', DATE_ADD(NOW(), INTERVAL 15 DAY)); -- Đồng hồ
+INSERT INTO `PRODUCT` (seller_id, category_id, product_name, current_price, buy_now_price, start_price, price_step, description, end_time, bid_count) VALUES
+(3, 3, 'iPhone 13 Pro Max', 20000000.00, 25000000.00, 18000000.00, 100000.00, 'Mẫu iPhone mới nhất', DATE_ADD(NOW(), INTERVAL 5 DAY), 8), -- Điện thoại di động
+(3, 4, 'MacBook Pro M2', 30000000.00, NULL, 30000000.00, 200000.00, 'Máy tính xách tay', DATE_ADD(NOW(), INTERVAL 1 DAY), 0), -- Máy tính xách tay
+(3, 5, 'Đồng hồ Casio G-Shock', 1500000.00, 2000000.00, 1000000.00, 50000.00, 'Đồng hồ thời trang', DATE_ADD(NOW(), INTERVAL 7 DAY), 3), -- Đồng hồ
+(3, 10, 'Samsung Galaxy Tab S9', 12000000.00, 15000000.00, 10000000.00, 50000.00, 'Máy tính bảng Android cao cấp', DATE_ADD(NOW(), INTERVAL 3 DAY), 5), -- Máy tính bảng
+(3, 7, 'Kindle Paperwhite', 3000000.00, 4000000.00, 3000000.00, 20000.00, 'Máy đọc sách điện tử', DATE_ADD(NOW(), INTERVAL 2 DAY), 0), -- Sách
+(3, 7, 'Bộ truyện Harry Potter', 800000.00, 1000000.00, 600000.00, 10000.00, 'Trọn bộ truyện Harry Potter', DATE_ADD(NOW(), INTERVAL 10 DAY), 12), -- Sách
+(3, 9, 'LEGO Thành phố - Đồn cảnh sát', 2000000.00, 2500000.00, 1800000.00, 50000.00, 'Bộ đồ chơi LEGO', DATE_ADD(NOW(), INTERVAL 6 DAY), 4), -- Đồ chơi
+(3, 6, 'Giày Nike Air Max', 2500000.00, 3000000.00, 2000000.00, 50000.00, 'Giày chạy bộ nổi tiếng', DATE_ADD(NOW(), INTERVAL 4 DAY), 7), -- Giày dép
+(3, 5, 'Đồng hồ Rolex Submariner', 120000000.00, 150000000.00, 100000000.00, 1000000.00, 'Đồng hồ cao cấp', DATE_ADD(NOW(), INTERVAL 15 DAY), 2); -- Đồng hồ
 
 -- Dữ liệu mẫu cho bảng PRODUCT_IMAGE
 INSERT INTO `PRODUCT_IMAGE` (product_id, image_url) VALUES

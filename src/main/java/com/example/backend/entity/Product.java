@@ -73,7 +73,7 @@ public class Product {
     // Extra field
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonManagedReference("product-images")
-    private List<ProductImage> productImages;
+    private List<ProductImage> auxiliaryImageUrls;
 
     @NotBlank(message = "Product name must not be blank")
     @Size(max = 255, message = "Product name must not exceed 255 characters")

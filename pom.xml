@@ -56,11 +56,17 @@
 			<artifactId>hibernate-search-mapper-orm</artifactId>
 			<version>7.0.0.Final</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.hibernate.search</groupId>
 			<artifactId>hibernate-search-backend-lucene</artifactId>
 			<version>7.0.0.Final</version>
+		</dependency>
+
+		<!-- OWASP Java HTML Sanitizer -->
+		<dependency>
+			<groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+			<artifactId>owasp-java-html-sanitizer</artifactId>
+			<version>20220608.1</version>
 		</dependency>
 
 		<!-- Fix for Java 23 compatibility -->

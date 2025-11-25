@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.example.backend.entity.Product;
+import com.example.backend.model.Product.CreateProductRequest;
 
 public interface IProductService {
     public List<Product> getAllProducts();
@@ -23,4 +24,7 @@ public interface IProductService {
     public List<Product> getTop5RelatedProducts(Integer categoryId, Integer productId);
 
     public Page<Product> searchProducts(String keyword, Integer categoryId, Pageable pageable);
+
+    Product createProduct(CreateProductRequest request, Integer sellerId);
+
 }
