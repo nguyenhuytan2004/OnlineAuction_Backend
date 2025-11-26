@@ -1,4 +1,4 @@
-package com.example.backend.validator.Rating;
+package com.example.backend.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

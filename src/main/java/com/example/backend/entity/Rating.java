@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.example.backend.validator.Rating.RatingValue;
+import com.example.backend.validator.RatingValue;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,6 +1,6 @@
 package com.example.backend.model.Rating;
 
-import com.example.backend.validator.Rating.RatingValue;
+import com.example.backend.validator.RatingValue;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

@@ -26,9 +26,9 @@ public interface IProductService {
 
     public Page<Product> searchProducts(String keyword, Integer categoryId, Pageable pageable);
 
-    Product createProduct(CreateProductRequest request, Integer sellerId);
+    public Product createProduct(CreateProductRequest request, Integer sellerId);
 
-    AuctionResult buyNowProduct(Integer productId, Integer buyerId);
+    public AuctionResult buyNowProduct(Integer productId, Integer buyerId);
 
-    String appendDescription(Integer userId, Integer productId, String additionalDescription);
+    public String appendDescription(Integer userId, Integer productId, String additionalDescription);
 }

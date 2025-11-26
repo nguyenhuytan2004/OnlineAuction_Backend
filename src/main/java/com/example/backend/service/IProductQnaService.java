@@ -2,8 +2,16 @@ package com.example.backend.service;
 
 import java.util.List;
 
+import com.example.backend.entity.ProductQnA.ProductAnswer;
 import com.example.backend.entity.ProductQnA.ProductQuestion;
+import com.example.backend.model.ProductQna.ProductAnswer.CreateProductAnswerRequest;
+import com.example.backend.model.ProductQna.ProductQuestion.CreateProductQuestionRequest;
 
 public interface IProductQnaService {
-    public List<ProductQuestion> getProductQnaByProductId(Integer productId);
+    public List<ProductQuestion> getProductQuestions(Integer productId);
+
+    public ProductQuestion createProductQuestion(CreateProductQuestionRequest createProductQuestionRequest,
+            Integer userId);
+
+    public ProductAnswer createProductAnswer(CreateProductAnswerRequest createProductAnswerRequest, Integer userId);
 }

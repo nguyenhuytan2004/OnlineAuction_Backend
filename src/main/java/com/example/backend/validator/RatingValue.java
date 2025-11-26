@@ -1,4 +1,4 @@
-package com.example.backend.validator.Rating;
+package com.example.backend.validator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

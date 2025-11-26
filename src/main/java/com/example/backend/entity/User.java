@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
@@ -47,6 +48,7 @@ public class User {
     @NotBlank(message = "Password must not be blank")
     @Size(max = 255, message = "Encrypted password must not exceed 255 characters")
     @Column(name = "encrypted_password", nullable = false, length = 255)
+    @JsonIgnore
     private String encryptedPassword;
 
     @Column(name = "is_seller", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")

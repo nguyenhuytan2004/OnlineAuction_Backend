@@ -214,32 +214,29 @@ INSERT INTO `PRODUCT_QUESTION` (product_id, question_user_id, question_text) VAL
 (4, 2, 'Màn hình loại nào, độ phân giải như thế nào?'),
 (4, 1, 'Máy chạy Android phiên bản mấy?');
 
--- Dữ liệu mẫu đa dạng cho bảng PRODUCT_ANSWER
+-- Dữ liệu mẫu cho bảng PRODUCT_ANSWER
 INSERT INTO `PRODUCT_ANSWER` (question_id, answer_user_id, answer_text) VALUES
--- Q1: 'Sản phẩm này có còn bảo hành không?' (3 câu trả lời)
+-- Q1: 'Sản phẩm này có còn bảo hành không?' - Seller_id=3 trả lời
 (1, 3, 'Sản phẩm còn bảo hành chính hãng Apple đến tháng 11/2026.'),
-(1, 4, 'Tôi mua máy này từ shop 2 tháng trước, check ra vẫn bảo hành dài nhé bạn.'),
 (1, 3, 'Có tem bảo hành đầy đủ trên thân máy ạ.'),
--- Q2: 'Chiếc máy này màu gì?' (0 câu trả lời - Đang chờ người bán trả lời)
--- Q3: 'Giao hàng đến Hà Nội mất bao lâu?' (1 câu trả lời)
+-- Q2: 'Chiếc máy này màu gì?' (0 câu trả lời - Đang chờ seller trả lời)
+-- Q3: 'Giao hàng đến Hà Nội mất bao lâu?' - Seller_id=3 trả lời
 (3, 3, 'Thời gian giao hàng dự kiến 1-2 ngày làm việc.'),
--- Q4: 'MacBook M2 có RAM bao nhiêu?' (2 câu trả lời)
+-- Q4: 'MacBook M2 có RAM bao nhiêu?' - Seller_id=3 trả lời
 (4, 3, 'Bản tôi đang bán là 16GB RAM, 512GB SSD.'),
-(4, 4, 'Mình thấy dòng M2 này có tùy chọn 8GB hoặc 16GB RAM.'),
--- Q5: 'Có box, sạc đầy đủ không?' (1 câu trả lời)
+(4, 3, 'Mình còn tùy chọn 8GB hoặc 16GB RAM để bạn chọn.'),
+-- Q5: 'Có box, sạc đầy đủ không?' - Seller_id=3 trả lời
 (5, 3, 'Sản phẩm full box, phụ kiện zin 100% kèm theo.'),
--- Q6: 'Đây là phiên bản nước ngoài hay hàng Việt Nam?' (4 câu trả lời)
+-- Q6: 'Đây là phiên bản nước ngoài hay hàng Việt Nam?' - Seller_id=3 trả lời
 (6, 3, 'Đây là hàng chính hãng phân phối tại Việt Nam (mã VN/A).'),
-(6, 4, 'Hàng VN/A check imei ra đúng model bạn nhé.'),
 (6, 3, 'Có tem BH chính hãng và hóa đơn mua hàng đầy đủ.'),
-(6, 4, 'Tôi đã mua và xác nhận là hàng Việt Nam chính hãng.'),
--- Q7: 'Đồng hồ pin tốt không?' (1 câu trả lời)
-(7, 4, 'Dòng G-Shock này nổi tiếng về độ bền, pin dùng khoảng 10 năm.'),
--- Q8: 'Galaxy Tab S9 có hỗ trợ stylus không?' (0 câu trả lời - Đang chờ)
--- Q9: 'Màn hình loại nào, độ phân giải như thế nào?' (2 câu trả lời)
+-- Q7: 'Đồng hồ pin tốt không?' - Seller_id=3 trả lời
+(7, 3, 'Dòng G-Shock này nổi tiếng về độ bền, pin dùng khoảng 10 năm.'),
+-- Q8: 'Galaxy Tab S9 có hỗ trợ stylus không?' (0 câu trả lời - Đang chờ seller)
+-- Q9: 'Màn hình loại nào, độ phân giải như thế nào?' - Seller_id=3 trả lời
 (9, 3, 'Màn hình Dynamic AMOLED 2X, hiển thị rất đẹp.'),
 (9, 3, 'Độ phân giải cao 2560x1600px.');
--- Q10: 'Máy chạy Android phiên bản mấy?' (0 câu trả lời - Đang chờ)
+-- Q10: 'Máy chạy Android phiên bản mấy?' (0 câu trả lời - Đang chờ seller)
 
 -- Dữ liệu mẫu cho bảng BID
 INSERT INTO `BID` (product_id, bidder_id, bid_price, is_auto_bid, max_auto_price) VALUES
