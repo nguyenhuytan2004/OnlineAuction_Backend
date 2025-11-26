@@ -43,4 +43,23 @@ public class ProfileController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/won-products")
+    public ResponseEntity<?> getWonProducts(@RequestParam Integer userId) {
+        try {
+            List<Product> products = _profileService.getWonProducts(userId);
+            if (products.isEmpty()) {
+                LOGGER.info(
+                        "[CONTROLLER][GET][WARN] /api/profile/won-products - No won products found for user with ID: {}",
+                        userId);
+            }
+
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.error(
+                    "[CONTROLLER][GET][ERROR] /api/profile/won-products - Error occurred for user with ID: {}: {}",
+                    userId, e.getMessage(), e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

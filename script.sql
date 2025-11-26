@@ -127,6 +127,24 @@ CREATE TABLE `AUCTION_RESULT` (
     FOREIGN KEY (winner_id) REFERENCES `USER`(user_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
+-- Bảng chứa đánh giá người bán
+CREATE TABLE `RATING` (
+    rating_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    winner_id INT NOT NULL, -- Người đánh giá (người thắng đấu giá)
+    seller_id INT NOT NULL, -- Người được đánh giá (người bán)
+    rating_value INT NOT NULL CHECK (rating_value IN (-1, 1)), -- +1 hoặc -1
+    comment TEXT,
+    rated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (product_id) REFERENCES `PRODUCT`(product_id) ON DELETE CASCADE,
+    FOREIGN KEY (winner_id) REFERENCES `USER`(user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (seller_id) REFERENCES `USER`(user_id) ON DELETE RESTRICT,
+    
+    -- Mỗi bidder chỉ được đánh giá seller 1 lần cho 1 sản phẩm
+    UNIQUE KEY unique_rating (product_id, winner_id, seller_id)
+) ENGINE=InnoDB;
+
 -- Dữ liệu mẫu cho bảng CATEGORY
 INSERT INTO `CATEGORY` (category_name, parent_id) VALUES
 ('Điện tử', NULL),

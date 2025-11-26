@@ -79,7 +79,7 @@ public class BidService implements IBidService {
         return savedBid;
     }
 
-    // Extra function
+    // Extra method to check and renew auction
     @Override
     public void checkAndRenewAuction(Product product) {
         if (product.getIsAutoRenew()) {
