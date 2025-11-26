@@ -1,6 +1,7 @@
 package com.example.backend.service.implement;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.hibernate.search.engine.search.query.SearchResult;
@@ -190,6 +191,9 @@ public class ProductService implements IProductService {
         newProduct.setPriceStep(request.getPriceStep());
 
         String safeHtmlDescription = HtmlSanitizerHelper.sanitize(request.getDescription());
+        LocalDateTime now = LocalDateTime.now();
+        safeHtmlDescription = "<p>✏️ " + now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + "</p>"
+                + safeHtmlDescription;
         newProduct.setDescription(safeHtmlDescription);
 
         newProduct.setEndTime(request.getEndTime());
@@ -245,5 +249,27 @@ public class ProductService implements IProductService {
         AuctionResult savedAuctionResult = _auctionResultRepository.save(auctionResult);
 
         return savedAuctionResult;
+    }
+
+    @Override
+    public String appendDescription(Integer userId, Integer productId, String additionalDescription) {
+        Product product = _productRepository.findById(productId).orElse(null);
+        if (product == null) {
+            throw new IllegalArgumentException("Product not found with ID: " + productId);
+        }
+
+        if (!product.getSeller().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Only the seller can append the product description.");
+        }
+
+        String safeAdditionalDescription = HtmlSanitizerHelper.sanitize(additionalDescription);
+        LocalDateTime now = LocalDateTime.now();
+        safeAdditionalDescription = "<p>✏️ " + now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + "</p>\n"
+                + safeAdditionalDescription;
+        String updatedDescription = product.getDescription() + "\n\n" + safeAdditionalDescription;
+        product.setDescription(updatedDescription);
+        _productRepository.save(product);
+
+        return updatedDescription;
     }
 }

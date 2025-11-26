@@ -29,4 +29,6 @@ public interface IProductService {
     Product createProduct(CreateProductRequest request, Integer sellerId);
 
     AuctionResult buyNowProduct(Integer productId, Integer buyerId);
+
+    String appendDescription(Integer userId, Integer productId, String additionalDescription);
 }

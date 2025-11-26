@@ -30,7 +30,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -113,7 +112,7 @@ public class Product {
     private String description;
 
     @NotNull(message = "End time must not be null")
-    @Future(message = "End time must be in the future")
+    // @Future(message = "End time must be in the future")
     @Column(name = "end_time", nullable = false)
     // Dùng để lọc(Is active?) và sắp xếp
     @GenericField(sortable = Sortable.YES)

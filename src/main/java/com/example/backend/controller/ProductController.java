@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.entity.AuctionResult;
 import com.example.backend.entity.Product;
+import com.example.backend.model.Product.AppendDescriptionRequest;
 import com.example.backend.model.Product.CreateProductRequest;
 import com.example.backend.service.IProductService;
 
@@ -184,6 +185,22 @@ public class ProductController {
         } catch (Exception e) {
             LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{} - Error occurred: {}", productId, e.getMessage(),
                     e);
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PatchMapping("{product_id}/append-description")
+    public ResponseEntity<?> appendDescription(@PathVariable("product_id") Integer productId,
+            @RequestParam Integer userId,
+            @Valid @RequestBody AppendDescriptionRequest request) {
+        try {
+            String updatedDescription = _productService.appendDescription(userId, productId,
+                    request.getAdditionalDescription());
+            return new ResponseEntity<>(updatedDescription, HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{}/append-description - Error occurred: {}",
+                    productId,
+                    e.getMessage(), e);
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
