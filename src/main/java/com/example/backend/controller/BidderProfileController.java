@@ -30,7 +30,7 @@ public class BidderProfileController {
             List<Product> products = _bidderProfileService.getParticipatingProducts(userId);
             if (products.isEmpty()) {
                 LOGGER.info(
-                        "[CONTROLLER][GET][WARN] /api/profile/participating-products - No participating products found for user with ID: {}",
+                        "[CONTROLLER][GET][WARN] /api/bidder-profile/participating-products - No participating products found for user with ID: {}",
                         userId);
                 return new ResponseEntity<>(products, HttpStatus.OK);
             }
@@ -38,7 +38,7 @@ public class BidderProfileController {
             return new ResponseEntity<>(products, HttpStatus.OK);
         } catch (Exception e) {
             LOGGER.error(
-                    "[CONTROLLER][GET][ERROR] /api/profile/participating-products - Error occurred for user with ID: {}: {}",
+                    "[CONTROLLER][GET][ERROR] /api/bidder-profile/participating-products - Error occurred for user with ID: {}: {}",
                     userId, e.getMessage(), e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -50,14 +50,14 @@ public class BidderProfileController {
             List<Product> products = _bidderProfileService.getWonProducts(userId);
             if (products.isEmpty()) {
                 LOGGER.info(
-                        "[CONTROLLER][GET][WARN] /api/profile/won-products - No won products found for user with ID: {}",
+                        "[CONTROLLER][GET][WARN] /api/bidder-profile/won-products - No won products found for user with ID: {}",
                         userId);
             }
 
             return new ResponseEntity<>(products, HttpStatus.OK);
         } catch (Exception e) {
             LOGGER.error(
-                    "[CONTROLLER][GET][ERROR] /api/profile/won-products - Error occurred for user with ID: {}: {}",
+                    "[CONTROLLER][GET][ERROR] /api/bidder-profile/won-products - Error occurred for user with ID: {}: {}",
                     userId, e.getMessage(), e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

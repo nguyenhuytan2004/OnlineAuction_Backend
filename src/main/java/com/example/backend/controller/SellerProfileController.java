@@ -40,4 +40,24 @@ public class SellerProfileController {
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/sold-products")
+    public ResponseEntity<?> getSoldProducts(@RequestParam Integer userId) {
+        try {
+            List<Product> products = _sellerProfileService.getSoldProducts(userId);
+            if ((products == null || products.isEmpty())) {
+                log.info(
+                        "[CONTROLLER][GET][WARN] /api/seller-profile/sold-products - No sold products found for user with ID: {}",
+                        userId);
+                return new ResponseEntity<>("No sold products found for the user with ID: " + userId,
+                        HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error(
+                    "[CONTROLLER][GET][ERROR] /api/seller-profile/sold-products - Error occurred: {}", e.getMessage(),
+                    e);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

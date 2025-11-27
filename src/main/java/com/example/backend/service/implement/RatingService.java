@@ -43,13 +43,12 @@ public class RatingService implements IRatingService {
             throw new IllegalArgumentException("Auction result not found for this product");
         }
 
-        // Kiểm tra xem userId có phải là người thắng không
-        Integer winnerId = auctionResult.getWinner().getUserId();
-        if (!Objects.equals(winnerId, userId)) {
+        Integer buyerId = auctionResult.getWinner().getUserId();
+        if (!Objects.equals(buyerId, userId)) {
             throw new IllegalArgumentException("Only the winner can rate the seller.");
         }
 
-        User winner = _userRepository.findById(winnerId)
+        User winner = _userRepository.findById(buyerId)
                 .orElseThrow(() -> new IllegalArgumentException("Winner not found"));
 
         User seller = product.getSeller();
@@ -57,16 +56,16 @@ public class RatingService implements IRatingService {
             throw new IllegalArgumentException("Seller not found");
         }
 
-        // Kiểm tra xem winner đã rating cho seller trên sản phẩm này chưa
-        if (_ratingRepository.existsByBidderAndSellerAndProduct(winnerId, seller.getUserId(),
+        if (_ratingRepository.existsByReviewerAndRevieweeAndProduct(
+                buyerId, seller.getUserId(),
                 auctionResult.getProduct().getProductId())) {
             throw new IllegalArgumentException("Per winner only rate seller once for a product");
         }
 
         Rating newRating = new Rating();
         newRating.setProduct(product);
-        newRating.setWinner(winner);
-        newRating.setSeller(seller);
+        newRating.setReviewer(winner);
+        newRating.setReviewee(seller);
         newRating.setRatingValue(createRatingRequest.getRatingValue());
         newRating.setComment(createRatingRequest.getComment());
 
@@ -76,6 +75,54 @@ public class RatingService implements IRatingService {
         seller.setRatingScore(seller.getRatingScore() + createRatingRequest.getRatingValue());
         seller.setRatingCount(seller.getRatingCount() + 1);
         _userRepository.save(seller);
+
+        return savedRating;
+    }
+
+    @Override
+    @Transactional
+    public Rating rateBuyer(CreateRatingRequest createRatingRequest, Integer userId) {
+        Product product = _productRepository.findById(createRatingRequest.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+        AuctionResult auctionResult = _auctionResultRepository
+                .findByProductProductId(createRatingRequest.getProductId());
+        if (auctionResult == null) {
+            throw new IllegalArgumentException("Auction result not found for this product");
+        }
+
+        Integer sellerId = product.getSeller().getUserId();
+        if (!Objects.equals(sellerId, userId)) {
+            throw new IllegalArgumentException("Only the seller can rate the buyer.");
+        }
+
+        User seller = _userRepository.findById(sellerId)
+                .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
+
+        User buyer = auctionResult.getWinner();
+        if (buyer == null) {
+            throw new IllegalArgumentException("Buyer not found");
+        }
+
+        if (_ratingRepository.existsByReviewerAndRevieweeAndProduct(
+                sellerId, buyer.getUserId(),
+                auctionResult.getProduct().getProductId())) {
+            throw new IllegalArgumentException("Per seller only rate buyer once for a product");
+        }
+
+        Rating newRating = new Rating();
+        newRating.setProduct(product);
+        newRating.setReviewer(seller);
+        newRating.setReviewee(buyer);
+        newRating.setRatingValue(createRatingRequest.getRatingValue());
+        newRating.setComment(createRatingRequest.getComment());
+
+        Rating savedRating = _ratingRepository.save(newRating);
+
+        // Update buyer' rating score
+        buyer.setRatingScore(buyer.getRatingScore() + createRatingRequest.getRatingValue());
+        buyer.setRatingCount(buyer.getRatingCount() + 1);
+        _userRepository.save(buyer);
 
         return savedRating;
     }

@@ -34,7 +34,7 @@ public class ProductQnaController {
         try {
             List<ProductQuestion> productQuestions = _productQnaService.getProductQuestions(productId);
             if (productQuestions == null || productQuestions.isEmpty()) {
-                log.warn("[CONTROLLER][GET][WARN] /api/product-qna/questions/product/{} - No question found",
+                log.info("[CONTROLLER][GET][WARN] /api/product-qna/questions/product/{} - No question found",
                         productId);
                 return new ResponseEntity<>("No question found for product with ID: " + productId,
                         HttpStatus.NOT_FOUND);
@@ -56,7 +56,7 @@ public class ProductQnaController {
                     .createProductQuestion(createProductQuestionRequest, userId);
             return new ResponseEntity<>(createdQuestion, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            log.warn("[CONTROLLER][POST][WARN] /api/product-qna/questions - Invalid input data: {}", e.getMessage());
+            log.info("[CONTROLLER][POST][WARN] /api/product-qna/questions - Invalid input data: {}", e.getMessage());
             return new ResponseEntity<>("Invalid input data: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("[CONTROLLER][POST][ERROR] /api/product-qna/questions - Error occurred: {}", e.getMessage(), e);
@@ -74,11 +74,11 @@ public class ProductQnaController {
             return new ResponseEntity<>(createdAnswer, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             if (e.getMessage().contains("Only the seller")) {
-                log.warn("[CONTROLLER][POST][WARN] /api/product-qna/answers - Permission denied: {}", e.getMessage());
+                log.info("[CONTROLLER][POST][WARN] /api/product-qna/answers - Permission denied: {}", e.getMessage());
                 return new ResponseEntity<>("Permission denied: " + e.getMessage(), HttpStatus.FORBIDDEN);
             }
 
-            log.warn("[CONTROLLER][POST][WARN] /api/product-qna/answers - Invalid input data: {}", e.getMessage());
+            log.info("[CONTROLLER][POST][WARN] /api/product-qna/answers - Invalid input data: {}", e.getMessage());
             return new ResponseEntity<>("Invalid input data: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("[CONTROLLER][POST][ERROR] /api/product-qna/answers - Error occurred: {}", e.getMessage(), e);

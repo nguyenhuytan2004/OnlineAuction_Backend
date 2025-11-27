@@ -39,14 +39,14 @@ public class Rating {
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "winner_id", nullable = false)
+    @JoinColumn(name = "reviewer_id", nullable = false)
     @NotNull(message = "Winner is required")
-    private User winner;
+    private User reviewer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = false)
+    @JoinColumn(name = "reviewee_id", nullable = false)
     @NotNull(message = "Seller is required")
-    private User seller;
+    private User reviewee;
 
     @Column(name = "rating_value", nullable = false)
     @NotNull(message = "Rating value is required")

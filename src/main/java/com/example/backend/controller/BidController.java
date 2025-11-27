@@ -48,7 +48,7 @@ public class BidController {
         }
     }
 
-    @PostMapping()
+    @PostMapping("")
     public ResponseEntity<?> placeBid(@Valid @RequestBody CreateBidRequest createBidRequest) {
         try {
             Bid newBid = _bidService.placeBid(createBidRequest);

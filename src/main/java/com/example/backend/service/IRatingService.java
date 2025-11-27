@@ -5,4 +5,6 @@ import com.example.backend.model.Rating.CreateRatingRequest;
 
 public interface IRatingService {
     Rating rateSeller(CreateRatingRequest createRatingRequest, Integer userId);
+
+    Rating rateBuyer(CreateRatingRequest createRatingRequest, Integer userId);
 }

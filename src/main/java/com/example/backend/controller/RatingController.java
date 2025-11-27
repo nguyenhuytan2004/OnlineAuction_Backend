@@ -16,32 +16,51 @@ import com.example.backend.service.IRatingService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("api/ratings")
-@Slf4j
 public class RatingController {
 
     @Autowired
     private IRatingService ratingService;
 
-    @PostMapping("")
+    @PostMapping("/seller")
     public ResponseEntity<?> rateSeller(
             @RequestParam Integer userId,
             @Valid @RequestBody CreateRatingRequest createRatingRequest) {
         try {
             Rating newRating = ratingService.rateSeller(createRatingRequest, userId);
-            log.info("[CONTROLLER][POST][SUCCESS] /api/ratings/{} - Rating created: {}",
-                    userId, newRating.getRatingId());
+
             return new ResponseEntity<>(newRating, HttpStatus.CREATED);
 
         } catch (IllegalArgumentException e) {
-            log.warn("[CONTROLLER][POST][WARN] /api/ratings/{} - Illegal argument: {}",
+            log.info("[CONTROLLER][POST][WARN] /api/ratings/{} - Illegal argument: {}",
                     userId, e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("[CONTROLLER][POST][ERROR] /api/ratings/{} - Error creating rating: {}",
                     userId, e.getMessage(), e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/buyer")
+    public ResponseEntity<?> rateBuyer(
+            @RequestParam Integer userId,
+            @Valid @RequestBody CreateRatingRequest createRatingRequest) {
+        try {
+            Rating newRating = ratingService.rateBuyer(createRatingRequest, userId);
+
+            return new ResponseEntity<>(newRating, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            log.info("[CONTROLLER][POST][WARN] /api/ratings/{} - Illegal argument: {}",
+                    userId, e.getMessage());
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.error("[CONTROLLER][POST][ERROR] /api/ratings/{} - Error creating rating: {}",
+                    userId, e.getMessage(), e);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
