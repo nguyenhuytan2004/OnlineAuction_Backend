@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import com.example.backend.entity.Product;
 import com.example.backend.repository.IAuctionResultRepository;
 import com.example.backend.repository.IBidRepository;
-import com.example.backend.service.IProfileService;
+import com.example.backend.service.IBidderProfileService;
 
 @Service
-public class ProfileService implements IProfileService {
+public class BidderProfileService implements IBidderProfileService {
     @Autowired
     private IBidRepository _bidRepository;
     @Autowired

@@ -28,4 +28,6 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
             "AND p.productId NOT IN (SELECT ar.product.productId FROM AuctionResult ar) " +
             "ORDER BY p.endTime ASC")
     List<Product> findExpiredProductsWithoutResult(@Param("now") LocalDateTime now);
+
+    List<Product> findBySellerUserIdAndEndTimeAfterOrderByEndTimeAsc(Integer userId, LocalDateTime now);
 }

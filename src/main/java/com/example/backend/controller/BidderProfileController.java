@@ -13,21 +13,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.entity.Product;
-import com.example.backend.service.IProfileService;
+import com.example.backend.service.IBidderProfileService;
 
 @RestController
-@RequestMapping("api/profile")
-public class ProfileController {
+@RequestMapping("api/bidder-profile")
+public class BidderProfileController {
     @Autowired
-    private IProfileService _profileService;
+    private IBidderProfileService _bidderProfileService;
 
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(ProfileController.class);
+            .getLogger(BidderProfileController.class);
 
     @GetMapping("/participating-products")
     public ResponseEntity<?> getParticipatingProducts(@RequestParam Integer userId) {
         try {
-            List<Product> products = _profileService.getParticipatingProducts(userId);
+            List<Product> products = _bidderProfileService.getParticipatingProducts(userId);
             if (products.isEmpty()) {
                 LOGGER.info(
                         "[CONTROLLER][GET][WARN] /api/profile/participating-products - No participating products found for user with ID: {}",
@@ -47,7 +47,7 @@ public class ProfileController {
     @GetMapping("/won-products")
     public ResponseEntity<?> getWonProducts(@RequestParam Integer userId) {
         try {
-            List<Product> products = _profileService.getWonProducts(userId);
+            List<Product> products = _bidderProfileService.getWonProducts(userId);
             if (products.isEmpty()) {
                 LOGGER.info(
                         "[CONTROLLER][GET][WARN] /api/profile/won-products - No won products found for user with ID: {}",
