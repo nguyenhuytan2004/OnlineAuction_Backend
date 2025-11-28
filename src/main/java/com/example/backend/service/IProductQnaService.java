@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.backend.entity.ProductQnA.ProductAnswer;
 import com.example.backend.entity.ProductQnA.ProductQuestion;
+import com.example.backend.model.Email.EmailNotificationRequest;
 import com.example.backend.model.ProductQna.ProductAnswer.CreateProductAnswerRequest;
 import com.example.backend.model.ProductQna.ProductQuestion.CreateProductQuestionRequest;
 
@@ -13,5 +14,9 @@ public interface IProductQnaService {
     public ProductQuestion createProductQuestion(CreateProductQuestionRequest createProductQuestionRequest,
             Integer userId);
 
+    public void sendQuestionNotificationToSeller(EmailNotificationRequest request);
+
     public ProductAnswer createProductAnswer(CreateProductAnswerRequest createProductAnswerRequest, Integer userId);
+
+    public void sendAnswerNotificationToBuyer(EmailNotificationRequest request);
 }
