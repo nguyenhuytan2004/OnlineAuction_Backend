@@ -53,9 +53,7 @@ public class ProductQnaService implements IProductQnaService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         User seller = product.getSeller();
-        if (seller == null) {
-            throw new RuntimeException("Seller not found");
-        }
+        
 
         if (product.getSeller().getUserId().equals(userId)) {
             throw new RuntimeException("Seller cannot ask questions on their own product");
@@ -66,23 +64,8 @@ public class ProductQnaService implements IProductQnaService {
         question.setQuestionUser(buyer);
         question.setQuestionText(HtmlSanitizerHelper.sanitize(createProductQuestionRequest.getQuestionText()));
 
-        // Gửi mail thông báo
-        EmailNotificationRequest emailRequest = EmailNotificationRequest
-                .builder()
-                .recipientUserId(seller.getUserId())
-                .recipientEmail(seller.getEmail())
-                .recipientName(seller.getFullName())
-                .productId(product.getProductId())
-                .productName(product.getProductName())
-                .senderUserId(buyer.getUserId())
-                .senderName(buyer.getFullName())
-                .subject("Có câu hỏi mới về sản phẩm: " + product.getProductName())
-                .messageContent(
-                        "Bạn đã nhận được một câu hỏi mới từ: " + buyer.getFullName() + "\n Nội dung câu hỏi: "
-                                + createProductQuestionRequest.getQuestionText())
-                .deepLinkPath("/products/" + product.getProductId())
-                .build();
-        sendQuestionNotificationToSeller(emailRequest);
+        // Gửi mail thông báo (thực hiện sau)
+        EmailNotificationRequest emailRequest = new EmailNotificationRequest();
 
         return _productQuestionRepository.save(question);
     }
@@ -98,25 +81,20 @@ public class ProductQnaService implements IProductQnaService {
             log.info("Question notification email queued successfully for seller: {}", request.getRecipientEmail());
 
         } catch (Exception e) {
-            log.error("[SERVICE][PRODUCT-QNA][ERROR] Failed to queue question notification email for seller {}: {}",
+            log.error("Failed to queue question notification email for seller {}: {}",
                     request.getRecipientEmail(), e.getMessage(), e);
-            throw new RuntimeException("Failed to queue question notification email for seller", e);
+            throw new RuntimeException("Failed to send email notification", e);
         }
     }
 
     @Override
     public ProductAnswer createProductAnswer(CreateProductAnswerRequest createProductAnswerRequest, Integer userId) {
         // Thực hiện kiểm tra các điều kiện trước khi save
-        User seller = _userRepository.findById(userId)
+        User user = _userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
 
         ProductQuestion question = _productQuestionRepository.findById(createProductAnswerRequest.getQuestionId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
-
-        User buyer = question.getQuestionUser();
-        if (buyer == null) {
-            throw new RuntimeException("Buyer not found");
-        }
 
         Product product = question.getProduct();
         if (!product.getSeller().getUserId().equals(userId)) {
@@ -125,10 +103,10 @@ public class ProductQnaService implements IProductQnaService {
 
         ProductAnswer answer = new ProductAnswer();
         answer.setQuestion(question);
-        answer.setAnswerUser(seller);
+        answer.setAnswerUser(user);
         answer.setAnswerText(createProductAnswerRequest.getAnswerText());
 
-        // Gửi mail thông báo
+        // Gửi mail thông báo (thực hiện sau)
 
         return _productAnswerRepository.save(answer);
     }
@@ -145,9 +123,9 @@ public class ProductQnaService implements IProductQnaService {
             log.info("Answer notification email queued successfully for buyer: {}", request.getRecipientEmail());
 
         } catch (Exception e) {
-            log.error("[SERVICE][PRODUCT-QNA][ERROR] Failed to queue answer notification email for buyer {}: {}",
+            log.error("Failed to queue answer notification email for buyer {}: {}",
                     request.getRecipientEmail(), e.getMessage(), e);
-            throw new RuntimeException("Failed to queue answer notification email for buyer", e);
+            throw new RuntimeException("Failed to send email notification", e);
         }
     }
 }

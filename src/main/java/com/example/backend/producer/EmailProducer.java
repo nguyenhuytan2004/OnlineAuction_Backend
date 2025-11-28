@@ -1,5 +1,6 @@
 package com.example.backend.producer;
 
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +37,7 @@ public class EmailProducer {
                     emailRequest.getRecipientEmail(),
                     emailRequest.getProductName());
 
-        } catch (Exception e) {
+        } catch (AmqpException e) {
             log.error("[PRODUCER][EMAIL][ERROR] Failed to publish email notification for recipient: {} - Error: {}",
                     emailRequest.getRecipientEmail(), e.getMessage(), e);
             throw new RuntimeException("Failed to publish email notification", e);
