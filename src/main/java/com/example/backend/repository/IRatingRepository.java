@@ -16,4 +16,9 @@ public interface IRatingRepository extends JpaRepository<Rating, Integer> {
                         @Param("reviewerId") Integer reviewerId,
                         @Param("revieweeId") Integer revieweeId,
                         @Param("productId") Integer productId);
+
+        Rating findByProductProductIdAndReviewerUserIdAndRevieweeUserId(
+                        Integer productId,
+                        Integer reviewerId,
+                        Integer revieweeId);
 }

@@ -16,6 +16,7 @@ import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.service.IBidService;
+import com.example.backend.service.IProductService;
 
 @Service
 public class BidService implements IBidService {
@@ -26,6 +27,9 @@ public class BidService implements IBidService {
     private IProductRepository _productRepository;
     @Autowired
     private IUserRepository _userRepository;
+
+    @Autowired
+    private IProductService _productService;
 
     @Autowired
     private AuctionProperties auctionProperties;
@@ -47,18 +51,23 @@ public class BidService implements IBidService {
     @Override
     public Bid placeBid(CreateBidRequest createBidRequest) throws Exception {
         Product product = _productRepository.findById(createBidRequest.getProductId())
-                .orElseThrow(() -> new Exception("Product not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
         User bidder = _userRepository.findById(createBidRequest.getBidderId())
-                .orElseThrow(() -> new Exception("Bidder not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Bidder not found"));
 
         BigDecimal minBidPrice = product.getCurrentPrice().add(product.getPriceStep());
         if (createBidRequest.getBidPrice().compareTo(minBidPrice) < 0) {
-            throw new Exception("Bid price must be at least " + minBidPrice);
+            throw new IllegalArgumentException("Bid price must be at least " + minBidPrice);
         }
 
         if (LocalDateTime.now().isAfter(product.getEndTime())) {
-            throw new Exception("Auction has already ended");
+            throw new IllegalArgumentException("Auction has already ended");
+        }
+
+        Boolean isEligible = _productService.checkBiddingEligibility(product.getProductId(), bidder.getUserId());
+        if (!isEligible) {
+            throw new IllegalArgumentException("Bidder is not eligible to place a bid on this product");
         }
 
         Bid newBid = new Bid();

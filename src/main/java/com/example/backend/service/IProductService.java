@@ -31,4 +31,6 @@ public interface IProductService {
     public AuctionResult buyNowProduct(Integer productId, Integer buyerId);
 
     public String appendDescription(Integer userId, Integer productId, String additionalDescription);
+
+    public Boolean checkBiddingEligibility(Integer productId, Integer userId);
 }

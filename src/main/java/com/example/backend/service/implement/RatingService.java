@@ -11,6 +11,7 @@ import com.example.backend.entity.Product;
 import com.example.backend.entity.Rating;
 import com.example.backend.entity.User;
 import com.example.backend.model.Rating.CreateRatingRequest;
+import com.example.backend.model.Rating.UpdateRatingRequest;
 import com.example.backend.repository.IAuctionResultRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IRatingRepository;
@@ -125,5 +126,27 @@ public class RatingService implements IRatingService {
         _userRepository.save(buyer);
 
         return savedRating;
+    }
+
+    @Override
+    @Transactional
+    public Rating updateRating(UpdateRatingRequest updateRatingRequest, Integer userId) {
+        Rating existingRating = _ratingRepository.findByProductProductIdAndReviewerUserIdAndRevieweeUserId(
+                updateRatingRequest.getProductId(), userId, updateRatingRequest.getRevieweeId());
+        if (existingRating == null) {
+            throw new IllegalArgumentException("Rating not found for the given product and users");
+        }
+
+        Integer oldRatingValue = existingRating.getRatingValue();
+        existingRating.setRatingValue(updateRatingRequest.getRatingValue());
+        existingRating.setComment(updateRatingRequest.getComment());
+        Rating updatedRating = _ratingRepository.save(existingRating);
+
+        // Update reviewee's rating score
+        User reviewee = existingRating.getReviewee();
+        reviewee.setRatingScore(reviewee.getRatingScore() - oldRatingValue + updateRatingRequest.getRatingValue());
+        _userRepository.save(reviewee);
+
+        return updatedRating;
     }
 }

@@ -272,4 +272,20 @@ public class ProductService implements IProductService {
 
         return updatedDescription;
     }
+
+    @Override
+    public Boolean checkBiddingEligibility(Integer productId, Integer userId) {
+        Product product = _productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + productId));
+        User user = _userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        if (product.getAllowUnratedBidder())
+            return true;
+
+        Integer userRating = user.getRatingScore();
+        Integer userRatingCount = user.getRatingCount();
+
+        return userRating * 1.0 / userRatingCount >= 0.8 && userRatingCount >= 5;
+    }
 }

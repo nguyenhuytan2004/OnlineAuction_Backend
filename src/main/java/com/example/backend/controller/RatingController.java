@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.entity.Rating;
 import com.example.backend.model.Rating.CreateRatingRequest;
+import com.example.backend.model.Rating.UpdateRatingRequest;
 import com.example.backend.service.IRatingService;
 
 import jakarta.validation.Valid;
@@ -22,14 +24,14 @@ import lombok.extern.slf4j.Slf4j;
 public class RatingController {
 
     @Autowired
-    private IRatingService ratingService;
+    private IRatingService _ratingService;
 
     @PostMapping("/seller")
     public ResponseEntity<?> rateSeller(
             @RequestParam Integer userId,
             @Valid @RequestBody CreateRatingRequest createRatingRequest) {
         try {
-            Rating newRating = ratingService.rateSeller(createRatingRequest, userId);
+            Rating newRating = _ratingService.rateSeller(createRatingRequest, userId);
 
             return new ResponseEntity<>(newRating, HttpStatus.CREATED);
 
@@ -49,7 +51,7 @@ public class RatingController {
             @RequestParam Integer userId,
             @Valid @RequestBody CreateRatingRequest createRatingRequest) {
         try {
-            Rating newRating = ratingService.rateBuyer(createRatingRequest, userId);
+            Rating newRating = _ratingService.rateBuyer(createRatingRequest, userId);
 
             return new ResponseEntity<>(newRating, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
@@ -63,4 +65,22 @@ public class RatingController {
         }
     }
 
+    @PatchMapping("")
+    public ResponseEntity<?> updateRating(
+            @RequestParam Integer userId,
+            @Valid @RequestBody UpdateRatingRequest updateRatingRequest) {
+        try {
+            Rating updatedRating = _ratingService.updateRating(updateRatingRequest, userId);
+
+            return new ResponseEntity<>(updatedRating, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.info("[CONTROLLER][PATCH][WARN] /api/ratings - Illegal argument: {}",
+                    e.getMessage());
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.error("[CONTROLLER][PATCH][ERROR] /api/ratings - Error updating rating: {}",
+                    e.getMessage(), e);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -169,7 +169,6 @@ public class ProductController {
         }
     }
 
-    // buy-now endpoint
     @PatchMapping("{product_id}/buy-now")
     public ResponseEntity<?> buyNowProduct(@PathVariable("product_id") Integer productId,
             @RequestParam Integer buyerId) {
@@ -201,6 +200,21 @@ public class ProductController {
             LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{}/append-description - Error occurred: {}",
                     productId,
                     e.getMessage(), e);
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("{product_id}/bidding-eligibility")
+    public ResponseEntity<?> checkBiddingEligibility(@PathVariable("product_id") Integer productId,
+            @RequestParam Integer userId) {
+        try {
+            boolean isEligible = _productService.checkBiddingEligibility(productId, userId);
+
+            return new ResponseEntity<>(isEligible, HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.error(
+                    "[CONTROLLER][GET][ERROR] /api/products/{}/bidding-eligibility - Error occurred: {}",
+                    productId, e.getMessage(), e);
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

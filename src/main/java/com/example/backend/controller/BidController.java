@@ -1,7 +1,5 @@
 package com.example.backend.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +16,9 @@ import com.example.backend.model.Bid.CreateBidRequest;
 import com.example.backend.service.IBidService;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("api/bids")
 public class BidController {
@@ -26,15 +26,13 @@ public class BidController {
     @Autowired
     private IBidService _bidService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BidController.class);
-
     @GetMapping("/product/{product_id}/highest-bidder")
     public ResponseEntity<?> getHighestBidderByProductId(@PathVariable("product_id") Integer productId) {
         try {
             User bidder = _bidService.getHighestBidderByProductId(productId);
 
             if (bidder == null) {
-                LOGGER.warn(
+                log.warn(
                         "[CONTROLLER][GET][WARN] /api/bids/product/{}/highest-bidder - No bids found for product ID: {}",
                         productId, productId);
                 return new ResponseEntity<>("No bids found for product ID: " + productId, HttpStatus.NOT_FOUND);
@@ -42,7 +40,7 @@ public class BidController {
 
             return new ResponseEntity<>(bidder, HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.error("[CONTROLLER][GET][ERROR] /api/bids/product/{}/highest-bidder - An error occurred: {}",
+            log.error("[CONTROLLER][GET][ERROR] /api/bids/product/{}/highest-bidder - An error occurred: {}",
                     productId, e.getMessage());
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -52,10 +50,16 @@ public class BidController {
     public ResponseEntity<?> placeBid(@Valid @RequestBody CreateBidRequest createBidRequest) {
         try {
             Bid newBid = _bidService.placeBid(createBidRequest);
-            return new ResponseEntity<>(newBid, HttpStatus.CREATED);
 
+            return new ResponseEntity<>(newBid, HttpStatus.CREATED);
+        } catch (IllegalArgumentException iae) {
+            log.warn("[CONTROLLER][POST][WARN] /api/bids - Illegal argument: {}", iae.getMessage());
+
+            return new ResponseEntity<>(iae.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("[CONTROLLER][POST][ERROR] /api/bids - Error occurred: {}", e.getMessage(), e);
+
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

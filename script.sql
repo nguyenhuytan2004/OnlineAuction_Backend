@@ -41,6 +41,7 @@ CREATE TABLE `PRODUCT` (
     is_auto_renew BOOLEAN DEFAULT FALSE,
     bid_count INT DEFAULT 0,
     is_active BOOLEAN DEFAULT TRUE,
+    allow_unrated_bidder BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     FOREIGN KEY (seller_id) REFERENCES `USER`(user_id) ON DELETE CASCADE,

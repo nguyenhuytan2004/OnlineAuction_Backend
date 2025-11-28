@@ -13,6 +13,7 @@ import com.example.backend.model.ProductQna.ProductAnswer.CreateProductAnswerReq
 import com.example.backend.model.ProductQna.ProductQuestion.CreateProductQuestionRequest;
 import com.example.backend.service.IProductQnaService;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -25,7 +26,7 @@ public class ProductQnaWebSocketController {
     @SendTo("topic/product/{productId}/questions")
     public ProductQuestion askQuestion(
             @DestinationVariable Integer productId,
-            @Payload CreateProductQuestionRequest request) {
+            @Valid @Payload CreateProductQuestionRequest request) {
         try {
             // Tạm thời hardcode, sau này sẽ lấy từ Security Context
             Integer buyerId = 1;
@@ -47,10 +48,10 @@ public class ProductQnaWebSocketController {
     public ProductAnswer answerQuestion(
             @DestinationVariable Integer productId,
             @DestinationVariable Integer questionId,
-            @Payload CreateProductAnswerRequest answerRequest) {
+            @Valid @Payload CreateProductAnswerRequest answerRequest) {
         try {
             // Tạm thời hardcode, sau này sẽ lấy từ Security Context
-            Integer sellerId = 1;
+            Integer sellerId = 3;
 
             ProductAnswer productAnswer = _productQnaService.createProductAnswer(answerRequest, sellerId);
 

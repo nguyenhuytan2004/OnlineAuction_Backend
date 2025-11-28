@@ -118,7 +118,7 @@ public class Product {
     @GenericField(sortable = Sortable.YES)
     private LocalDateTime endTime;
 
-    @Column(name = "is_auto_renew", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(name = "is_auto_renew")
     private Boolean isAutoRenew = false;
 
     @Min(value = 0, message = "Bid count must be greater than or equal to 0")
@@ -129,6 +129,9 @@ public class Product {
     // Dùng để lọc(Is active?)
     @GenericField(sortable = Sortable.YES)
     private Boolean isActive = true;
+
+    @Column(name = "allow_unrated_bidder")
+    private Boolean allowUnratedBidder = true;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
