@@ -4,11 +4,13 @@ import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Data
 @Getter
 @Setter
+@NoArgsConstructor
 public class UserDTO {
     private Integer userId;
     private String fullName;

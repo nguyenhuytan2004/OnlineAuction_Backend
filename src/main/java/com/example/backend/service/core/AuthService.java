@@ -52,7 +52,7 @@ public class AuthService {
                 )
         );
 
-        UserDetails user = userDetailsService.loadUserByUsername(req.getEmail());
+        UserDetails user = userDetailsService.loadUserByUsername(req.getUserId());
 
         return new AuthResponse(
                 jwtService.generateAccessToken(user),
