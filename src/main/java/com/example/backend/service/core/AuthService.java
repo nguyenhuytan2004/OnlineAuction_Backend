@@ -40,23 +40,19 @@ public class AuthService {
 
         return new AuthResponse(
                 jwtService.generateAccessToken(userDetails),
-                jwtService.generateRefreshToken(userDetails)
-        );
+                jwtService.generateRefreshToken(userDetails));
     }
 
     public AuthResponse login(LoginRequest req) {
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         req.getEmail(),
-                        req.getPassword()
-                )
-        );
+                        req.getPassword()));
 
         UserDetails user = userDetailsService.loadUserByUsername(req.getUserId());
 
         return new AuthResponse(
                 jwtService.generateAccessToken(user),
-                jwtService.generateRefreshToken(user)
-        );
+                jwtService.generateRefreshToken(user));
     }
 }
