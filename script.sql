@@ -21,6 +21,7 @@ CREATE TABLE `USER` (
     is_seller BOOLEAN DEFAULT FALSE,
     rating_score INT DEFAULT 0,
     rating_count INT DEFAULT 0,
+    role ENUM('BIDDER', 'SELLER', 'ADMIN') DEFAULT 'BIDDER',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 

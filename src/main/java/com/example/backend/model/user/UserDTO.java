@@ -1,0 +1,30 @@
+package com.example.backend.model.user;
+
+import com.example.backend.entity.Role;
+import com.example.backend.entity.User;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+@Data
+@Getter
+@Setter
+public class UserDTO {
+    private Integer userId;
+    private String fullName;
+    private String email;
+    private Boolean isSeller;
+    private Integer ratingScore;
+    private Integer ratingCount;
+    private Role role;
+
+    public UserDTO(User user) {
+        this.userId = user.getUserId();
+        this.fullName = user.getFullName();
+        this.email = user.getEmail();
+        this.isSeller = user.getIsSeller();
+        this.ratingScore = user.getRatingScore();
+        this.ratingCount = user.getRatingCount();
+        this.role = user.getRole();
+    }
+}

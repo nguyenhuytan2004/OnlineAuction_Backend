@@ -1,13 +1,12 @@
 package com.example.backend.service.implement;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.example.backend.entity.User;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.service.IUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService implements IUserService {
