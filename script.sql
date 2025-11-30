@@ -170,31 +170,87 @@ INSERT INTO `USER` (full_name, email, encrypted_password, is_seller, rating_scor
 ('Nguyễn Thị F (Người đấu giá)', 'bidder_f@example.com', '$2a$10$examplehashforbidderf', 0, 9, 12);
 
 -- Dữ liệu mẫu cho bảng PRODUCT
--- Dữ liệu mẫu cho bảng PRODUCT
-INSERT INTO `PRODUCT` (seller_id, category_id, product_name, current_price, buy_now_price, start_price, price_step, description, end_time, bid_count) VALUES
-(3, 3, 'iPhone 13 Pro Max', 20000000.00, 25000000.00, 18000000.00, 100000.00, 'Mẫu iPhone mới nhất', DATE_ADD(NOW(), INTERVAL 5 DAY), 8), -- Điện thoại di động
-(3, 4, 'MacBook Pro M2', 30000000.00, NULL, 30000000.00, 200000.00, 'Máy tính xách tay', DATE_ADD(NOW(), INTERVAL 1 DAY), 0), -- Máy tính xách tay
-(3, 5, 'Đồng hồ Casio G-Shock', 1500000.00, 2000000.00, 1000000.00, 50000.00, 'Đồng hồ thời trang', DATE_ADD(NOW(), INTERVAL 7 DAY), 3), -- Đồng hồ
-(3, 10, 'Samsung Galaxy Tab S9', 12000000.00, 15000000.00, 10000000.00, 50000.00, 'Máy tính bảng Android cao cấp', DATE_ADD(NOW(), INTERVAL 3 DAY), 5), -- Máy tính bảng
-(3, 7, 'Kindle Paperwhite', 3000000.00, 4000000.00, 3000000.00, 20000.00, 'Máy đọc sách điện tử', DATE_ADD(NOW(), INTERVAL 2 DAY), 0), -- Sách
-(3, 7, 'Bộ truyện Harry Potter', 800000.00, 1000000.00, 600000.00, 10000.00, 'Trọn bộ truyện Harry Potter', DATE_ADD(NOW(), INTERVAL 10 DAY), 12), -- Sách
-(3, 9, 'LEGO Thành phố - Đồn cảnh sát', 2000000.00, 2500000.00, 1800000.00, 50000.00, 'Bộ đồ chơi LEGO', DATE_ADD(NOW(), INTERVAL 6 DAY), 4), -- Đồ chơi
-(3, 6, 'Giày Nike Air Max', 2500000.00, 3000000.00, 2000000.00, 50000.00, 'Giày chạy bộ nổi tiếng', DATE_ADD(NOW(), INTERVAL 4 DAY), 7), -- Giày dép
-(3, 5, 'Đồng hồ Rolex Submariner', 120000000.00, 150000000.00, 100000000.00, 1000000.00, 'Đồng hồ cao cấp', DATE_ADD(NOW(), INTERVAL 15 DAY), 2); -- Đồng hồ
+INSERT INTO `PRODUCT` (seller_id, category_id, main_image_url, product_name, current_price, buy_now_price, start_price, price_step, description, end_time, bid_count) VALUES
+(3, 3, "https://www.dxomark.cn/wp-content/uploads/medias/post-95390/Apple-iPhone-13-Pro-Max-featured-image-packshot-review.jpg", 'iPhone 13 Pro Max', 20000000.00, 25000000.00, 18000000.00, 100000.00, 'Mẫu iPhone mới nhất với camera 48MP, chip A16 Bionic mạnh mẽ. Tình trạng như mới, còn bảo hành chính hãng', DATE_ADD(NOW(), INTERVAL 5 DAY), 8), -- Điện thoại di động
+(2, 4, "https://didongmango.com/images/products/2022/11/07/large/2_1667844618.png", 'MacBook Pro M2', 30000000.00, NULL, 30000000.00, 200000.00, 'Máy tính xách tay MacBook Pro 14 inch M2, RAM 16GB, SSD 512GB. Hiệu suất vượt trội, pin chống cháy lâu dài', DATE_ADD(NOW(), INTERVAL 1 DAY), 0), -- Máy tính xách tay
+(3, 5, "", 'Đồng hồ Casio G-Shock', 1500000.00, 2000000.00, 1000000.00, 50000.00, 'Đồng hồ Casio G-Shock chống sốc, chống nước. Thiết kế nam tính, bền bỉ, pin chạy 10 năm', DATE_ADD(NOW(), INTERVAL 7 DAY), 3), -- Đồng hồ
+(3, 10, "", 'Samsung Galaxy Tab S9', 12000000.00, 15000000.00, 10000000.00, 50000.00, 'Máy tính bảng Samsung Galaxy Tab S9 11 inch, Snapdragon 8 Gen 2 Leader, màn hình AMOLED đẹp tuyệt vời', DATE_ADD(NOW(), INTERVAL 3 DAY), 5), -- Máy tính bảng
+(3, 7, "", 'Kindle Paperwhite', 3000000.00, 4000000.00, 3000000.00, 20000.00, 'Máy đọc sách điện tử Kindle Paperwhite 11th gen, màn hình 6.8 inch, sạc USB-C, pin tới 10 tuần', DATE_ADD(NOW(), INTERVAL 2 DAY), 0), -- Sách
+(3, 7,"", 'Bộ truyện Harry Potter', 800000.00, 1000000.00, 600000.00, 10000.00, 'Trọn bộ 7 cuốn truyện Harry Potter, bản dịch Việt Nam chính thức, bìa cứng chất lượng cao', DATE_ADD(NOW(), INTERVAL 10 DAY), 12), -- Sách
+(3, 9,"", 'LEGO Thành phố - Đồn cảnh sát', 2000000.00, 2500000.00, 1800000.00, 50000.00, 'Bộ LEGO City Police Station, hơn 1200 mảnh, kèm minifigures đầy đủ, phù hợp trẻ từ 6 tuổi trở lên', DATE_ADD(NOW(), INTERVAL 6 DAY), 4), -- Đồ chơi
+(3, 6, "", 'Giày Nike Air Max', 2500000.00, 3000000.00, 2000000.00, 50000.00, 'Giày Nike Air Max 90 chính hãng, màu trắng-đen, size 42, tình trạng 95% như mới', DATE_ADD(NOW(), INTERVAL 4 DAY), 7), -- Giày dép
+(3, 5, "", 'Đồng hồ Rolex Submariner', 120000000.00, 150000000.00, 100000000.00, 1000000.00, 'Đồng hồ Rolex Submariner Stainless Steel, mặt đen, chống nước 300m, bảo hành quốc tế', DATE_ADD(NOW(), INTERVAL 15 DAY), 2), -- Đồng hồ
+(4, 3, "", 'Samsung Galaxy S23 Ultra', 22000000.00, 26000000.00, 20000000.00, 150000.00, 'Điện thoại Samsung Galaxy S23 Ultra, camera 200MP, pin 5000mAh, chip Snapdragon 8 Gen 2', DATE_ADD(NOW(), INTERVAL 8 DAY), 6), -- Điện thoại di động
+(4, 4, "", 'Dell XPS 13', 18000000.00, 22000000.00, 16000000.00, 100000.00, 'Laptop Dell XPS 13 Plus, Intel Core i7, RAM 16GB, SSD 512GB, màn hình OLED 13.4 inch', DATE_ADD(NOW(), INTERVAL 6 DAY), 3), -- Máy tính xách tay
+(4, 5, "", 'Smartwatch Apple Watch Series 9', 8000000.00, 10000000.00, 7000000.00, 50000.00, 'Đồng hồ thông minh Apple Watch Series 9, chip S9, màn hình Always-On Retina, pin 18 giờ', DATE_ADD(NOW(), INTERVAL 5 DAY), 4), -- Đồng hồ
+(4, 6, "", 'Giày Adidas Ultraboost 23', 3500000.00, 4200000.00, 3000000.00, 100000.00, 'Giày chạy bộ Adidas Ultraboost 23 chính hãng, đệm boost thoải mái, đế tổng hợp nhẹ', DATE_ADD(NOW(), INTERVAL 7 DAY), 5), -- Giày dép
+(4, 7, "", 'Truyện Cỏ đỏ - Sơn Tùng', 250000.00, 350000.00, 200000.00, 5000.00, 'Quyển truyện Cỏ đỏ của nhà văn Sơn Tùng, bìa cứng, chất lượng giấy tốt', DATE_ADD(NOW(), INTERVAL 9 DAY), 2), -- Sách
+(4, 9, "", 'Hot Wheels Collection 50 chiếc', 1500000.00, 1800000.00, 1200000.00, 30000.00, 'Bộ sưu tập 50 chiếc xe Hot Wheels đa chủng loại, có hộp đẹp, phù hợp cho những người sưu tập', DATE_ADD(NOW(), INTERVAL 8 DAY), 1), -- Đồ chơi
+(5, 10, "", 'iPad Air 5', 15000000.00, 18000000.00, 13000000.00, 100000.00, 'Máy tính bảng iPad Air 5, chip M1, RAM 8GB, màn hình Liquid Retina 10.9 inch, hỗ trợ Apple Pencil', DATE_ADD(NOW(), INTERVAL 4 DAY), 3), -- Máy tính bảng
+(5, 3, "", 'Google Pixel 8 Pro', 21000000.00, 25000000.00, 19000000.00, 100000.00, 'Điện thoại Google Pixel 8 Pro, camera Gemini AI, chip Tensor G3, màn hình OLED 120Hz', DATE_ADD(NOW(), INTERVAL 5 DAY), 4), -- Điện thoại di động
+(5, 4, "", 'ASUS VivoBook 15', 12000000.00, 15000000.00, 10000000.00, 100000.00, 'Laptop ASUS VivoBook 15, chip AMD Ryzen 7, RAM 16GB, SSD 512GB, pin lên đến 10 tiếng', DATE_ADD(NOW(), INTERVAL 6 DAY), 2), -- Máy tính xách tay
+(5, 7, "", 'Bộ sách Ngôn tình xuyên thời gian', 600000.00, 800000.00, 500000.00, 10000.00, 'Bộ 3 cuốn sách ngôn tình xuyên thời gian, bản dịch Việt, sắc nét, in đẹp', DATE_ADD(NOW(), INTERVAL 12 DAY), 8); -- Sách
 
--- Dữ liệu mẫu cho bảng PRODUCT_IMAGE
+-- Dữ liệu mẫu cho bảng PRODUCT_IMAGE (Đã sửa Image URL)
 INSERT INTO `PRODUCT_IMAGE` (product_id, image_url) VALUES
-(1, 'https://example.com/images/iphone13promax_1.jpg'),
-(1, 'https://example.com/images/iphone13promax_2.jpg'),
-(2, 'https://example.com/images/macbookpro_m2_1.jpg'),
-(2, 'https://example.com/images/macbookpro_m2_2.jpg'),
-(2, 'https://example.com/images/casio_gshock_1.jpg'),
-(2, 'https://example.com/images/galaxy_tab_s9_1.jpg'),
-(2, 'https://example.com/images/kindle_paperwhite_1.jpg'),
-(3, 'https://example.com/images/harry_potter_set_1.jpg'),
-(3, 'https://example.com/images/lego_city_police_1.jpg'),
-(3, 'https://example.com/images/nike_air_max_1.jpg'),
-(3, 'https://example.com/images/rolex_submariner_1.jpg');
+-- Product 1: iPhone 13 Pro Max
+(1, 'https://i.imgur.com/jG5dF7z.jpg'),
+(1, 'https://i.imgur.com/GZ5lG5b.jpg'),
+(1, 'https://i.imgur.com/4qD2l8W.jpg'),
+-- Product 2: MacBook Pro M2
+(2, 'https://i.imgur.com/YtH4bO8.jpg'),
+(2, 'https://i.imgur.com/K1L7xTq.jpg'),
+(2, 'https://i.imgur.com/j0xT5Zc.jpg'),
+-- Product 3: Casio G-Shock
+(3, 'https://i.imgur.com/vHqX6oW.jpg'),
+(3, 'https://i.imgur.com/Z4c9wBf.jpg'),
+-- Product 4: Samsung Galaxy Tab S9
+(4, 'https://i.imgur.com/rS2Xg9N.jpg'),
+(4, 'https://i.imgur.com/QjB9sUe.jpg'),
+-- Product 5: Kindle Paperwhite
+(5, 'https://i.imgur.com/3N4o9Z6.jpg'),
+(5, 'https://i.imgur.com/6Xw8yUa.jpg'),
+-- Product 6: Harry Potter Set
+(6, 'https://i.imgur.com/yGfX9vQ.jpg'),
+(6, 'https://i.imgur.com/uC5vM7X.jpg'),
+-- Product 7: LEGO City Police
+(7, 'https://i.imgur.com/u5E6yLq.jpg'),
+(7, 'https://i.imgur.com/FjB8eO9.jpg'),
+-- Product 8: Nike Air Max
+(8, 'https://i.imgur.com/W7hGzH2.jpg'),
+(8, 'https://i.imgur.com/L1M5qZp.jpg'),
+-- Product 9: Rolex Submariner
+(9, 'https://i.imgur.com/P4E2oV0.jpg'),
+(9, 'https://i.imgur.com/8Kj4tWq.jpg'),
+-- Product 10: Samsung Galaxy S23 Ultra
+(10, 'https://i.imgur.com/3Yx4eW0.jpg'),
+(10, 'https://i.imgur.com/n7D2gP5.jpg'),
+-- Product 11: Dell XPS 13
+(11, 'https://i.imgur.com/b9Jc1M7.jpg'),
+(11, 'https://i.imgur.com/4S2xG0e.jpg'),
+-- Product 12: Apple Watch Series 9
+(12, 'https://i.imgur.com/1GZ6s1w.jpg'),
+(12, 'https://i.imgur.com/Z3b8oN2.jpg'),
+-- Product 13: Adidas Ultraboost 23
+(13, 'https://i.imgur.com/J4Pj5nZ.jpg'),
+(13, 'https://i.imgur.com/e9w2cQd.jpg'),
+-- Product 14: Cỏ đỏ
+(14, 'https://i.imgur.com/8Qp4w0K.jpg'),
+-- Product 15: Hot Wheels Collection
+(15, 'https://i.imgur.com/h5vYf4m.jpg'),
+(15, 'https://i.imgur.com/G3t1oR8.jpg'),
+-- Product 16: iPad Air 5
+(16, 'https://i.imgur.com/0v5k6uS.jpg'),
+(16, 'https://i.imgur.com/j4oR2eL.jpg'),
+-- Product 17: Google Pixel 8 Pro
+(17, 'https://i.imgur.com/9w2gH1U.jpg'),
+(17, 'https://i.imgur.com/k6l4tYv.jpg'),
+-- Product 18: ASUS VivoBook 15
+(18, 'https://i.imgur.com/5l4hE7t.jpg'),
+(18, 'https://i.imgur.com/a7x8pCj.jpg'),
+-- Product 19: Bộ sách ngôn tình
+(19, 'https://i.imgur.com/M6L2b9C.jpg'),
+(19, 'https://i.imgur.com/N4O1P9e.jpg');
 
 -- Dữ liệu mẫu cho bảng WATCH_LIST
 INSERT INTO `WATCH_LIST` (user_id, product_id) VALUES

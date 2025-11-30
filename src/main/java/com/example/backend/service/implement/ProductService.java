@@ -45,8 +45,8 @@ public class ProductService implements IProductService {
     private EntityManager entityManager;
 
     @Override
-    public List<Product> getAllProducts() {
-        return _productRepository.findAll();
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return _productRepository.findByIsActiveTrue(pageable);
     }
 
     @SuppressWarnings("null")

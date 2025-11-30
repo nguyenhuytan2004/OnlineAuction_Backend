@@ -10,7 +10,7 @@ import com.example.backend.entity.Product;
 import com.example.backend.model.Product.CreateProductRequest;
 
 public interface IProductService {
-    public List<Product> getAllProducts();
+    public Page<Product> getAllProducts(Pageable pageable);
 
     public Product getProductById(Integer productId);
 
