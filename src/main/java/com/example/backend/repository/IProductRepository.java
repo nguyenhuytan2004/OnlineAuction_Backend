@@ -12,6 +12,9 @@ import org.springframework.data.repository.query.Param;
 import com.example.backend.entity.Product;
 
 public interface IProductRepository extends JpaRepository<Product, Integer> {
+    // Tìm tất cả sản phẩm có isActive = true
+    Page<Product> findByIsActiveTrue(Pageable pageable);
+
     Page<Product> findByCategoryCategoryId(Integer categoryId, Pageable pageable);
 
     List<Product> findTop5ByOrderByEndTimeAsc();

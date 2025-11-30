@@ -34,13 +34,10 @@ public class ProductController {
             .getLogger(ProductController.class);
 
     @GetMapping("")
-    public ResponseEntity<?> getAllProducts() {
+    public ResponseEntity<?> getAllProducts(Pageable pageable) {
         try {
-            List<Product> products = _productService.getAllProducts();
-            if (products.isEmpty()) {
-                return new ResponseEntity<>(products, HttpStatus.OK);
-            }
-            return new ResponseEntity<>(products, HttpStatus.OK);
+            Page<Product> productPage = _productService.getAllProducts(pageable);
+            return new ResponseEntity<>(productPage, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -60,7 +57,7 @@ public class ProductController {
     }
 
     @GetMapping("category/{category_id}")
-    public ResponseEntity<?> getProductsByCategory(@PathVariable("category_id") Integer categoryId,
+    public ResponseEntity<?> getProductsByCategoryId(@PathVariable("category_id") Integer categoryId,
             Pageable pageable) {
         try {
             Page<Product> productPage = _productService.getProductsByCategoryId(categoryId, pageable);
