@@ -1,11 +1,12 @@
 package com.example.backend.security;
 
-import com.example.backend.entity.User;
-import org.springframework.security.core.*;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.List;
+import com.example.backend.entity.User;
 
 public class CustomUserDetails implements UserDetails {
 
@@ -17,16 +18,39 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public List<GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        return List
+                .of(new SimpleGrantedAuthority("ROLE_" + (user.getRole() != null ? user.getRole().name() : "BIDDER")));
     }
 
-    @Override public String getPassword() { return user.getEncryptedPassword(); }
-    @Override public String getUsername() { return String.valueOf(user.getUserId()); }
+    @Override
+    public String getPassword() {
+        return user.getEncryptedPassword();
+    }
 
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override
+    public String getUsername() {
+        return String.valueOf(user.getUserId());
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 
     public User getUser() {
         return user;

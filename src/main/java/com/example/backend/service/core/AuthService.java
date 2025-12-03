@@ -1,17 +1,20 @@
 package com.example.backend.service.core;
 
-import com.example.backend.entity.Role;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.example.backend.entity.User;
 import com.example.backend.model.auth.AuthResponse;
 import com.example.backend.model.auth.LoginRequest;
 import com.example.backend.model.auth.RegisterRequest;
 import com.example.backend.repository.IUserRepository;
-import com.example.backend.security.*;
+import com.example.backend.security.CustomUserDetails;
+import com.example.backend.security.JwtService;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +34,7 @@ public class AuthService {
         User user = new User();
         user.setEmail(req.getEmail());
         user.setFullName(req.getFullName());
-        user.setEncryptedPassword(passwordEncoder.encode(req.getPassword())); // HASH
-        user.setRole(Role.USER);
+        user.setEncryptedPassword(passwordEncoder.encode(req.getPassword()));
 
         userRepo.save(user);
 
