@@ -1,4 +1,4 @@
-package com.example.backend.model.auth;
+package com.example.backend.model.Auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 
 import com.example.backend.entity.User;
 import com.example.backend.entity.User.Role;
-import com.example.backend.model.auth.AuthResponse;
-import com.example.backend.model.auth.LoginRequest;
-import com.example.backend.model.auth.RegisterRequest;
+import com.example.backend.model.Auth.AuthResponse;
+import com.example.backend.model.Auth.LoginRequest;
+import com.example.backend.model.Auth.RegisterRequest;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.security.JwtService;

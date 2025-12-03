@@ -12,7 +12,7 @@ public interface IRatingRepository extends JpaRepository<Rating, Integer> {
                         "WHERE r.reviewer.userId = :reviewerId " +
                         "AND r.reviewee.userId = :revieweeId " +
                         "AND r.product.productId = :productId")
-        boolean existsByReviewerAndRevieweeAndProduct(
+        Boolean existsByReviewerAndRevieweeAndProduct(
                         @Param("reviewerId") Integer reviewerId,
                         @Param("revieweeId") Integer revieweeId,
                         @Param("productId") Integer productId);

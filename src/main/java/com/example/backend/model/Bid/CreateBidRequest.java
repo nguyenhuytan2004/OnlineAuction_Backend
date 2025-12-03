@@ -19,14 +19,7 @@ public class CreateBidRequest {
 
     @NotNull(message = "Bidder ID is required")
     private Integer bidderId;
-
-    @NotNull(message = "Bid price is required")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Bid price must be greater than 0")
-    @Digits(integer = 16, fraction = 2, message = "Invalid bid price")
-    private BigDecimal bidPrice;
-
-    private Boolean isAutoBid = false;
-
+    
     @DecimalMin(value = "0.0", inclusive = false, message = "Max auto price must be greater than 0")
     @Digits(integer = 16, fraction = 2, message = "Invalid max auto price")
     private BigDecimal maxAutoPrice;

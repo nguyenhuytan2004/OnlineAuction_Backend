@@ -1,4 +1,4 @@
-package com.example.backend.model.user;
+package com.example.backend.model.User;
 
 import com.example.backend.entity.User;
 import com.example.backend.entity.User.Role;

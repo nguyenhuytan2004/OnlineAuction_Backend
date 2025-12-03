@@ -22,19 +22,19 @@ import lombok.extern.slf4j.Slf4j;
 public class AuctionScheduler {
 
     @Autowired
-    private IProductRepository productRepository;
+    private IProductRepository _productRepository;
 
     @Autowired
-    private IBidRepository bidRepository;
+    private IBidRepository _bidRepository;
 
     @Autowired
-    private IAuctionResultRepository auctionResultRepository;
+    private IAuctionResultRepository _auctionResultRepository;
 
     @Scheduled(fixedDelay = 60000) // Chạy mỗi 60 giây
     @Transactional
     public void processExpiredAuctions() {
         try {
-            List<Product> expiredProducts = productRepository.findExpiredProductsWithoutResult(LocalDateTime.now());
+            List<Product> expiredProducts = _productRepository.findExpiredProductsWithoutResult(LocalDateTime.now());
 
             if (expiredProducts.isEmpty()) {
                 return;
@@ -55,23 +55,23 @@ public class AuctionScheduler {
 
     // Extra method to process each expired product auction
     private void processProductAuction(Product product) {
-        AuctionResult existingResult = auctionResultRepository
+        AuctionResult existingResult = _auctionResultRepository
                 .findByProductProductId(product.getProductId());
         if (existingResult != null) {
             return;
         }
 
-        Bid highestBid = bidRepository.findTopByProductProductIdOrderByBidPriceDesc(product.getProductId());
+        Bid highestBid = _bidRepository.findTopByProductProductIdOrderByBidPriceDesc(product.getProductId());
         if (highestBid != null) {
             AuctionResult auctionResult = new AuctionResult();
             auctionResult.setProduct(product);
             auctionResult.setWinner(highestBid.getBidder());
-            auctionResult.setFinalPrice(highestBid.getBidPrice());
+            auctionResult.setFinalPrice(product.getCurrentPrice());
             auctionResult.setPaymentStatus(AuctionResult.PaymentStatus.PENDING);
-            auctionResultRepository.save(auctionResult);
+            _auctionResultRepository.save(auctionResult);
         }
 
         product.setIsActive(false);
-        productRepository.save(product);
+        _productRepository.save(product);
     }
 }

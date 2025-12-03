@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.entity.User;
-import com.example.backend.model.user.UserDTO;
+import com.example.backend.model.User.UserDTO;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.IUserService;
 

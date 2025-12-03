@@ -211,9 +211,9 @@ public class ProductService implements IProductService {
                 throw new IllegalArgumentException("Buy Now Price must be greater than or equal to Start Price.");
             }
             newProduct.setBuyNowPrice(request.getBuyNowPrice());
-            newProduct.setStartPrice(request.getStartPrice());
         }
 
+        newProduct.setStartPrice(request.getStartPrice());
         newProduct.setPriceStep(request.getPriceStep());
 
         String safeHtmlDescription = HtmlSanitizerHelper.sanitize(request.getDescription());

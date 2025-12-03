@@ -1,9 +1,9 @@
 package com.example.backend.service;
 
-import com.example.backend.entity.User;
-import com.example.backend.model.user.UserDTO;
-
 import java.util.List;
+
+import com.example.backend.entity.User;
+import com.example.backend.model.User.UserDTO;
 
 public interface IUserService {
     public User getUser(Integer userId);

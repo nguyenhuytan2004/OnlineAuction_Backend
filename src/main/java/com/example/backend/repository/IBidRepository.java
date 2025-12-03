@@ -16,4 +16,8 @@ public interface IBidRepository extends JpaRepository<Bid, Integer> {
     List<Product> findDistinctProductsByBidderUserId(@Param("userId") Integer userId);
 
     List<Bid> findTop5ByProductProductIdOrderByBidPriceDescBidAtAsc(Integer productId);
+
+    List<Bid> findByProductProductIdOrderByMaxAutoPriceDescBidAtAsc(Integer productId);
+
+    Boolean existsByProductProductIdAndBidderUserId(Integer productId, Integer userId);
 }

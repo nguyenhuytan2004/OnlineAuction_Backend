@@ -2,7 +2,6 @@ package com.example.backend.service.implement;
 
 import java.util.List;
 
-import com.example.backend.model.user.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
