@@ -21,42 +21,42 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final IUserRepository userRepo;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authManager;
-    private final JwtService jwtService;
-    private final CustomUserDetailsService userDetailsService;
+        private final IUserRepository userRepo;
+        private final PasswordEncoder passwordEncoder;
+        private final AuthenticationManager authManager;
+        private final JwtService jwtService;
+        private final CustomUserDetailsService userDetailsService;
 
-    public AuthResponse register(RegisterRequest req) {
-        if (userRepo.findByEmail(req.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+        public AuthResponse register(RegisterRequest req) {
+                if (userRepo.findByEmail(req.getEmail()).isPresent()) {
+                        throw new RuntimeException("Email already exists");
+                }
+
+                User user = new User();
+                user.setEmail(req.getEmail());
+                user.setFullName(req.getFullName());
+                user.setEncryptedPassword(passwordEncoder.encode(req.getPassword())); // HASH
+                user.setRole(Role.BIDDER);
+
+                userRepo.save(user);
+
+                UserDetails userDetails = new CustomUserDetails(user);
+
+                return new AuthResponse(
+                                jwtService.generateAccessToken(userDetails),
+                                jwtService.generateRefreshToken(userDetails));
         }
 
-        User user = new User();
-        user.setEmail(req.getEmail());
-        user.setFullName(req.getFullName());
-        user.setEncryptedPassword(passwordEncoder.encode(req.getPassword())); // HASH
-        user.setRole(Role.BIDDER);
+        public AuthResponse login(LoginRequest req) {
+                authManager.authenticate(
+                                new UsernamePasswordAuthenticationToken(
+                                                req.getEmail(),
+                                                req.getPassword()));
 
-        userRepo.save(user);
+                UserDetails user = userDetailsService.loadUserByUsername(req.getUserId());
 
-        UserDetails userDetails = new CustomUserDetails(user);
-
-        return new AuthResponse(
-                jwtService.generateAccessToken(userDetails),
-                jwtService.generateRefreshToken(userDetails));
-    }
-
-    public AuthResponse login(LoginRequest req) {
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        req.getEmail(),
-                        req.getPassword()));
-
-        UserDetails user = userDetailsService.loadUserByUsername(req.getUserId());
-
-        return new AuthResponse(
-                jwtService.generateAccessToken(user),
-                jwtService.generateRefreshToken(user));
-    }
+                return new AuthResponse(
+                                jwtService.generateAccessToken(user),
+                                jwtService.generateRefreshToken(user));
+        }
 }

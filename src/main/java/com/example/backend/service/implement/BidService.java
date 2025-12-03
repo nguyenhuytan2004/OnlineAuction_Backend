@@ -3,6 +3,7 @@ package com.example.backend.service.implement;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,7 +75,6 @@ public class BidService implements IBidService {
         newBid.setProduct(product);
         newBid.setBidder(bidder);
         newBid.setBidPrice(createBidRequest.getBidPrice());
-        newBid.setIsAutoBid(createBidRequest.getIsAutoBid());
         newBid.setMaxAutoPrice(createBidRequest.getMaxAutoPrice());
 
         Bid savedBid = _bidRepository.save(newBid);
@@ -103,5 +103,10 @@ public class BidService implements IBidService {
                 _productRepository.save(product);
             }
         }
+    }
+
+    @Override
+    public List<Bid> getTop5BidsByProductId(Integer productId) {
+        return _bidRepository.findTop5ByProductProductIdOrderByBidPriceDescBidAtAsc(productId);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.backend.model.user;
 
 import com.example.backend.entity.User;
+import com.example.backend.entity.User.Role;
 
 import lombok.Data;
 import lombok.Getter;
@@ -27,6 +28,6 @@ public class UserDTO {
         this.isSeller = user.getIsSeller();
         this.ratingScore = user.getRatingScore();
         this.ratingCount = user.getRatingCount();
-        this.role = user.getRole();
+        this.role = user.getRole() != null ? user.getRole() : Role.BIDDER;
     }
 }

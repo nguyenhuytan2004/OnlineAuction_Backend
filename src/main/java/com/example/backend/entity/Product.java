@@ -72,7 +72,7 @@ public class Product {
     // Extra field
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonManagedReference("product-images")
-    private List<ProductImage> auxiliaryImageUrls;
+    private List<ProductImage> auxiliaryImages;
 
     @NotBlank(message = "Product name must not be blank")
     @Size(max = 255, message = "Product name must not exceed 255 characters")
@@ -87,6 +87,10 @@ public class Product {
     // Dùng để sắp xếp
     @GenericField(sortable = Sortable.YES)
     private BigDecimal currentPrice;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "highest_bidder_id")
+    private User highestBidder;
 
     @DecimalMin(value = "0.0", inclusive = false, message = "Buy now price must be greater than 0")
     @Digits(integer = 16, fraction = 2, message = "Invalid buy now price")
