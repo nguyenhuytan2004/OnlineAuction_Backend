@@ -69,7 +69,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private Role role = Role.BIDDER;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -81,8 +81,4 @@ public class User {
     // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     // @JsonManagedReference("user-watchList")
     // private List<WatchList> watchList;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role = Role.BIDDER;
 }
