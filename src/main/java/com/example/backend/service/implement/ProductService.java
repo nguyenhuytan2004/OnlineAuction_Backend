@@ -88,31 +88,57 @@ public class ProductService implements IProductService {
                 .where(f -> {
                     var bool = f.bool();
 
-                    // Lọc ra sản phẩm đang hoạt động
+                    // Lọc ra sản phẩm đang hoạt động (BẮT BUỘC)
                     bool.must(f
                             .match()
                             .field("isActive")
                             .matching(true));
 
-                    // Lọc theo keyword nếu có
+                    // Lọc theo keyword nếu có (BẮT BUỘC)
                     if (keyword != null && !keyword.isEmpty()) {
+                        // SỬA: Sử dụng phrase matching để tránh false positive
+                        // Ví dụ: "may tinh" không match với "Ngôn tình" hoặc "thời gian"
+                        var keywordBool = f.bool();
 
-                        // Tìm kiếm theo tên, mô tả, danh mục
-                        bool.should(f
-                                .match()
-                                .fields("productName", "description", "category.categoryName")
+                        // Ưu tiên 1: Match phrase ở productName (trọng số cao nhất = 3.0)
+                        keywordBool.should(f
+                                .phrase()
+                                .field("productName")
                                 .matching(keyword)
-                                .fuzzy(1) // Cho phép lỗi chính tả nhỏ
                                 .analyzer(SearchAnalyzerConfig.VIETNAMESE_SEARCH)
-                                .boost(2.0f)); // Tăng trọng số cho keyword matching
+                                .slop(0) // Không cho phép khoảng cách giữa các từ
+                                .boost(3.0f));
+
+                        // Ưu tiên 2: Match phrase ở description (trọng số vừa = 2.0)
+                        keywordBool.should(f
+                                .phrase()
+                                .field("description")
+                                .matching(keyword)
+                                .analyzer(SearchAnalyzerConfig.VIETNAMESE_SEARCH)
+                                .slop(0)
+                                .boost(2.0f));
+
+                        // Ưu tiên 3: Match phrase ở category.categoryName (trọng số thấp = 1.5)
+                        keywordBool.should(f
+                                .phrase()
+                                .field("category.categoryName")
+                                .matching(keyword)
+                                .analyzer(SearchAnalyzerConfig.VIETNAMESE_SEARCH)
+                                .slop(0)
+                                .boost(1.5f));
+
+                        // Yêu cầu phải match ít nhất 1 trong 3 field
+                        keywordBool.minimumShouldMatchNumber(1);
+
+                        bool.must(keywordBool);
                     }
 
-                    // Nổi bật sản phẩm mới (đăng trong 1 giờ)
+                    // Boost sản phẩm mới hơn (đăng trong 7 ngày)
                     bool.should(f
                             .range()
                             .field("createdAt")
-                            .atLeast(java.time.LocalDateTime.now().minusHours(1))
-                            .boost(1.5f)); // Tăng trọng số cho sản phẩm mới
+                            .atLeast(java.time.LocalDateTime.now().minusDays(7))
+                            .boost(1.2f));
 
                     // Lọc theo categoryId nếu có
                     if (categoryId != null) {
@@ -175,7 +201,7 @@ public class ProductService implements IProductService {
             img.setImageUrl(url);
             return img;
         }).toList();
-        newProduct.setAuxiliaryImageUrls(productImages);
+        newProduct.setAuxiliaryImages(productImages);
 
         newProduct.setProductName(request.getProductName());
         newProduct.setCurrentPrice(request.getStartPrice());

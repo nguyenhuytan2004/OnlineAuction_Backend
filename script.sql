@@ -7,7 +7,7 @@ USE online_auction_db;
 CREATE TABLE `CATEGORY` (
     category_id INT AUTO_INCREMENT PRIMARY KEY,
     category_name VARCHAR(100) NOT NULL,
-    parent_id INT, -- (dùng cho danh mục cấp 1)
+    parent_id INT,
     
     FOREIGN KEY (parent_id) REFERENCES `CATEGORY`(category_id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
@@ -17,7 +17,7 @@ CREATE TABLE `USER` (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    encrypted_password VARCHAR(255) NOT NULL, -- Mật khẩu đã mã hoá bằng bcrypt/scrypt
+    encrypted_password VARCHAR(255) NOT NULL,
     is_seller BOOLEAN DEFAULT FALSE,
     rating_score INT DEFAULT 0,
     rating_count INT DEFAULT 0,
@@ -26,7 +26,6 @@ CREATE TABLE `USER` (
 ) ENGINE=InnoDB;
 
 -- Bảng chứa thông tin sản phẩm đấu giá
--- DROP TABLE `PRODUCT`; -- Dùng khi cần tạo lại
 CREATE TABLE `PRODUCT` (
     product_id INT AUTO_INCREMENT PRIMARY KEY,
     seller_id INT NOT NULL,
@@ -34,6 +33,7 @@ CREATE TABLE `PRODUCT` (
     main_image_url VARCHAR(255) DEFAULT NULL, 
     product_name VARCHAR(255) NOT NULL,
     current_price DECIMAL(18, 2) NOT NULL,
+    highest_bidder_id INT DEFAULT NULL,
     buy_now_price DECIMAL(18, 2),
     start_price DECIMAL(18, 2) NOT NULL,
     price_step DECIMAL(18, 2) NOT NULL,
@@ -46,7 +46,8 @@ CREATE TABLE `PRODUCT` (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     FOREIGN KEY (seller_id) REFERENCES `USER`(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES `CATEGORY`(category_id) ON DELETE RESTRICT
+    FOREIGN KEY (category_id) REFERENCES `CATEGORY`(category_id) ON DELETE RESTRICT,
+    FOREIGN KEY (highest_bidder_id) REFERENCES `USER`(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- Bảng chứa thông tin ảnh phụ
@@ -101,13 +102,7 @@ CREATE TABLE `BID` (
     product_id INT NOT NULL,
     bidder_id INT NOT NULL, -- Người đặt giá (bidder)
     bid_price DECIMAL(18, 2) NOT NULL, -- Mức giá đặt
-    
-    -- Cờ cho biết đây có phải là bid TỰ ĐỘNG hay không
-    is_auto_bid BOOLEAN DEFAULT FALSE, 
-    
-    -- Chỉ lưu giá tối đa của bidder nếu là Auto Bid (giá thực tế có thể thấp hơn)
-    max_auto_price DECIMAL(18, 2) DEFAULT NULL, 
-    
+    max_auto_price DECIMAL(18, 2) NOT NULL, 
     bid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     FOREIGN KEY (product_id) REFERENCES `PRODUCT`(product_id) ON DELETE CASCADE,
@@ -160,36 +155,76 @@ INSERT INTO `CATEGORY` (category_name, parent_id) VALUES
 ('Đồ chơi', NULL),
 ('Máy tính bảng', 1);
 
--- Dữ liệu mẫu cho bảng USER
+-- USER (Realistic names + realistic emails)
 INSERT INTO `USER` (full_name, email, encrypted_password, is_seller, rating_score, rating_count) VALUES
-('Nguyễn Văn A (Người đấu giá)', 'bidder_a@example.com', '$2a$10$5K7irzpbIRu8CobNZJFVDempz9WDIf.LDvGLOB0wxM0ElH5eQodhC', 0, 8, 10),
-('Trần Thị B (Người đấu giá)', 'bidder_b@example.com', '$2a$10$savotgG5leGb/SwtvrRPguX76AwBumNxFZMJYegUUncRvegOucX4O', 0, 10, 10),
-('Lê Văn C (Người bán)', 'seller_c@example.com', '$2a$10$BOtUAA6RN.v581tSt7vW4.vgDr8DdFrtXSkTKArazSZC.dWl.wLVm', 1, 12, 15),
-('Phạm Thị D (Người bán)', 'seller_d@example.com', '$2a$10$examplehashforsellerd', 1, 14, 20),
-('Hoàng Văn E (Người bán)', 'seller_e@example.com', '$2a$10$examplehashforsellere', 1, 16, 25),
-('Nguyễn Thị F (Người đấu giá)', 'bidder_f@example.com', '$2a$10$examplehashforbidderf', 0, 9, 12);
+('Nguyễn Hoàng Minh', 'minh.nguyen@gmail.com', '$2a$10$5K7irzpbIRu8CobNZJFVDempz9WDIf.LDvGLOB0wxM0ElH5eQodhC', 0, 8, 10),
+('Trần Khánh Linh', 'linh.tran@gmail.com', '$2a$10$savotgG5leGb/SwtvrRPguX76AwBumNxFZMJYegUUncRvegOucX4O', 0, 10, 10),
+('Lê Quốc Huy', 'huy.le@gmail.com', '$2a$10$BOtUAA6RN.v581tSt7vW4.vgDr8DdFrtXSkTKArazSZC.dWl.wLVm', 1, 12, 15),
+('Phạm Bảo Trân', 'tran.pham@gmail.com', '$2a$10$examplehashforsellerd', 1, 14, 20),
+('Hoàng Gia Bảo', 'bao.hoang@gmail.com', '$2a$10$examplehashforsellere', 1, 16, 25),
+('Nguyễn Thu Hà', 'ha.nguyen@gmail.com', '$2a$10$examplehashforbidderf', 0, 9, 12);
 
--- Dữ liệu mẫu cho bảng PRODUCT
-INSERT INTO `PRODUCT` (seller_id, category_id, main_image_url, product_name, current_price, buy_now_price, start_price, price_step, description, end_time, bid_count) VALUES
-(3, 3, "https://www.dxomark.cn/wp-content/uploads/medias/post-95390/Apple-iPhone-13-Pro-Max-featured-image-packshot-review.jpg", 'iPhone 13 Pro Max', 20000000.00, 25000000.00, 18000000.00, 100000.00, 'Mẫu iPhone mới nhất với camera 48MP, chip A16 Bionic mạnh mẽ. Tình trạng như mới, còn bảo hành chính hãng', DATE_ADD(NOW(), INTERVAL 5 DAY), 8), -- Điện thoại di động
-(2, 4, "https://didongmango.com/images/products/2022/11/07/large/2_1667844618.png", 'MacBook Pro M2', 30000000.00, NULL, 30000000.00, 200000.00, 'Máy tính xách tay MacBook Pro 14 inch M2, RAM 16GB, SSD 512GB. Hiệu suất vượt trội, pin chống cháy lâu dài', DATE_ADD(NOW(), INTERVAL 1 DAY), 0), -- Máy tính xách tay
-(3, 5, "", 'Đồng hồ Casio G-Shock', 1500000.00, 2000000.00, 1000000.00, 50000.00, 'Đồng hồ Casio G-Shock chống sốc, chống nước. Thiết kế nam tính, bền bỉ, pin chạy 10 năm', DATE_ADD(NOW(), INTERVAL 7 DAY), 3), -- Đồng hồ
-(3, 10, "", 'Samsung Galaxy Tab S9', 12000000.00, 15000000.00, 10000000.00, 50000.00, 'Máy tính bảng Samsung Galaxy Tab S9 11 inch, Snapdragon 8 Gen 2 Leader, màn hình AMOLED đẹp tuyệt vời', DATE_ADD(NOW(), INTERVAL 3 DAY), 5), -- Máy tính bảng
-(3, 7, "", 'Kindle Paperwhite', 3000000.00, 4000000.00, 3000000.00, 20000.00, 'Máy đọc sách điện tử Kindle Paperwhite 11th gen, màn hình 6.8 inch, sạc USB-C, pin tới 10 tuần', DATE_ADD(NOW(), INTERVAL 2 DAY), 0), -- Sách
-(3, 7,"", 'Bộ truyện Harry Potter', 800000.00, 1000000.00, 600000.00, 10000.00, 'Trọn bộ 7 cuốn truyện Harry Potter, bản dịch Việt Nam chính thức, bìa cứng chất lượng cao', DATE_ADD(NOW(), INTERVAL 10 DAY), 12), -- Sách
-(3, 9,"", 'LEGO Thành phố - Đồn cảnh sát', 2000000.00, 2500000.00, 1800000.00, 50000.00, 'Bộ LEGO City Police Station, hơn 1200 mảnh, kèm minifigures đầy đủ, phù hợp trẻ từ 6 tuổi trở lên', DATE_ADD(NOW(), INTERVAL 6 DAY), 4), -- Đồ chơi
-(3, 6, "", 'Giày Nike Air Max', 2500000.00, 3000000.00, 2000000.00, 50000.00, 'Giày Nike Air Max 90 chính hãng, màu trắng-đen, size 42, tình trạng 95% như mới', DATE_ADD(NOW(), INTERVAL 4 DAY), 7), -- Giày dép
-(3, 5, "", 'Đồng hồ Rolex Submariner', 120000000.00, 150000000.00, 100000000.00, 1000000.00, 'Đồng hồ Rolex Submariner Stainless Steel, mặt đen, chống nước 300m, bảo hành quốc tế', DATE_ADD(NOW(), INTERVAL 15 DAY), 2), -- Đồng hồ
-(4, 3, "", 'Samsung Galaxy S23 Ultra', 22000000.00, 26000000.00, 20000000.00, 150000.00, 'Điện thoại Samsung Galaxy S23 Ultra, camera 200MP, pin 5000mAh, chip Snapdragon 8 Gen 2', DATE_ADD(NOW(), INTERVAL 8 DAY), 6), -- Điện thoại di động
-(4, 4, "", 'Dell XPS 13', 18000000.00, 22000000.00, 16000000.00, 100000.00, 'Laptop Dell XPS 13 Plus, Intel Core i7, RAM 16GB, SSD 512GB, màn hình OLED 13.4 inch', DATE_ADD(NOW(), INTERVAL 6 DAY), 3), -- Máy tính xách tay
-(4, 5, "", 'Smartwatch Apple Watch Series 9', 8000000.00, 10000000.00, 7000000.00, 50000.00, 'Đồng hồ thông minh Apple Watch Series 9, chip S9, màn hình Always-On Retina, pin 18 giờ', DATE_ADD(NOW(), INTERVAL 5 DAY), 4), -- Đồng hồ
-(4, 6, "", 'Giày Adidas Ultraboost 23', 3500000.00, 4200000.00, 3000000.00, 100000.00, 'Giày chạy bộ Adidas Ultraboost 23 chính hãng, đệm boost thoải mái, đế tổng hợp nhẹ', DATE_ADD(NOW(), INTERVAL 7 DAY), 5), -- Giày dép
-(4, 7, "", 'Truyện Cỏ đỏ - Sơn Tùng', 250000.00, 350000.00, 200000.00, 5000.00, 'Quyển truyện Cỏ đỏ của nhà văn Sơn Tùng, bìa cứng, chất lượng giấy tốt', DATE_ADD(NOW(), INTERVAL 9 DAY), 2), -- Sách
-(4, 9, "", 'Hot Wheels Collection 50 chiếc', 1500000.00, 1800000.00, 1200000.00, 30000.00, 'Bộ sưu tập 50 chiếc xe Hot Wheels đa chủng loại, có hộp đẹp, phù hợp cho những người sưu tập', DATE_ADD(NOW(), INTERVAL 8 DAY), 1), -- Đồ chơi
-(5, 10, "", 'iPad Air 5', 15000000.00, 18000000.00, 13000000.00, 100000.00, 'Máy tính bảng iPad Air 5, chip M1, RAM 8GB, màn hình Liquid Retina 10.9 inch, hỗ trợ Apple Pencil', DATE_ADD(NOW(), INTERVAL 4 DAY), 3), -- Máy tính bảng
-(5, 3, "", 'Google Pixel 8 Pro', 21000000.00, 25000000.00, 19000000.00, 100000.00, 'Điện thoại Google Pixel 8 Pro, camera Gemini AI, chip Tensor G3, màn hình OLED 120Hz', DATE_ADD(NOW(), INTERVAL 5 DAY), 4), -- Điện thoại di động
-(5, 4, "", 'ASUS VivoBook 15', 12000000.00, 15000000.00, 10000000.00, 100000.00, 'Laptop ASUS VivoBook 15, chip AMD Ryzen 7, RAM 16GB, SSD 512GB, pin lên đến 10 tiếng', DATE_ADD(NOW(), INTERVAL 6 DAY), 2), -- Máy tính xách tay
-(5, 7, "", 'Bộ sách Ngôn tình xuyên thời gian', 600000.00, 800000.00, 500000.00, 10000.00, 'Bộ 3 cuốn sách ngôn tình xuyên thời gian, bản dịch Việt, sắc nét, in đẹp', DATE_ADD(NOW(), INTERVAL 12 DAY), 8); -- Sách
+INSERT INTO `PRODUCT` 
+(seller_id, category_id, main_image_url, product_name, current_price, highest_bidder_id, buy_now_price, start_price, price_step, description, end_time, bid_count) VALUES
+(3, 3, "https://www.dxomark.cn/wp-content/uploads/medias/post-95390/Apple-iPhone-13-Pro-Max-featured-image-packshot-review.jpg",
+ 'iPhone 13 Pro Max', 20000000.00, 1, 25000000.00, 18000000.00, 100000.00,
+ 'Mẫu iPhone mới nhất với camera 48MP, chip A16 Bionic mạnh mẽ. Tình trạng như mới, còn bảo hành chính hãng',
+ DATE_ADD(NOW(), INTERVAL 5 DAY), 8),
+(2, 4, "https://didongmango.com/images/products/2022/11/07/large/2_1667844618.png",
+ 'MacBook Pro M2', 30000000.00, 2, NULL, 30000000.00, 200000.00,
+ 'Máy tính xách tay MacBook Pro 14 inch M2, RAM 16GB, SSD 512GB. Hiệu suất vượt trội, pin chống cháy lâu dài',
+ DATE_ADD(NOW(), INTERVAL 1 DAY), 0),
+(3, 5, "", 'Đồng hồ Casio G-Shock', 1500000.00, 1, 2000000.00, 1000000.00, 50000.00,
+ 'Đồng hồ Casio G-Shock chống sốc, chống nước. Thiết kế nam tính, bền bỉ, pin chạy 10 năm',
+ DATE_ADD(NOW(), INTERVAL 7 DAY), 3),
+(3, 10, "", 'Samsung Galaxy Tab S9', 12000000.00, 1, NULL, 10000000.00, 50000.00,
+ 'Máy tính bảng Samsung Galaxy Tab S9 11 inch, Snapdragon 8 Gen 2 Leader, màn hình AMOLED đẹp tuyệt vời',
+ DATE_ADD(NOW(), INTERVAL 3 DAY), 5),
+(3, 7, "", 'Kindle Paperwhite', 3000000.00, 1, 4000000.00, 3000000.00, 20000.00,
+ 'Máy đọc sách điện tử Kindle Paperwhite 11th gen, màn hình 6.8 inch, sạc USB-C, pin tới 10 tuần',
+ DATE_ADD(NOW(), INTERVAL 2 DAY), 0),
+(3, 7, "", 'Bộ truyện Harry Potter', 800000.00, 2, 1000000.00, 600000.00, 10000.00,
+ 'Trọn bộ 7 cuốn truyện Harry Potter, bản dịch Việt Nam chính thức, bìa cứng chất lượng cao',
+ DATE_ADD(NOW(), INTERVAL 10 DAY), 12),
+(3, 9, "", 'LEGO Thành phố - Đồn cảnh sát', 2000000.00, 6, 2500000.00, 1800000.00, 50000.00,
+ 'Bộ LEGO City Police Station, hơn 1200 mảnh, kèm minifigures đầy đủ, phù hợp trẻ từ 6 tuổi trở lên',
+ DATE_ADD(NOW(), INTERVAL 6 DAY), 4),
+(3, 6, "", 'Giày Nike Air Max', 2500000.00, 6, 3000000.00, 2000000.00, 50000.00,
+ 'Giày Nike Air Max 90 chính hãng, màu trắng-đen, size 42, tình trạng 95% như mới',
+ DATE_ADD(NOW(), INTERVAL 4 DAY), 7),
+(3, 5, "", 'Đồng hồ Rolex Submariner', 120000000.00, 6, NULL, 100000000.00, 1000000.00,
+ 'Đồng hồ Rolex Submariner Stainless Steel, mặt đen, chống nước 300m, bảo hành quốc tế',
+ DATE_ADD(NOW(), INTERVAL 15 DAY), 2),
+(4, 3, "", 'Samsung Galaxy S23 Ultra', 22000000.00, 6, 26000000.00, 20000000.00, 150000.00,
+ 'Điện thoại Samsung Galaxy S23 Ultra, camera 200MP, pin 5000mAh, chip Snapdragon 8 Gen 2',
+ DATE_ADD(NOW(), INTERVAL 8 DAY), 6),
+(4, 4, "", 'Dell XPS 13', 18000000.00, 2, NULL, 16000000.00, 100000.00,
+ 'Laptop Dell XPS 13 Plus, Intel Core i7, RAM 16GB, SSD 512GB, màn hình OLED 13.4 inch',
+ DATE_ADD(NOW(), INTERVAL 6 DAY), 3),
+(4, 5, "", 'Smartwatch Apple Watch Series 9', 8000000.00, 6, 10000000.00, 7000000.00, 50000.00,
+ 'Đồng hồ thông minh Apple Watch Series 9, chip S9, màn hình Always-On Retina, pin 18 giờ',
+ DATE_ADD(NOW(), INTERVAL 5 DAY), 4),
+(4, 6, "", 'Giày Adidas Ultraboost 23', 3500000.00, 2, 4200000.00, 3000000.00, 100000.00,
+ 'Giày chạy bộ Adidas Ultraboost 23 chính hãng, đệm boost thoải mái, đế tổng hợp nhẹ',
+ DATE_ADD(NOW(), INTERVAL 7 DAY), 5),
+(4, 7, "", 'Truyện Cỏ đỏ - Sơn Tùng', 250000.00, 2, 350000.00, 200000.00, 5000.00,
+ 'Quyển truyện Cỏ đỏ của nhà văn Sơn Tùng, bìa cứng, chất lượng giấy tốt',
+ DATE_ADD(NOW(), INTERVAL 9 DAY), 2),
+(4, 9, "", 'Hot Wheels Collection 50 chiếc', 1500000.00, 6, 1800000.00, 1200000.00, 30000.00,
+ 'Bộ sưu tập 50 chiếc xe Hot Wheels đa chủng loại, có hộp đẹp, phù hợp cho những người sưu tập',
+ DATE_ADD(NOW(), INTERVAL 8 DAY), 1),
+(5, 10, "", 'iPad Air 5', 15000000.00, 6, 18000000.00, 13000000.00, 100000.00,
+ 'Máy tính bảng iPad Air 5, chip M1, RAM 8GB, màn hình Liquid Retina 10.9 inch, hỗ trợ Apple Pencil',
+ DATE_ADD(NOW(), INTERVAL 4 DAY), 3),
+(5, 3, "", 'Google Pixel 8 Pro', 21000000.00, 1, 25000000.00, 19000000.00, 100000.00,
+ 'Điện thoại Google Pixel 8 Pro, camera Gemini AI, chip Tensor G3, màn hình OLED 120Hz',
+ DATE_ADD(NOW(), INTERVAL 5 DAY), 4),
+(5, 4, "", 'ASUS VivoBook 15', 12000000.00, 6, 15000000.00, 10000000.00, 100000.00,
+ 'Laptop ASUS VivoBook 15, chip AMD Ryzen 7, RAM 16GB, SSD 512GB, pin lên đến 10 tiếng',
+ DATE_ADD(NOW(), INTERVAL 6 DAY), 2),
+(5, 7, "", 'Bộ sách Ngôn tình xuyên thời gian', 600000.00, 2, 800000.00, 500000.00, 10000.00,
+ 'Bộ 3 cuốn sách ngôn tình xuyên thời gian, bản dịch Việt, sắc nét, in đẹp',
+ DATE_ADD(NOW(), INTERVAL 12 DAY), 8);
 
 -- Dữ liệu mẫu cho bảng PRODUCT_IMAGE (Đã sửa Image URL)
 INSERT INTO `PRODUCT_IMAGE` (product_id, image_url) VALUES
@@ -296,22 +331,94 @@ INSERT INTO `PRODUCT_ANSWER` (question_id, answer_user_id, answer_text) VALUES
 (9, 3, 'Độ phân giải cao 2560x1600px.');
 -- Q10: 'Máy chạy Android phiên bản mấy?' (0 câu trả lời - Đang chờ seller)
 
--- Dữ liệu mẫu cho bảng BID
-INSERT INTO `BID` (product_id, bidder_id, bid_price, is_auto_bid, max_auto_price) VALUES
+-- BID (full enriched data)
+
 -- Product 1: iPhone 13 Pro Max
-(1, 1, 18100000.00, FALSE, NULL),
-(1, 2, 18500000.00, FALSE, NULL),
-(1, 1, 19000000.00, TRUE, 20000000.00),
-(1, 2, 19100000.00, FALSE, NULL),
-(1, 1, 19500000.00, TRUE, 20000000.00),
+INSERT INTO BID (product_id, bidder_id, bid_price, max_auto_price) VALUES
+(1, 1, 18100000, NULL),
+(1, 2, 18500000, NULL),
+(1, 1, 19000000, 20000000),
+(1, 2, 19100000, NULL),
+(1, 1, 19500000, 20000000),
+
 -- Product 2: MacBook Pro M2
-(2, 2, 30200000.00, FALSE, NULL),
-(2, 1, 31000000.00, FALSE, NULL),
-(2, 2, 32000000.00, TRUE, 35000000.00),
--- Product 3: Casio G-Shock Watch
-(3, 1, 1050000.00, FALSE, NULL),
-(3, 2, 1200000.00, FALSE, NULL),
-(3, 1, 1350000.00, FALSE, NULL),
+(2, 2, 30200000, NULL),
+(2, 1, 31000000, NULL),
+(2, 2, 32000000, 35000000),
+
+-- Product 3: Casio G-Shock
+(3, 1, 1050000, NULL),
+(3, 2, 1200000, NULL),
+(3, 1, 1350000, NULL),
+
 -- Product 4: Samsung Galaxy Tab S9
-(4, 2, 10100000.00, FALSE, NULL),
-(4, 1, 10500000.00, TRUE, 12000000.00);
+(4, 2, 10100000, NULL),
+(4, 1, 10500000, 12000000),
+
+-- Product 5: Kindle
+(5, 6, 3100000, NULL),
+(5, 1, 3200000, NULL),
+
+-- Product 6: Harry Potter
+(6, 6, 700000, NULL),
+(6, 1, 750000, NULL),
+(6, 2, 800000, NULL),
+
+-- Product 7: LEGO City
+(7, 2, 1850000, NULL),
+(7, 1, 1900000, NULL),
+(7, 6, 2000000, NULL),
+
+-- Product 8: Nike Air Max
+(8, 1, 2600000, NULL),
+(8, 2, 2700000, NULL),
+(8, 6, 3000000, 3200000),
+
+-- Product 9: Rolex Submariner
+(9, 1, 110000000, NULL),
+(9, 6, 120000000, NULL),
+
+-- Product 10: Samsung S23 Ultra
+(10, 1, 23000000, NULL),
+(10, 2, 24000000, NULL),
+(10, 6, 25000000, NULL),
+
+-- Product 11: Dell XPS 13
+(11, 1, 19000000, NULL),
+(11, 2, 20000000, NULL),
+
+-- Product 12: Apple Watch S9
+(12, 1, 8500000, NULL),
+(12, 2, 9000000, NULL),
+(12, 6, 9500000, NULL),
+
+-- Product 13: Adidas Ultraboost
+(13, 6, 3600000, NULL),
+(13, 1, 3800000, NULL),
+(13, 2, 4000000, NULL),
+
+-- Product 14: Cỏ đỏ
+(14, 1, 270000, NULL),
+(14, 2, 300000, NULL),
+
+-- Product 15: Hot Wheels 50pcs
+(15, 1, 1500000, NULL),
+(15, 6, 1600000, NULL),
+
+-- Product 16: iPad Air 5
+(16, 1, 15500000, NULL),
+(16, 2, 16000000, NULL),
+(16, 6, 17000000, NULL),
+
+-- Product 17: Pixel 8 Pro
+(17, 2, 22000000, NULL),
+(17, 1, 23000000, NULL),
+
+-- Product 18: ASUS VivoBook 15
+(18, 1, 11000000, NULL),
+(18, 6, 13000000, NULL),
+
+-- Product 19: Sách Ngôn tình
+(19, 1, 600000, NULL),
+(19, 6, 650000, NULL),
+(19, 2, 700000, NULL);

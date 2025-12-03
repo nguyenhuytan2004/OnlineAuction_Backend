@@ -14,4 +14,6 @@ public interface IBidRepository extends JpaRepository<Bid, Integer> {
 
     @Query("SELECT b.product FROM Bid b WHERE b.bidder.userId = :userId GROUP BY b.product.productId ORDER BY MAX(b.bidAt) DESC")
     List<Product> findDistinctProductsByBidderUserId(@Param("userId") Integer userId);
+
+    List<Bid> findTop5ByProductProductIdOrderByBidPriceDescBidAtAsc(Integer productId);
 }

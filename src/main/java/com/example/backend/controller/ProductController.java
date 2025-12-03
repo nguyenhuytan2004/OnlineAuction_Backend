@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.entity.AuctionResult;
+import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
 import com.example.backend.model.Product.AppendDescriptionRequest;
 import com.example.backend.model.Product.CreateProductRequest;
+import com.example.backend.service.IBidService;
 import com.example.backend.service.IProductService;
 
 import jakarta.validation.Valid;
@@ -29,6 +31,8 @@ import jakarta.validation.Valid;
 public class ProductController {
     @Autowired
     private IProductService _productService;
+    @Autowired
+    private IBidService _bidService;
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
             .getLogger(ProductController.class);
@@ -122,14 +126,7 @@ public class ProductController {
             Pageable pageable) {
         try {
             Page<Product> productPage = _productService.searchProducts(keyword, null, pageable);
-            if (productPage.getContent().isEmpty()) {
-                LOGGER.warn(
-                        "[CONTROLLER][GET][WARN] /api/products/full-text-search - No products found for keyword: \"{}\" and criteria: \"{}\"",
-                        keyword, pageable.toString());
-                return new ResponseEntity<>(
-                        "No products found for keyword " + keyword + " and criteria " + pageable.toString(),
-                        HttpStatus.NOT_FOUND);
-            }
+
             return new ResponseEntity<>(productPage, HttpStatus.OK);
         } catch (Exception e) {
             LOGGER.error("[CONTROLLER][GET][ERROR] /api/products/full-text-search - Error occurred: {}", e.getMessage(),
@@ -144,10 +141,7 @@ public class ProductController {
             Pageable pageable) {
         try {
             Page<Product> productPage = _productService.searchProducts(keyword, categoryId, pageable);
-            if (productPage.getContent().isEmpty()) {
-                return new ResponseEntity<>("No products found for category ID " + categoryId + " with keyword "
-                        + keyword + " and criteria " + pageable.toString(), HttpStatus.NOT_FOUND);
-            }
+
             return new ResponseEntity<>(productPage, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -162,7 +156,7 @@ public class ProductController {
             return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
         } catch (Exception e) {
             LOGGER.error("[CONTROLLER][POST][ERROR] /api/products - Error occurred: {}", e.getMessage(), e);
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -181,7 +175,7 @@ public class ProductController {
         } catch (Exception e) {
             LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{} - Error occurred: {}", productId, e.getMessage(),
                     e);
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -197,7 +191,7 @@ public class ProductController {
             LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{}/append-description - Error occurred: {}",
                     productId,
                     e.getMessage(), e);
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -212,7 +206,20 @@ public class ProductController {
             LOGGER.error(
                     "[CONTROLLER][GET][ERROR] /api/products/{}/bidding-eligibility - Error occurred: {}",
                     productId, e.getMessage(), e);
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/{product_id}/bids")
+    public ResponseEntity<?> getTop5Bids(@PathVariable("product_id") Integer productId) {
+        try {
+            List<Bid> bids = _bidService.getTop5BidsByProductId(productId);
+            return new ResponseEntity<>(bids, HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.error("[CONTROLLER][GET][ERROR] /api/products/{}/bids - Error occurred: {}", productId,
+                    e.getMessage(), e);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

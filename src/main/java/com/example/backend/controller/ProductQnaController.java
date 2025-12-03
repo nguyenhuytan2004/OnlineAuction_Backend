@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("api/product")
+@RequestMapping("api/products")
 public class ProductQnaController {
     @Autowired
     private IProductQnaService _productQnaService;
@@ -33,15 +33,10 @@ public class ProductQnaController {
     public ResponseEntity<?> getProductQuestions(@PathVariable("product_Id") Integer productId) {
         try {
             List<ProductQuestion> productQuestions = _productQnaService.getProductQuestions(productId);
-            if (productQuestions == null || productQuestions.isEmpty()) {
-                log.info("[CONTROLLER][GET][WARN] /api/product/{}/questions - No question found",
-                        productId);
-                return new ResponseEntity<>("No question found for product with ID: " + productId,
-                        HttpStatus.NOT_FOUND);
-            }
+
             return new ResponseEntity<>(productQuestions, HttpStatus.OK);
         } catch (Exception e) {
-            log.error("[CONTROLLER][GET][ERROR] /api/product/{}/questions - Error occurred: {}", productId,
+            log.error("[CONTROLLER][GET][ERROR] /api/products/{}/questions - Error occurred: {}", productId,
                     e.getMessage(), e);
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -56,11 +51,11 @@ public class ProductQnaController {
                     .createProductQuestion(createProductQuestionRequest, userId);
             return new ResponseEntity<>(createdQuestion, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            log.info("[CONTROLLER][POST][WARN] /api/product/{}/questions - Invalid input data: {}",
+            log.info("[CONTROLLER][POST][WARN] /api/products/{}/questions - Invalid input data: {}",
                     createProductQuestionRequest.getProductId(), e.getMessage());
             return new ResponseEntity<>("Invalid input data: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            log.error("[CONTROLLER][POST][ERROR] /api/product/{}/questions - Error occurred: {}",
+            log.error("[CONTROLLER][POST][ERROR] /api/products/{}/questions - Error occurred: {}",
                     createProductQuestionRequest.getProductId(), e.getMessage(), e);
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -76,16 +71,16 @@ public class ProductQnaController {
             return new ResponseEntity<>(createdAnswer, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             if (e.getMessage().contains("Only the seller")) {
-                log.info("[CONTROLLER][POST][WARN] /api/product/{}/answers - Permission denied: {}",
+                log.info("[CONTROLLER][POST][WARN] /api/products/{}/answers - Permission denied: {}",
                         createProductAnswerRequest.getQuestionId(), e.getMessage());
                 return new ResponseEntity<>("Permission denied: " + e.getMessage(), HttpStatus.FORBIDDEN);
             }
 
-            log.info("[CONTROLLER][POST][WARN] /api/product/{}/answers - Invalid input data: {}",
+            log.info("[CONTROLLER][POST][WARN] /api/products/{}/answers - Invalid input data: {}",
                     createProductAnswerRequest.getQuestionId(), e.getMessage());
             return new ResponseEntity<>("Invalid input data: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            log.error("[CONTROLLER][POST][ERROR] /api/product/{}/answers - Error occurred: {}",
+            log.error("[CONTROLLER][POST][ERROR] /api/products/{}/answers - Error occurred: {}",
                     createProductAnswerRequest.getQuestionId(), e.getMessage(), e);
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

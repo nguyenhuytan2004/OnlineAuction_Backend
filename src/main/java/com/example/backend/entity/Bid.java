@@ -52,12 +52,10 @@ public class Bid {
     @Column(name = "bid_price", nullable = false, precision = 18, scale = 2)
     private BigDecimal bidPrice;
 
-    @Column(name = "is_auto_bid", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private Boolean isAutoBid = false;
-
+    @NotNull(message = "Max auto price must not be null")
     @DecimalMin(value = "0.0", inclusive = false, message = "Max auto price must be greater than 0")
     @Digits(integer = 16, fraction = 2, message = "Invalid max auto price")
-    @Column(name = "max_auto_price", precision = 18, scale = 2)
+    @Column(name = "max_auto_price", nullable = false, precision = 18, scale = 2)
     private BigDecimal maxAutoPrice;
 
     @CreationTimestamp
