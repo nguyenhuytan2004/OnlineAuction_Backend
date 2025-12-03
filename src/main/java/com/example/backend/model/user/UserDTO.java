@@ -1,7 +1,7 @@
 package com.example.backend.model.user;
 
-import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +18,7 @@ public class UserDTO {
     private Boolean isSeller;
     private Integer ratingScore;
     private Integer ratingCount;
-    private Role role;
+    private User.Role role;
 
     public UserDTO(User user) {
         this.userId = user.getUserId();
