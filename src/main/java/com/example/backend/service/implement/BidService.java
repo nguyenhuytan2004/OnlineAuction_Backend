@@ -14,6 +14,7 @@ import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
 import com.example.backend.entity.User;
 import com.example.backend.model.Bid.CreateBidRequest;
+import com.example.backend.model.WebSocket.BidUpdateMessage;
 import com.example.backend.model.WebSocket.BidUpdateMessage.MessageType;
 import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IProductRepository;
@@ -42,7 +43,7 @@ public class BidService implements IBidService {
     private AuctionProperties auctionProperties;
 
     @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+    private SimpMessagingTemplate bidMessagingTemplate;
 
     @Override
     public User getHighestBidderByProductId(Integer productId) {
@@ -108,7 +109,7 @@ public class BidService implements IBidService {
         String message;
         Bid newBid = new Bid();
 
-        // 2. Logic auto bid 
+        // 2. Logic auto bid
         if (currentHighestBid == null) {
             newBid.setBidder(bidder);
             newBid.setProduct(product);
@@ -163,7 +164,7 @@ public class BidService implements IBidService {
         _productRepository.save(product);
 
         // 5. Broadcast update qua WebSocket
-        // broadcastBidUpdate(product, savedBid, previousPrice, messageType, message);
+        broadcastBidUpdate(product, savedBid, previousPrice, messageType, message);
 
         log.info("[AUTO-BID] Completed: currentPrice={}, winner={}",
                 savedBid.getBidPrice(), savedBid.getBidder().getFullName());
@@ -171,39 +172,35 @@ public class BidService implements IBidService {
         return savedBid;
     }
 
-    // private void broadcastBidUpdate(Product product, Bid newBid, BigDecimal previousPrice,
-    //         MessageType messageType, String message) {
-    //     BidUpdateMessage wsMessage = BidUpdateMessage.builder()
-    //             .productId(product.getProductId())
-    //             .productName(product.getProductName())
+    // Extra method to broadcast bid update via WebSocket
+    private void broadcastBidUpdate(Product product, Bid newBid, BigDecimal previousPrice,
+            MessageType messageType, String message) {
+        BidUpdateMessage wsMessage = BidUpdateMessage.builder()
+                .productId(product.getProductId())
+                .productName(product.getProductName())
+                .currentPrice(product.getCurrentPrice())
+                .previousPrice(previousPrice)
+                .priceStep(product.getPriceStep())
+                .highestBidderId(product.getHighestBidder() != null ? product.getHighestBidder().getUserId() : null)
+                .highestBidderName(product.getHighestBidder() != null ? product.getHighestBidder().getFullName() : null)
+                .newBidId(newBid.getBidId())
+                .newBidderId(newBid.getBidder().getUserId())
+                .newBidderName(newBid.getBidder().getFullName())
+                .newBidPrice(newBid.getBidPrice())
+                .newBidMaxPrice(newBid.getMaxAutoPrice())
+                .bidAt(newBid.getBidAt())
+                .totalBids(product.getBidCount())
+                .messageType(messageType)
+                .message(message)
+                .build();
 
-    //             .currentPrice(product.getCurrentPrice())
-    //             .previousPrice(previousPrice)
-    //             .priceStep(product.getPriceStep())
+        // Broadcast tới tất cả clients
+        bidMessagingTemplate.convertAndSend(
+                "/topic/product/" + product.getProductId() + "/place-bid",
+                wsMessage);
 
-    //             .highestBidderId(product.getHighestBidder() != null ? product.getHighestBidder().getUserId() : null)
-    //             .highestBidderName(product.getHighestBidder() != null ? product.getHighestBidder().getFullName() : null)
-
-    //             .newBidId(newBid.getBidId())
-    //             .newBidderId(newBid.getBidder().getUserId())
-    //             .newBidderName(newBid.getBidder().getFullName())
-    //             .newBidPrice(newBid.getBidPrice())
-    //             .newBidMaxPrice(newBid.getMaxAutoPrice())
-    //             .bidAt(newBid.getBidAt())
-
-    //             .totalBids(product.getBidCount())
-    //             .messageType(messageType)
-    //             .message(message)
-
-    //             .build();
-
-    //     // Broadcast tới tất cả clients
-    //     messagingTemplate.convertAndSend(
-    //             "/topic/product/" + product.getProductId() + "/bids",
-    //             wsMessage);
-
-    //     log.info("[AUTO-BID] Broadcasted {} for product {}", messageType, product.getProductId());
-    // }
+        log.info("[AUTO-BID] Broadcasted {} for product {}", messageType, product.getProductId());
+    }
 
     // Extra method to check and renew auction
     private void checkAndRenewAuction(Product product) {
@@ -218,11 +215,23 @@ public class BidService implements IBidService {
                 product.setEndTime(endTime.plus(extendDuration));
                 _productRepository.save(product);
             }
+
+            bidMessagingTemplate.convertAndSend(
+                    "/topic/product/" + product.getProductId() + "/auction-extended",
+                    "Auction extended to " + product.getEndTime());
+
+            log.info("[AUTO-BID] Auction extended for product {}", product.getProductId());
         }
     }
 
     @Override
     public List<Bid> getTop5BidsByProductId(Integer productId) {
         return _bidRepository.findTop5ByProductProductIdOrderByBidPriceDescBidAtAsc(productId);
+    }
+
+    @Override
+    public Bid getBid(Integer bidId) {
+        return _bidRepository.findById(bidId)
+                .orElseThrow(() -> new IllegalArgumentException("Bid not found"));
     }
 }

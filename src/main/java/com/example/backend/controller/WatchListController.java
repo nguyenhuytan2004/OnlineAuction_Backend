@@ -42,7 +42,7 @@ public class WatchListController {
 
             List<Product> products = new ArrayList<>();
             for (WatchList watchList : watchLists) {
-                Product product = _productService.getProductById(watchList.getProduct().getProductId());
+                Product product = _productService.getProduct(watchList.getProduct().getProductId());
                 if (product != null) {
                     products.add(product);
                 }

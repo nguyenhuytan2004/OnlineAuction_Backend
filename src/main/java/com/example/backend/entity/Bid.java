@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "BID")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,12 +37,12 @@ public class Bid {
     private Integer bidId;
 
     @NotNull(message = "Product must not be null")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @NotNull(message = "Bidder must not be null")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "bidder_id", nullable = false)
     private User bidder;
 

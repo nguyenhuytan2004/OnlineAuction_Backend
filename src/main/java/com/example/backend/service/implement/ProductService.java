@@ -51,7 +51,7 @@ public class ProductService implements IProductService {
 
     @SuppressWarnings("null")
     @Override
-    public Product getProductById(Integer productId) {
+    public Product getProduct(Integer productId) {
         return _productRepository.findById(productId).orElse(null);
     }
 
@@ -306,8 +306,9 @@ public class ProductService implements IProductService {
         User user = _userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
-        if (product.getAllowUnratedBidder())
+        if (product.getAllowUnratedBidder()) {
             return true;
+        }
 
         Integer userRating = user.getRatingScore();
         Integer userRatingCount = user.getRatingCount();

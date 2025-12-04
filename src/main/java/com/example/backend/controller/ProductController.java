@@ -29,6 +29,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("api/products")
 public class ProductController {
+
     @Autowired
     private IProductService _productService;
     @Autowired
@@ -48,9 +49,9 @@ public class ProductController {
     }
 
     @GetMapping("{product_id}")
-    public ResponseEntity<?> getProductById(@PathVariable("product_id") Integer productId) {
+    public ResponseEntity<?> getProduct(@PathVariable("product_id") Integer productId) {
         try {
-            Product product = _productService.getProductById(productId);
+            Product product = _productService.getProduct(productId);
             if (product == null) {
                 return new ResponseEntity<>("Product not found with ID: " + productId, HttpStatus.NOT_FOUND);
             }
@@ -109,7 +110,7 @@ public class ProductController {
     @GetMapping("{product_id}/top-5-related")
     public ResponseEntity<?> getTop5RelatedProducts(@PathVariable("product_id") Integer productId) {
         try {
-            Product product = _productService.getProductById(productId);
+            Product product = _productService.getProduct(productId);
             if (product == null) {
                 return new ResponseEntity<>("Product not found with ID: " + productId, HttpStatus.NOT_FOUND);
             }

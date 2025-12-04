@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuctionResult {
+
     public enum PaymentStatus {
         PENDING,
         PAID,
@@ -39,11 +40,11 @@ public class AuctionResult {
     private Integer resultId;
 
     @JoinColumn(name = "product_id", nullable = false, unique = true)
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private Product product;
 
     @JoinColumn(name = "winner_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private User winner;
 
     @Column(name = "final_price", nullable = false)

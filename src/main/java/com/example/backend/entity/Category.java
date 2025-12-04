@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "CATEGORY")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -44,7 +44,7 @@ public class Category {
     @FullTextField(analyzer = SearchAnalyzerConfig.VIETNAMESE_SEARCH)
     private String categoryName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_id")
     // @JsonBackReference("category-subcategories")
     private Category parent;
@@ -52,7 +52,6 @@ public class Category {
     // @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     // // @JsonManagedReference("category-subcategories")
     // private List<Category> subCategories;
-
     // @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     // // @JsonManagedReference("category-products")
     // private List<Product> products;

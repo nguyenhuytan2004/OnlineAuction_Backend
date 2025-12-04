@@ -33,17 +33,17 @@ public class Rating {
     @Column(name = "rating_id")
     private Integer ratingId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     @NotNull(message = "Product is required")
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reviewer_id", nullable = false)
     @NotNull(message = "Winner is required")
     private User reviewer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reviewee_id", nullable = false)
     @NotNull(message = "Seller is required")
     private User reviewee;

@@ -10,9 +10,10 @@ import com.example.backend.entity.Product;
 import com.example.backend.model.Product.CreateProductRequest;
 
 public interface IProductService {
+
     public Page<Product> getAllProducts(Pageable pageable);
 
-    public Product getProductById(Integer productId);
+    public Product getProduct(Integer productId);
 
     public Page<Product> getProductsByCategoryId(Integer categoryId, Pageable pageable);
 

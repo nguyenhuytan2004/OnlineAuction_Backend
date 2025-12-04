@@ -31,7 +31,7 @@ public class WatchListService implements IWatchListService {
     @Override
     public WatchList addToWatchList(Integer userId, Integer productId) {
         User user = _userService.getUser(userId);
-        Product product = _productService.getProductById(productId);
+        Product product = _productService.getProduct(productId);
 
         WatchList watchList = new WatchList();
         watchList.setUser(user);

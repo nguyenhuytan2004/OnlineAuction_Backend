@@ -22,9 +22,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "WATCH_LIST", uniqueConstraints = {
-        @UniqueConstraint(name = "unique_watchlist", columnNames = { "user_id", "product_id" })
+    @UniqueConstraint(name = "unique_watchlist", columnNames = {"user_id", "product_id"})
 })
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,12 +35,12 @@ public class WatchList {
     @Column(name = "watch_list_id")
     private Integer watchListId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     // @JsonBackReference("user-watchList")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     // @JsonBackReference("product-watchlists")
     private Product product;

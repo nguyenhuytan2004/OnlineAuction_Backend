@@ -62,4 +62,16 @@ public class BidController {
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("{bid_id}")
+    public ResponseEntity<?> getBid(@PathVariable("bid_id") Integer bidId) {
+        try {
+            Bid bid = _bidService.getBid(bidId);
+
+            return new ResponseEntity<>(bid, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("[CONTROLLER][GET][ERROR] /api/bids/{} - An error occurred: {}", bidId, e.getMessage());
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

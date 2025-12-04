@@ -40,7 +40,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "PRODUCT")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -70,7 +70,7 @@ public class Product {
     private String mainImageUrl;
 
     // Extra field
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference("product-images")
     private List<ProductImage> auxiliaryImages;
 

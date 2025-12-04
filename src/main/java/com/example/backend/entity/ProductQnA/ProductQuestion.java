@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "PRODUCT_QUESTION")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,12 +41,12 @@ public class ProductQuestion {
     private Integer questionId;
 
     @NotNull(message = "Product must not be null")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @NotNull(message = "Question user must not be null")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "question_user_id", nullable = false)
     private User questionUser;
 
