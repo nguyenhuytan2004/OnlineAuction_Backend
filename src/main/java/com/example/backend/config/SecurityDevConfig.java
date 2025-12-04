@@ -19,7 +19,6 @@ public class SecurityDevConfig {
     @Bean
     public AuthenticationManager authenticationManager() {
         return authentication -> {
-            // Bypass hoàn toàn: luôn authenticated
             authentication.setAuthenticated(true);
             return authentication;
         };

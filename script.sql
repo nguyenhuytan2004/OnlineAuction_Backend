@@ -8,7 +8,7 @@ CREATE TABLE `CATEGORY` (
     category_id INT AUTO_INCREMENT PRIMARY KEY,
     category_name VARCHAR(100) NOT NULL,
     parent_id INT,
-    
+
     FOREIGN KEY (parent_id) REFERENCES `CATEGORY`(category_id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
@@ -21,7 +21,7 @@ CREATE TABLE `USER` (
     is_seller BOOLEAN DEFAULT FALSE,
     rating_score INT DEFAULT 0,
     rating_count INT DEFAULT 0,
-    role ENUM('BIDDER', 'SELLER', 'ADMIN') DEFAULT 'BIDDER',
+    role ENUM('BIDDER', 'SELLER', 'ADMIN') NOT NULL DEFAULT 'BIDDER',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -30,7 +30,7 @@ CREATE TABLE `PRODUCT` (
     product_id INT AUTO_INCREMENT PRIMARY KEY,
     seller_id INT NOT NULL,
     category_id INT NOT NULL,
-    main_image_url VARCHAR(255) DEFAULT NULL, 
+    main_image_url VARCHAR(255) DEFAULT NULL,
     product_name VARCHAR(255) NOT NULL,
     current_price DECIMAL(18, 2) NOT NULL,
     highest_bidder_id INT DEFAULT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE `PRODUCT` (
     is_active BOOLEAN DEFAULT TRUE,
     allow_unrated_bidder BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (seller_id) REFERENCES `USER`(user_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES `CATEGORY`(category_id) ON DELETE RESTRICT,
     FOREIGN KEY (highest_bidder_id) REFERENCES `USER`(user_id) ON DELETE SET NULL
@@ -55,7 +55,7 @@ CREATE TABLE `PRODUCT_IMAGE` (
     image_id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
     image_url VARCHAR(255) NOT NULL,
-    
+
     FOREIGN KEY (product_id) REFERENCES `PRODUCT`(product_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
@@ -66,7 +66,7 @@ CREATE TABLE `PRODUCT_QUESTION` (
     question_user_id INT NOT NULL,
     question_text TEXT NOT NULL,
     question_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (product_id) REFERENCES `PRODUCT`(product_id) ON DELETE CASCADE,
     FOREIGN KEY (question_user_id) REFERENCES `USER`(user_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
@@ -78,7 +78,7 @@ CREATE TABLE `PRODUCT_ANSWER` (
     answer_user_id INT NOT NULL,
     answer_text TEXT NOT NULL,
     answer_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (question_id) REFERENCES `PRODUCT_QUESTION`(question_id) ON DELETE CASCADE,
     FOREIGN KEY (answer_user_id) REFERENCES `USER`(user_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
@@ -89,10 +89,10 @@ CREATE TABLE `WATCH_LIST` (
     user_id INT NOT NULL,
     product_id INT NOT NULL,
     added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (user_id) REFERENCES `USER`(user_id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES `PRODUCT`(product_id) ON DELETE CASCADE,
-    
+
     UNIQUE KEY unique_watchlist (user_id, product_id)
 ) ENGINE=InnoDB;
 
@@ -102,9 +102,9 @@ CREATE TABLE `BID` (
     product_id INT NOT NULL,
     bidder_id INT NOT NULL, -- Người đặt giá (bidder)
     bid_price DECIMAL(18, 2) NOT NULL, -- Mức giá đặt
-    max_auto_price DECIMAL(18, 2) NOT NULL, 
+    max_auto_price DECIMAL(18, 2) NOT NULL,
     bid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (product_id) REFERENCES `PRODUCT`(product_id) ON DELETE CASCADE,
     FOREIGN KEY (bidder_id) REFERENCES `USER`(user_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
@@ -112,14 +112,14 @@ CREATE TABLE `BID` (
 -- Bảng chứa kết quả đấu giá sau khi kết thúc
 CREATE TABLE `AUCTION_RESULT` (
     result_id INT AUTO_INCREMENT PRIMARY KEY,
-    product_id INT NOT NULL UNIQUE, 
-    winner_id INT NOT NULL, 
-    final_price DECIMAL(18, 2) NOT NULL, 
-    result_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    product_id INT NOT NULL UNIQUE,
+    winner_id INT NOT NULL,
+    final_price DECIMAL(18, 2) NOT NULL,
+    result_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- Trạng thái của giao dịch sau đấu giá (Ví dụ: PENDING, PAID, CANCELLED)
     payment_status VARCHAR(50) DEFAULT 'PENDING',
-    
+
     FOREIGN KEY (product_id) REFERENCES `PRODUCT`(product_id) ON DELETE CASCADE,
     FOREIGN KEY (winner_id) REFERENCES `USER`(user_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
@@ -133,11 +133,11 @@ CREATE TABLE `RATING` (
     rating_value INT NOT NULL CHECK (rating_value IN (-1, 1)), -- +1 hoặc -1
     comment TEXT,
     rated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (product_id) REFERENCES `PRODUCT`(product_id) ON DELETE CASCADE,
     FOREIGN KEY (reviewer_id) REFERENCES `USER`(user_id) ON DELETE RESTRICT,
     FOREIGN KEY (reviewee_id) REFERENCES `USER`(user_id) ON DELETE RESTRICT,
-    
+
     -- Mỗi bidder chỉ được đánh giá seller 1 lần cho 1 sản phẩm
     UNIQUE KEY unique_rating (product_id, reviewer_id, reviewee_id)
 ) ENGINE=InnoDB;
@@ -164,7 +164,7 @@ INSERT INTO `USER` (full_name, email, encrypted_password, is_seller, rating_scor
 ('Hoàng Gia Bảo', 'bao.hoang@gmail.com', '$2a$10$examplehashforsellere', 1, 16, 25),
 ('Nguyễn Thu Hà', 'ha.nguyen@gmail.com', '$2a$10$examplehashforbidderf', 0, 9, 12);
 
-INSERT INTO `PRODUCT` 
+INSERT INTO `PRODUCT`
 (seller_id, category_id, main_image_url, product_name, current_price, highest_bidder_id, buy_now_price, start_price, price_step, description, end_time, bid_count) VALUES
  (3, 3, "https://www.dxomark.cn/wp-content/uploads/medias/post-95390/Apple-iPhone-13-Pro-Max-featured-image-packshot-review.jpg",
  'iPhone 13 Pro Max', 18000000.00, NULL, 25000000.00, 18000000.00, 100000.00,

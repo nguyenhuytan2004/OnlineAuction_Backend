@@ -68,7 +68,7 @@ public class User {
     private Integer ratingCount = 0;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "role", columnDefinition = "ENUM('BIDDER', 'SELLER', 'ADMIN') DEFAULT 'BIDDER'")
     private Role role = Role.BIDDER;
 
     @CreationTimestamp
