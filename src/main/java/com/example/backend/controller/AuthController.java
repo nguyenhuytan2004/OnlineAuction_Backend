@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.model.Auth.AuthResponse;
 import com.example.backend.model.Auth.LoginRequest;
 import com.example.backend.model.Auth.RegisterRequest;
-import com.example.backend.service.IUserService;
 import com.example.backend.service.core.AuthService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 
     private final AuthService authService;
-    private final IUserService _userService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
@@ -32,12 +30,12 @@ public class AuthController {
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            log.warn("[CONTROLLER][AUTH][WARN] /auth/register - Error occurred: {}", e.getMessage());
+            log.warn("[CONTROLLER][AUTH][WARN] /api/auth/register - Error occurred: {}", e.getMessage());
 
-            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Email đã tồn tại", HttpStatus.CONFLICT);
         } catch (Exception e) {
-            log.error("[CONTROLLER][AUTH][ERROR] /auth/register - Unexpected error occurred: {}", e.getMessage(), e);
-
+            log.error("[CONTROLLER][AUTH][ERROR] /api/auth/register - Unexpected error occurred: {}", e.getMessage(),
+                    e);
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -49,12 +47,11 @@ public class AuthController {
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (RuntimeException e) {
-            log.warn("[CONTROLLER][AUTH][WARN] /auth/login - Error occurred: {}", e.getMessage());
+            log.warn("[CONTROLLER][AUTH][WARN] /api/auth/login - Error occurred: {}", e.getMessage());
 
-            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Tài khoản hoặc mật khẩu không đúng", HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            log.error("[CONTROLLER][AUTH][ERROR] /auth/login - Unexpected error occurred: {}", e.getMessage(), e);
-
+            log.error("[CONTROLLER][AUTH][ERROR] /api/auth/login - Unexpected error occurred: {}", e.getMessage(), e);
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

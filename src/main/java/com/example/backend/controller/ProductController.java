@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
 import com.example.backend.model.Product.AppendDescriptionRequest;
 import com.example.backend.model.Product.CreateProductRequest;
+import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.IBidService;
 import com.example.backend.service.IProductService;
 
@@ -66,11 +68,6 @@ public class ProductController {
             Pageable pageable) {
         try {
             Page<Product> productPage = _productService.getProductsByCategoryId(categoryId, pageable);
-            if (productPage.getContent().isEmpty()) {
-                return new ResponseEntity<>(
-                        "No products found for category ID " + categoryId + " and criteria " + pageable.toString(),
-                        HttpStatus.NOT_FOUND);
-            }
             return new ResponseEntity<>(productPage, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -198,9 +195,9 @@ public class ProductController {
 
     @GetMapping("{product_id}/bidding-eligibility")
     public ResponseEntity<?> checkBiddingEligibility(@PathVariable("product_id") Integer productId,
-            @RequestParam Integer userId) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
-            boolean isEligible = _productService.checkBiddingEligibility(productId, userId);
+            boolean isEligible = _productService.checkBiddingEligibility(productId, userDetails.getUser().getUserId());
 
             return new ResponseEntity<>(isEligible, HttpStatus.OK);
         } catch (Exception e) {

@@ -44,7 +44,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         userId = jwtService.extractUserId(jwt);
 
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = customUserDetailsService.loadUserById(Integer.parseInt(userId));
+            UserDetails userDetails = customUserDetailsService.loadUserById(Integer.valueOf(userId));
 
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -65,9 +65,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         String method = request.getMethod();
 
-        // Các đường dẫn công khai TÙY THUỘC VÀO METHOD
+        // Các đường dẫn công khai với method GET
         boolean isPublicGetRequest = method.equalsIgnoreCase("GET")
-                && ((path.startsWith("/api/products") || path.startsWith("/api/categories")));
+                && (path.equals("/api/products")
+                        || path.matches("/api/products/\\d+")
+                        || path.equals("/api/products/top-5-ending-soon")
+                        || path.equals("/api/products/top-5-most-auctioned")
+                        || path.equals("/api/products/top-5-highest-priced")
+                        || path.matches("/api/products/\\d+/top-5-related")
+                        || path.equals("/api/products/full-text-search")
+                        || path.matches("/api/products/category/\\d+")
+                        || path.matches("/api/products/category/\\d+/full-text-search")
+                        || path.matches("/api/products/\\d+/questions")
+                        || path.equals("/api/categories")
+                        || path.startsWith("/api/categories/"));
 
         boolean isAlwaysPublic = path.equals("/api/auth/register")
                 || path.equals("/api/auth/login")

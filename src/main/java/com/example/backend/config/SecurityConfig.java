@@ -72,8 +72,23 @@ public class SecurityConfig {
                                 "/ws/**")
                         .permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/products",
+                                "/api/products/{product_id}",
+                                "/api/products/top-5-ending-soon",
+                                "/api/products/top-5-most-auctioned",
+                                "/api/products/top-5-highest-priced",
+                                "/api/products/{product_id}/top-5-related",
+                                "/api/products/full-text-search",
+                                "/api/products/category/{category_id}",
+                                "/api/products/category/{category_id}/full-text-search",
+                                "/api/products/{product_id}/questions",
+                                "/api/categories",
+                                "/api/categories/**")
                         .permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/products/{product_id}/bidding-eligibility")
+                        .authenticated()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

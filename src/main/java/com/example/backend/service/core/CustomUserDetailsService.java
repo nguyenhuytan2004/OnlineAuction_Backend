@@ -10,10 +10,7 @@ import com.example.backend.entity.User;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.security.CustomUserDetails;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired

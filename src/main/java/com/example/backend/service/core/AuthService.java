@@ -57,9 +57,6 @@ public class AuthService {
 
 		UserDetails userDetails = userDetailsService.loadUserByUsername(req.getEmail());
 		User user = userRepo.findByEmail(req.getEmail()).orElse(null);
-		if (user == null) {
-			throw new RuntimeException("User not found");
-		}
 		UserDTO userResponse = new UserDTO(user);
 
 		return new AuthResponse(
