@@ -2,7 +2,6 @@ package com.example.backend.service.core;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class AuthService {
 		user.setEmail(req.getEmail());
 		user.setFullName(req.getFullName());
 		user.setEncryptedPassword(passwordEncoder.encode(req.getPassword())); // HASH
-		user.setRole(Role.BIDDER);
+		user.setRole(User.Role.BIDDER);
 
 		userRepo.save(user);
 
