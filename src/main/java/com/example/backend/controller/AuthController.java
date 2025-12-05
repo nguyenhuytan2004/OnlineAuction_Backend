@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.model.Auth.AuthResponse;
 import com.example.backend.model.Auth.LoginRequest;
 import com.example.backend.model.Auth.RegisterRequest;
+import com.example.backend.service.IUserService;
 import com.example.backend.service.core.AuthService;
 
 import lombok.RequiredArgsConstructor;
@@ -17,17 +18,19 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
+    private final IUserService _userService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
         try {
             AuthResponse response = authService.register(req);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             log.warn("[CONTROLLER][AUTH][WARN] /auth/register - Error occurred: {}", e.getMessage());
 
@@ -43,8 +46,9 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
         try {
             AuthResponse response = authService.login(req);
+
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             log.warn("[CONTROLLER][AUTH][WARN] /auth/login - Error occurred: {}", e.getMessage());
 
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);

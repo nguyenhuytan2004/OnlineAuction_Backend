@@ -113,7 +113,7 @@ public class BidService implements IBidService {
         if (currentHighestBid == null) {
             newBid.setBidder(bidder);
             newBid.setProduct(product);
-            newBid.setBidPrice(product.getCurrentPrice().add(product.getPriceStep()));
+            newBid.setBidPrice(product.getCurrentPrice());
             newBid.setMaxAutoPrice(request.getMaxAutoPrice());
 
             messageType = MessageType.NEWBID;
@@ -217,8 +217,7 @@ public class BidService implements IBidService {
             }
 
             bidMessagingTemplate.convertAndSend(
-                    "/topic/product/" + product.getProductId() + "/auction-extended",
-                    "Auction extended to " + product.getEndTime());
+                    "/topic/product/" + product.getProductId() + "/auction-extended", product.getEndTime());
 
             log.info("[AUTO-BID] Auction extended for product {}", product.getProductId());
         }

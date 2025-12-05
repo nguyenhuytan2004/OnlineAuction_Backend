@@ -25,11 +25,12 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "\"USER\"")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
+
     public enum Role {
         BIDDER, SELLER, ADMIN
     }
@@ -68,7 +69,7 @@ public class User {
     private Integer ratingCount = 0;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "role", nullable = false, columnDefinition = "ENUM('BIDDER', 'SELLER', 'ADMIN') DEFAULT 'BIDDER'")
     private Role role = Role.BIDDER;
 
     @CreationTimestamp
@@ -77,7 +78,6 @@ public class User {
 
     // @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
     // private List<Product> sellingProducts;
-
     // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     // @JsonManagedReference("user-watchList")
     // private List<WatchList> watchList;

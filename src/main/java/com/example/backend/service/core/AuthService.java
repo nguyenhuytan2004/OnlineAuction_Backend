@@ -11,6 +11,7 @@ import com.example.backend.entity.User.Role;
 import com.example.backend.model.Auth.AuthResponse;
 import com.example.backend.model.Auth.LoginRequest;
 import com.example.backend.model.Auth.RegisterRequest;
+import com.example.backend.model.User.UserDTO;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.security.JwtService;
@@ -21,42 +22,50 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 
-        private final IUserRepository userRepo;
-        private final PasswordEncoder passwordEncoder;
-        private final AuthenticationManager authManager;
-        private final JwtService jwtService;
-        private final CustomUserDetailsService userDetailsService;
+	private final IUserRepository userRepo;
+	private final PasswordEncoder passwordEncoder;
+	private final AuthenticationManager authManager;
+	private final JwtService jwtService;
+	private final CustomUserDetailsService userDetailsService;
 
-        public AuthResponse register(RegisterRequest req) {
-                if (userRepo.findByEmail(req.getEmail()).isPresent()) {
-                        throw new RuntimeException("Email already exists");
-                }
+	public AuthResponse register(RegisterRequest req) {
+		if (userRepo.findByEmail(req.getEmail()).isPresent()) {
+			throw new RuntimeException("Email already exists");
+		}
 
-                User user = new User();
-                user.setEmail(req.getEmail());
-                user.setFullName(req.getFullName());
-                user.setEncryptedPassword(passwordEncoder.encode(req.getPassword())); // HASH
-                user.setRole(Role.BIDDER);
+		User user = new User();
+		user.setEmail(req.getEmail());
+		user.setFullName(req.getFullName());
+		user.setEncryptedPassword(passwordEncoder.encode(req.getPassword())); // HASH
+		user.setRole(Role.BIDDER);
 
-                userRepo.save(user);
+		userRepo.save(user);
 
-                UserDetails userDetails = new CustomUserDetails(user);
+		UserDetails userDetails = new CustomUserDetails(user);
+		UserDTO userResponse = new UserDTO(user);
 
-                return new AuthResponse(
-                                jwtService.generateAccessToken(userDetails),
-                                jwtService.generateRefreshToken(userDetails));
-        }
+		return new AuthResponse(
+				jwtService.generateAccessToken(userDetails),
+				jwtService.generateRefreshToken(userDetails),
+				userResponse);
+	}
 
-        public AuthResponse login(LoginRequest req) {
-                authManager.authenticate(
-                                new UsernamePasswordAuthenticationToken(
-                                                req.getEmail(),
-                                                req.getPassword()));
+	public AuthResponse login(LoginRequest req) {
+		authManager.authenticate(
+				new UsernamePasswordAuthenticationToken(
+						req.getEmail(),
+						req.getPassword()));
 
-                UserDetails user = userDetailsService.loadUserByUsername(req.getUserId());
+		UserDetails userDetails = userDetailsService.loadUserByUsername(req.getEmail());
+		User user = userRepo.findByEmail(req.getEmail()).orElse(null);
+		if (user == null) {
+			throw new RuntimeException("User not found");
+		}
+		UserDTO userResponse = new UserDTO(user);
 
-                return new AuthResponse(
-                                jwtService.generateAccessToken(user),
-                                jwtService.generateRefreshToken(user));
-        }
+		return new AuthResponse(
+				jwtService.generateAccessToken(userDetails),
+				jwtService.generateRefreshToken(userDetails),
+				userResponse);
+	}
 }

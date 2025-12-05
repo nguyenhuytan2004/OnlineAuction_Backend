@@ -53,7 +53,6 @@ public class UserController {
     public ResponseEntity<?> updateUserInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UserDTO request) {
-        Integer userId = userDetails.getUser().getUserId();
 
         User updatedUser = _userService.updateUser(request);
         return ResponseEntity.ok(new UserDTO(updatedUser));
