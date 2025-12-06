@@ -11,12 +11,11 @@ import com.example.backend.model.ProductQna.ProductQuestion.CreateProductQuestio
 public interface IProductQnaService {
     public List<ProductQuestion> getProductQuestions(Integer productId);
 
-    public ProductQuestion createProductQuestion(CreateProductQuestionRequest createProductQuestionRequest,
-            Integer userId);
+    public ProductQuestion createProductQuestion(CreateProductQuestionRequest createQuestionRequest);
 
     public void sendQuestionNotificationToSeller(EmailNotificationRequest request);
 
-    public ProductAnswer createProductAnswer(CreateProductAnswerRequest createProductAnswerRequest, Integer userId);
+    public ProductAnswer createProductAnswer(CreateProductAnswerRequest createAnswerRequest);
 
     public void sendAnswerNotificationToBuyer(EmailNotificationRequest request);
 }

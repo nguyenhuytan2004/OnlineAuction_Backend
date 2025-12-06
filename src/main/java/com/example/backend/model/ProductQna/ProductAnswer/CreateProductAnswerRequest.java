@@ -11,6 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateProductAnswerRequest {
+    @NotNull(message = "User ID must not be null")
+    private Integer userId;
+
+    @NotNull(message = "Product ID must not be null")
+    private Integer productId;
+
     @NotNull(message = "Question ID must not be null")
     private Integer questionId;
 

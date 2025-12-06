@@ -12,6 +12,8 @@ import com.example.backend.config.AuctionProperties;
 import com.example.backend.entity.AuctionResult;
 import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
+import com.example.backend.entity.ProductQnA.ProductAnswer;
+import com.example.backend.entity.ProductQnA.ProductQuestion;
 import com.example.backend.model.WebSocket.BidUpdateMessage;
 import com.example.backend.model.WebSocket.BidUpdateMessage.MessageType;
 import com.example.backend.repository.IAuctionResultRepository;
@@ -116,5 +118,19 @@ public class AuctionService implements IAuctionService {
     public void broadcastAuctionEnd(Product product, String reason) {
         auctionMessagingTemplate.convertAndSend(
                 "/topic/product/" + product.getProductId() + "/auction-end", reason);
+    }
+
+    @Override
+    public void broadcastQuestionAsked(ProductQuestion productQuestion) {
+        auctionMessagingTemplate.convertAndSend(
+                "/topic/products/" + productQuestion.getProduct().getProductId() + "/questions", productQuestion);
+    }
+
+    @Override
+    public void broadcastAnswerPosted(ProductAnswer productAnswer, Integer productId) {
+        auctionMessagingTemplate.convertAndSend(
+                "/topic/products/" + productId + "/questions/" + productAnswer.getQuestion().getQuestionId()
+                        + "/answers",
+                productAnswer);
     }
 }

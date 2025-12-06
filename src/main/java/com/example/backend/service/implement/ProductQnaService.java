@@ -18,6 +18,7 @@ import com.example.backend.repository.IProductAnswerRepository;
 import com.example.backend.repository.IProductQuestionRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IUserRepository;
+import com.example.backend.service.IAuctionService;
 import com.example.backend.service.IProductQnaService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -35,39 +36,40 @@ public class ProductQnaService implements IProductQnaService {
     private IProductRepository _productRepository;
 
     @Autowired
+    private IAuctionService _auctionService;
+
+    @Autowired
     private EmailProducer emailProducer;
 
     @Override
     public List<ProductQuestion> getProductQuestions(Integer productId) {
-        return _productQuestionRepository.findByProductProductId(productId);
+        return _productQuestionRepository.findByProductProductIdOrderByQuestionAtDesc(productId);
     }
 
     @Override
-    public ProductQuestion createProductQuestion(CreateProductQuestionRequest createProductQuestionRequest,
-            Integer userId) {
+    public ProductQuestion createProductQuestion(CreateProductQuestionRequest request) {
         // Thực hiện kiểm tra các điều kiện trước khi save
-        User buyer = _userRepository.findById(userId)
+        User buyer = _userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Buyer not found"));
 
-        Product product = _productRepository.findById(createProductQuestionRequest.getProductId())
+        Product product = _productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        User seller = product.getSeller();
-        
-
-        if (product.getSeller().getUserId().equals(userId)) {
+        if (product.getSeller().getUserId().equals(request.getUserId())) {
             throw new RuntimeException("Seller cannot ask questions on their own product");
         }
 
         ProductQuestion question = new ProductQuestion();
         question.setProduct(product);
         question.setQuestionUser(buyer);
-        question.setQuestionText(HtmlSanitizerHelper.sanitize(createProductQuestionRequest.getQuestionText()));
+        question.setQuestionText(HtmlSanitizerHelper.sanitize(request.getQuestionText()));
+        ProductQuestion savedQuestion = _productQuestionRepository.save(question);
+
+        _auctionService.broadcastQuestionAsked(savedQuestion);
 
         // Gửi mail thông báo (thực hiện sau)
-        EmailNotificationRequest emailRequest = new EmailNotificationRequest();
 
-        return _productQuestionRepository.save(question);
+        return savedQuestion;
     }
 
     @Override
@@ -88,27 +90,30 @@ public class ProductQnaService implements IProductQnaService {
     }
 
     @Override
-    public ProductAnswer createProductAnswer(CreateProductAnswerRequest createProductAnswerRequest, Integer userId) {
+    public ProductAnswer createProductAnswer(CreateProductAnswerRequest request) {
         // Thực hiện kiểm tra các điều kiện trước khi save
-        User user = _userRepository.findById(userId)
+        User seller = _userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
 
-        ProductQuestion question = _productQuestionRepository.findById(createProductAnswerRequest.getQuestionId())
+        ProductQuestion question = _productQuestionRepository.findById(request.getQuestionId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
         Product product = question.getProduct();
-        if (!product.getSeller().getUserId().equals(userId)) {
+        if (!product.getSeller().getUserId().equals(request.getUserId())) {
             throw new RuntimeException("Only the seller of this product can answer questions");
         }
 
         ProductAnswer answer = new ProductAnswer();
         answer.setQuestion(question);
-        answer.setAnswerUser(user);
-        answer.setAnswerText(createProductAnswerRequest.getAnswerText());
+        answer.setAnswerUser(seller);
+        answer.setAnswerText(HtmlSanitizerHelper.sanitize(request.getAnswerText()));
+        ProductAnswer savedAnswer = _productAnswerRepository.save(answer);
+
+        _auctionService.broadcastAnswerPosted(savedAnswer, product.getProductId());
 
         // Gửi mail thông báo (thực hiện sau)
 
-        return _productAnswerRepository.save(answer);
+        return savedAnswer;
     }
 
     @Override

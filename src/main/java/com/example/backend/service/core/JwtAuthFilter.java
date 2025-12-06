@@ -80,6 +80,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         boolean isPublicGetRequest = method.equalsIgnoreCase("GET")
                 && (path.equals("/api/products")
                         || path.matches("/api/products/\\d+")
+                        || path.matches("/api/products/\\d+/bids")
                         || path.equals("/api/products/top-5-ending-soon")
                         || path.equals("/api/products/top-5-most-auctioned")
                         || path.equals("/api/products/top-5-highest-priced")

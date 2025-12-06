@@ -75,6 +75,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/products",
                                 "/api/products/{product_id}",
+                                "/api/products/{product_id}/bids",
                                 "/api/products/top-5-ending-soon",
                                 "/api/products/top-5-most-auctioned",
                                 "/api/products/top-5-highest-priced",

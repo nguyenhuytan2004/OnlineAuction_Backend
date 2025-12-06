@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 
 import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
+import com.example.backend.entity.ProductQnA.ProductAnswer;
+import com.example.backend.entity.ProductQnA.ProductQuestion;
 import com.example.backend.model.WebSocket.BidUpdateMessage.MessageType;
 
 public interface IAuctionService {
@@ -16,4 +18,8 @@ public interface IAuctionService {
     public void updateAuctionResult(Product product);
 
     public void broadcastAuctionEnd(Product product, String reason);
+
+    public void broadcastQuestionAsked(ProductQuestion productQuestion);
+
+    public void broadcastAnswerPosted(ProductAnswer productAnswer, Integer productId);
 }

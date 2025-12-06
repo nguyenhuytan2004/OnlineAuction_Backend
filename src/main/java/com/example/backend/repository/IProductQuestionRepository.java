@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.backend.entity.ProductQnA.ProductQuestion;
 
 public interface IProductQuestionRepository extends JpaRepository<ProductQuestion, Integer> {
-    List<ProductQuestion> findByProductProductId(Integer productId);
+    List<ProductQuestion> findByProductProductIdOrderByQuestionAtDesc(Integer productId);
 }

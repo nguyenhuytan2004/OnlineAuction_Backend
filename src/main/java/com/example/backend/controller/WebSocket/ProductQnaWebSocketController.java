@@ -1,19 +1,14 @@
 package com.example.backend.controller.WebSocket;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
-import com.example.backend.entity.ProductQnA.ProductAnswer;
-import com.example.backend.entity.ProductQnA.ProductQuestion;
 import com.example.backend.model.ProductQna.ProductAnswer.CreateProductAnswerRequest;
 import com.example.backend.model.ProductQna.ProductQuestion.CreateProductQuestionRequest;
 import com.example.backend.service.IProductQnaService;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -22,46 +17,29 @@ public class ProductQnaWebSocketController {
     @Autowired
     private IProductQnaService _productQnaService;
 
-    @MessageMapping("product/{productId}/questions")
-    @SendTo("topic/product/{productId}/questions")
-    public ProductQuestion askQuestion(
-            @DestinationVariable Integer productId,
-            @Valid @Payload CreateProductQuestionRequest request) {
+    @MessageMapping("products/{productId}/questions")
+    public void askQuestion(@Payload CreateProductQuestionRequest createQuestionRequest) {
         try {
-            // Tạm thời hardcode, sau này sẽ lấy từ Security Context
-            Integer buyerId = 1;
+            _productQnaService.createProductQuestion(createQuestionRequest);
 
-            ProductQuestion productQuestion = _productQnaService.createProductQuestion(request, buyerId);
-
-            return productQuestion;
         } catch (Exception e) {
             log.error(
-                    "[CONTROLLER][WEBSOCKET][PRODUCT-QNA][ERROR] /product/{}/questions - Error occurred: {}",
-                    productId, e.getMessage(), e);
+                    "[WEBSOCKET][QUESTION][ERROR] /product/{}/questions - Error occurred: {}",
+                    createQuestionRequest.getProductId(), e.getMessage(), e);
 
-            return null;
         }
     }
 
-    @MessageMapping("product/{productId}/questions/{questionId}/answers")
-    @SendTo("topic/product/{productId}/questions/{questionId}/answers")
-    public ProductAnswer answerQuestion(
-            @DestinationVariable Integer productId,
-            @DestinationVariable Integer questionId,
-            @Valid @Payload CreateProductAnswerRequest answerRequest) {
+    @MessageMapping("products/{productId}/questions/{questionId}/answers")
+    public void answerQuestion(@Payload CreateProductAnswerRequest createAnswerRequest) {
         try {
-            // Tạm thời hardcode, sau này sẽ lấy từ Security Context
-            Integer sellerId = 3;
+            _productQnaService.createProductAnswer(createAnswerRequest);
 
-            ProductAnswer productAnswer = _productQnaService.createProductAnswer(answerRequest, sellerId);
-
-            return productAnswer;
         } catch (Exception e) {
             log.error(
-                    "[CONTROLLER][WEBSOCKET][PRODUCT-QNA][ERROR] /product/{}/questions/{}/answers - Error occurred: {}",
-                    productId, questionId, e.getMessage(), e);
+                    "[WEBSOCKET][ANSWER][ERROR] /product/{}/questions/{}/answers - Error occurred: {}",
+                    createAnswerRequest.getProductId(), createAnswerRequest.getQuestionId(), e.getMessage(), e);
 
-            return null;
         }
     }
 }
