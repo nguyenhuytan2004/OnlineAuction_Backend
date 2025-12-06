@@ -87,9 +87,6 @@ public class SecurityConfig {
                                 "/api/categories/**")
                         .permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/products/{product_id}/bidding-eligibility")
-                        .authenticated()
-
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
 

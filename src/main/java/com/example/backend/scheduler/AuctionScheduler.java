@@ -8,12 +8,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.backend.entity.AuctionResult;
-import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
-import com.example.backend.repository.IAuctionResultRepository;
-import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IProductRepository;
+import com.example.backend.service.IAuctionService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,12 +22,9 @@ public class AuctionScheduler {
     private IProductRepository _productRepository;
 
     @Autowired
-    private IBidRepository _bidRepository;
+    private IAuctionService _auctionService;
 
-    @Autowired
-    private IAuctionResultRepository _auctionResultRepository;
-
-    @Scheduled(fixedDelay = 60000) // Chạy mỗi 60 giây
+    @Scheduled(fixedDelay = 10000) // Chạy mỗi 10 giây
     @Transactional
     public void processExpiredAuctions() {
         try {
@@ -42,7 +36,8 @@ public class AuctionScheduler {
 
             for (Product product : expiredProducts) {
                 try {
-                    processProductAuction(product);
+                    _auctionService.updateAuctionResult(product);
+                    _auctionService.broadcastAuctionEnd(product, "Phiên đấu giá đã kết thúc.");
                 } catch (Exception e) {
                     log.error("[SCHEDULER][AUCTION] Error processing product ID {}: {}", product.getProductId(),
                             e.getMessage(), e);
@@ -53,25 +48,4 @@ public class AuctionScheduler {
         }
     }
 
-    // Extra method to process each expired product auction
-    private void processProductAuction(Product product) {
-        AuctionResult existingResult = _auctionResultRepository
-                .findByProductProductId(product.getProductId());
-        if (existingResult != null) {
-            return;
-        }
-
-        Bid highestBid = _bidRepository.findTopByProductProductIdOrderByBidPriceDesc(product.getProductId());
-        if (highestBid != null) {
-            AuctionResult auctionResult = new AuctionResult();
-            auctionResult.setProduct(product);
-            auctionResult.setWinner(highestBid.getBidder());
-            auctionResult.setFinalPrice(product.getCurrentPrice());
-            auctionResult.setPaymentStatus(AuctionResult.PaymentStatus.PENDING);
-            _auctionResultRepository.save(auctionResult);
-        }
-
-        product.setIsActive(false);
-        _productRepository.save(product);
-    }
 }

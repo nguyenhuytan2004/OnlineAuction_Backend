@@ -160,16 +160,15 @@ public class ProductController {
 
     @PatchMapping("{product_id}/buy-now")
     public ResponseEntity<?> buyNowProduct(@PathVariable("product_id") Integer productId,
-            @RequestParam Integer buyerId) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
-            AuctionResult auctionResult = _productService.buyNowProduct(productId, buyerId);
-            if (auctionResult != null) {
-                return new ResponseEntity<>(auctionResult, HttpStatus.OK);
-            } else {
-                LOGGER.warn("[CONTROLLER][PATCH][ERROR] /api/products/{} - Failed to buy the product immediately.",
-                        productId);
-                return new ResponseEntity<>("Failed to buy the product immediately.", HttpStatus.BAD_REQUEST);
-            }
+            AuctionResult auctionResult = _productService.buyNowProduct(productId, userDetails.getUser().getUserId());
+            return new ResponseEntity<>(auctionResult, HttpStatus.OK);
+        } catch (IllegalArgumentException iae) {
+            LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{} - Illegal argument: {}", productId,
+                    iae.getMessage());
+            return new ResponseEntity<>("Illegal argument: " + iae.getMessage(), HttpStatus.BAD_REQUEST);
+
         } catch (Exception e) {
             LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{} - Error occurred: {}", productId, e.getMessage(),
                     e);

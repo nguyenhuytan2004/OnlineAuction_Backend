@@ -25,7 +25,6 @@ public class UserDTO {
         this.userId = user.getUserId();
         this.fullName = user.getFullName();
         this.email = user.getEmail();
-        this.isSeller = user.getIsSeller();
         this.ratingScore = user.getRatingScore();
         this.ratingCount = user.getRatingCount();
         this.role = user.getRole() != null ? user.getRole() : Role.BIDDER;

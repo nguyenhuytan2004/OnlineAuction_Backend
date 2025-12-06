@@ -1,24 +1,21 @@
 package com.example.backend.service.implement;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.example.backend.config.AuctionProperties;
 import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
 import com.example.backend.entity.User;
 import com.example.backend.model.Bid.CreateBidRequest;
-import com.example.backend.model.WebSocket.BidUpdateMessage;
 import com.example.backend.model.WebSocket.BidUpdateMessage.MessageType;
 import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IUserRepository;
+import com.example.backend.service.IAuctionService;
 import com.example.backend.service.IBidService;
 import com.example.backend.service.IProductService;
 
@@ -40,10 +37,7 @@ public class BidService implements IBidService {
     private IProductService _productService;
 
     @Autowired
-    private AuctionProperties auctionProperties;
-
-    @Autowired
-    private SimpMessagingTemplate bidMessagingTemplate;
+    private IAuctionService _auctionService;
 
     @Override
     public User getHighestBidderByProductId(Integer productId) {
@@ -88,7 +82,7 @@ public class BidService implements IBidService {
 
         Bid savedBid = processAutoBid(product, bidder, createBidRequest);
 
-        checkAndRenewAuction(product);
+        _auctionService.checkAndRenewAuction(product);
 
         return savedBid;
     }
@@ -164,63 +158,12 @@ public class BidService implements IBidService {
         _productRepository.save(product);
 
         // 5. Broadcast update qua WebSocket
-        broadcastBidUpdate(product, savedBid, previousPrice, messageType, message);
+        _auctionService.broadcastAuctionUpdate(product, savedBid, previousPrice, messageType, message);
 
         log.info("[AUTO-BID] Completed: currentPrice={}, winner={}",
                 savedBid.getBidPrice(), savedBid.getBidder().getFullName());
 
         return savedBid;
-    }
-
-    // Extra method to broadcast bid update via WebSocket
-    private void broadcastBidUpdate(Product product, Bid newBid, BigDecimal previousPrice,
-            MessageType messageType, String message) {
-        BidUpdateMessage wsMessage = BidUpdateMessage.builder()
-                .productId(product.getProductId())
-                .productName(product.getProductName())
-                .currentPrice(product.getCurrentPrice())
-                .previousPrice(previousPrice)
-                .priceStep(product.getPriceStep())
-                .highestBidderId(product.getHighestBidder() != null ? product.getHighestBidder().getUserId() : null)
-                .highestBidderName(product.getHighestBidder() != null ? product.getHighestBidder().getFullName() : null)
-                .newBidId(newBid.getBidId())
-                .newBidderId(newBid.getBidder().getUserId())
-                .newBidderName(newBid.getBidder().getFullName())
-                .newBidPrice(newBid.getBidPrice())
-                .newBidMaxPrice(newBid.getMaxAutoPrice())
-                .bidAt(newBid.getBidAt())
-                .totalBids(product.getBidCount())
-                .messageType(messageType)
-                .message(message)
-                .build();
-
-        // Broadcast tới tất cả clients
-        bidMessagingTemplate.convertAndSend(
-                "/topic/product/" + product.getProductId() + "/place-bid",
-                wsMessage);
-
-        log.info("[AUTO-BID] Broadcasted {} for product {}", messageType, product.getProductId());
-    }
-
-    // Extra method to check and renew auction
-    private void checkAndRenewAuction(Product product) {
-        if (product.getIsAutoRenew()) {
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime endTime = product.getEndTime();
-
-            Duration triggerDuration = auctionProperties.getTriggerDuration();
-            Duration extendDuration = auctionProperties.getExtendDuration();
-
-            if (triggerDuration.compareTo(Duration.between(now, endTime)) >= 0) {
-                product.setEndTime(endTime.plus(extendDuration));
-                _productRepository.save(product);
-            }
-
-            bidMessagingTemplate.convertAndSend(
-                    "/topic/product/" + product.getProductId() + "/auction-extended", product.getEndTime());
-
-            log.info("[AUTO-BID] Auction extended for product {}", product.getProductId());
-        }
     }
 
     @Override

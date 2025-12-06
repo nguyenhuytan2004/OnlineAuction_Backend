@@ -57,9 +57,6 @@ public class User {
     @JsonIgnore
     private String encryptedPassword;
 
-    @Column(name = "is_seller", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private Boolean isSeller = false;
-
     @Min(value = 0, message = "Rating score must be greater than or equal to 0")
     @Column(name = "rating_score", columnDefinition = "INT DEFAULT 0")
     private Integer ratingScore = 0;

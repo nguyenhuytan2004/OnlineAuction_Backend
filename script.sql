@@ -18,7 +18,6 @@ CREATE TABLE `USER` (
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     encrypted_password VARCHAR(255) NOT NULL,
-    is_seller BOOLEAN DEFAULT FALSE,
     rating_score INT DEFAULT 0,
     rating_count INT DEFAULT 0,
     role ENUM('BIDDER', 'SELLER', 'ADMIN') NOT NULL DEFAULT 'BIDDER',
@@ -156,13 +155,15 @@ INSERT INTO `CATEGORY` (category_name, parent_id) VALUES
 ('Máy tính bảng', 1);
 
 -- USER (Realistic names + realistic emails)
-INSERT INTO `USER` (full_name, email, encrypted_password, is_seller, rating_score, rating_count) VALUES
-('Nguyễn Hoàng Minh', 'minh.nguyen@gmail.com', '$2a$10$5K7irzpbIRu8CobNZJFVDempz9WDIf.LDvGLOB0wxM0ElH5eQodhC', 0, 8, 10),
-('Trần Khánh Linh', 'linh.tran@gmail.com', '$2a$10$savotgG5leGb/SwtvrRPguX76AwBumNxFZMJYegUUncRvegOucX4O', 0, 10, 10),
-('Lê Quốc Huy', 'huy.le@gmail.com', '$2a$10$BOtUAA6RN.v581tSt7vW4.vgDr8DdFrtXSkTKArazSZC.dWl.wLVm', 1, 12, 15),
-('Phạm Bảo Trân', 'tran.pham@gmail.com', '$2a$10$examplehashforsellerd', 1, 14, 20),
-('Hoàng Gia Bảo', 'bao.hoang@gmail.com', '$2a$10$examplehashforsellere', 1, 16, 25),
-('Nguyễn Thu Hà', 'ha.nguyen@gmail.com', '$2a$10$examplehashforbidderf', 0, 9, 12);
+INSERT INTO `USER` (full_name, email, encrypted_password, rating_score, rating_count) VALUES
+('Nguyễn Hoàng Minh', 'minh.nguyen@gmail.com', '$2a$10$5K7irzpbIRu8CobNZJFVDempz9WDIf.LDvGLOB0wxM0ElH5eQodhC', 8, 10),
+('Trần Khánh Linh', 'linh.tran@gmail.com', '$2a$10$savotgG5leGb/SwtvrRPguX76AwBumNxFZMJYegUUncRvegOucX4O', 10, 10),
+('Lê Quốc Huy', 'huy.le@gmail.com', '$2a$10$BOtUAA6RN.v581tSt7vW4.vgDr8DdFrtXSkTKArazSZC.dWl.wLVm', 12, 15),
+('Phạm Bảo Trân', 'tran.pham@gmail.com', '$2a$10$examplehashforsellerd', 14, 20),
+('Hoàng Gia Bảo', 'bao.hoang@gmail.com', '$2a$10$examplehashforsellere', 16, 25),
+('Nguyễn Thu Hà', 'ha.nguyen@gmail.com', '$2a$10$examplehashforbidderf', 9, 12),
+('Nguyễn Huy Tấn', 'nhtan22@clc.fitus.edu.vn', '$2a$10$F4RGn9dExHFHf1kCcFSNa.BzlanrhH3wt0mdSbzAtdZ7cQSIQI/Ae', 15, 20),
+('Đăng Văn Quang', 'dvquang22@clc.fitus.edu.vn', '$2a$10$MHmloXfvFV7ar1N/clY3getdUu2/rWND21KaWQbx5eAsp49RLpdOW', 38, 43);
 
 INSERT INTO `PRODUCT`
 (seller_id, category_id, main_image_url, product_name, current_price, highest_bidder_id, buy_now_price, start_price, price_step, description, end_time, bid_count) VALUES

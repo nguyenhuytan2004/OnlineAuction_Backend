@@ -25,6 +25,7 @@ import com.example.backend.repository.IAuctionResultRepository;
 import com.example.backend.repository.ICategoryRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IUserRepository;
+import com.example.backend.service.IAuctionService;
 import com.example.backend.service.IProductService;
 
 import jakarta.persistence.EntityManager;
@@ -40,6 +41,8 @@ public class ProductService implements IProductService {
     private ICategoryRepository _categoryRepository;
     @Autowired
     private IAuctionResultRepository _auctionResultRepository;
+    @Autowired
+    private IAuctionService _auctionService;
 
     @Autowired
     private EntityManager entityManager;
@@ -237,11 +240,11 @@ public class ProductService implements IProductService {
         }
 
         if (product.getIsActive() == false) {
-            throw new IllegalStateException("Product is not active for auction.");
+            throw new IllegalArgumentException("Product is not active for auction.");
         }
 
         if (product.getBuyNowPrice() == null) {
-            throw new IllegalStateException("Product does not have a Buy Now option.");
+            throw new IllegalArgumentException("Product does not have a Buy Now option.");
         }
 
         // Check buyer ratings (implement in the future)
@@ -257,7 +260,7 @@ public class ProductService implements IProductService {
         AuctionResult existingResult = _auctionResultRepository
                 .findByProductProductId(productId);
         if (existingResult != null) {
-            throw new IllegalStateException("Product has already been sold.");
+            throw new IllegalArgumentException("Product has already been sold.");
         }
 
         // Update product status
@@ -273,6 +276,8 @@ public class ProductService implements IProductService {
         auctionResult.setResultTime(LocalDateTime.now());
         auctionResult.setPaymentStatus(AuctionResult.PaymentStatus.PENDING);
         AuctionResult savedAuctionResult = _auctionResultRepository.save(auctionResult);
+
+        _auctionService.broadcastAuctionEnd(product, "Phiên đấu giá đã kết thúc vì sản phẩm đã được mua ngay.");
 
         return savedAuctionResult;
     }
