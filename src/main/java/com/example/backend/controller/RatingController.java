@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.entity.Rating;
 import com.example.backend.model.Rating.CreateRatingRequest;
 import com.example.backend.model.Rating.UpdateRatingRequest;
+import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.IRatingService;
 
 import jakarta.validation.Valid;
@@ -28,39 +30,38 @@ public class RatingController {
 
     @PostMapping("/seller")
     public ResponseEntity<?> rateSeller(
-            @RequestParam Integer userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateRatingRequest createRatingRequest) {
         try {
-            Rating newRating = _ratingService.rateSeller(createRatingRequest, userId);
+            Rating newRating = _ratingService.rateSeller(createRatingRequest, userDetails.getUser().getUserId());
 
             return new ResponseEntity<>(newRating, HttpStatus.CREATED);
 
         } catch (IllegalArgumentException e) {
             log.info("[CONTROLLER][POST][WARN] /api/ratings/{} - Illegal argument: {}",
-                    userId, e.getMessage());
+                    userDetails.getUser().getUserId(), e.getMessage());
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("[CONTROLLER][POST][ERROR] /api/ratings/{} - Error creating rating: {}",
-                    userId, e.getMessage(), e);
+                    userDetails.getUser().getUserId(), e.getMessage(), e);
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/buyer")
     public ResponseEntity<?> rateBuyer(
-            @RequestParam Integer userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateRatingRequest createRatingRequest) {
         try {
-            Rating newRating = _ratingService.rateBuyer(createRatingRequest, userId);
-
+            Rating newRating = _ratingService.rateBuyer(createRatingRequest, userDetails.getUser().getUserId());
             return new ResponseEntity<>(newRating, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             log.info("[CONTROLLER][POST][WARN] /api/ratings/{} - Illegal argument: {}",
-                    userId, e.getMessage());
+                    userDetails.getUser().getUserId(), e.getMessage());
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("[CONTROLLER][POST][ERROR] /api/ratings/{} - Error creating rating: {}",
-                    userId, e.getMessage(), e);
+                    userDetails.getUser().getUserId(), e.getMessage(), e);
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

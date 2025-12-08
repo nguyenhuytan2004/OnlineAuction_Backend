@@ -60,27 +60,29 @@ public class ProductService implements IProductService {
 
     @Override
     public Page<Product> getProductsByCategoryId(Integer categoryId, Pageable pageable) {
-        return _productRepository.findByCategoryCategoryId(categoryId, pageable);
+        return _productRepository.findByIsActiveTrueAndCategoryCategoryId(categoryId, pageable);
     }
 
     @Override
     public List<Product> getTop5EndingSoonProducts() {
-        return _productRepository.findTop5ByOrderByEndTimeAsc();
+        return _productRepository.findTop5ByIsActiveTrueOrderByEndTimeAsc();
     }
 
     @Override
     public List<Product> getTop5MostAuctionedProducts() {
-        return _productRepository.findTop5ByOrderByBidCountDesc();
+        return _productRepository.findTop5ByIsActiveTrueOrderByBidCountDesc();
     }
 
     @Override
     public List<Product> getTop5HighestPricedProducts() {
-        return _productRepository.findTop5ByOrderByCurrentPriceDesc();
+        return _productRepository.findTop5ByIsActiveTrueOrderByCurrentPriceDesc();
     }
 
     @Override
     public List<Product> getTop5RelatedProducts(Integer categoryId, Integer productId) {
-        return _productRepository.findTop5ByCategoryCategoryIdAndProductIdNotOrderByEndTimeAsc(categoryId, productId);
+        return _productRepository.findTop5ByIsActiveTrueAndCategoryCategoryIdAndProductIdNotOrderByEndTimeAsc(
+                categoryId,
+                productId);
     }
 
     @SuppressWarnings("null")

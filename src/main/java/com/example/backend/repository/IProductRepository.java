@@ -12,25 +12,25 @@ import org.springframework.data.repository.query.Param;
 import com.example.backend.entity.Product;
 
 public interface IProductRepository extends JpaRepository<Product, Integer> {
-    // Tìm tất cả sản phẩm có isActive = true
-    Page<Product> findByIsActiveTrue(Pageable pageable);
+        Page<Product> findByIsActiveTrue(Pageable pageable);
 
-    Page<Product> findByCategoryCategoryId(Integer categoryId, Pageable pageable);
+        Page<Product> findByIsActiveTrueAndCategoryCategoryId(Integer categoryId, Pageable pageable);
 
-    List<Product> findTop5ByOrderByEndTimeAsc();
+        List<Product> findTop5ByIsActiveTrueOrderByEndTimeAsc();
 
-    List<Product> findTop5ByOrderByBidCountDesc();
+        List<Product> findTop5ByIsActiveTrueOrderByBidCountDesc();
 
-    List<Product> findTop5ByOrderByCurrentPriceDesc();
+        List<Product> findTop5ByIsActiveTrueOrderByCurrentPriceDesc();
 
-    List<Product> findTop5ByCategoryCategoryIdAndProductIdNotOrderByEndTimeAsc(Integer categoryId, Integer productId);
+        List<Product> findTop5ByIsActiveTrueAndCategoryCategoryIdAndProductIdNotOrderByEndTimeAsc(Integer categoryId,
+                        Integer productId);
 
-    @Query("SELECT p FROM Product p " +
-            "WHERE p.endTime < :now " +
-            "AND p.isActive = true " +
-            "AND p.productId NOT IN (SELECT ar.product.productId FROM AuctionResult ar) " +
-            "ORDER BY p.endTime ASC")
-    List<Product> findExpiredProductsWithoutResult(@Param("now") LocalDateTime now);
+        @Query("SELECT p FROM Product p " +
+                        "WHERE p.endTime < :now " +
+                        "AND p.isActive = true " +
+                        "AND p.productId NOT IN (SELECT ar.product.productId FROM AuctionResult ar) " +
+                        "ORDER BY p.endTime ASC")
+        List<Product> findExpiredProductsWithoutResult(@Param("now") LocalDateTime now);
 
-    List<Product> findBySellerUserIdAndEndTimeAfterOrderByEndTimeAsc(Integer userId, LocalDateTime now);
+        List<Product> findBySellerUserIdAndEndTimeAfterOrderByEndTimeAsc(Integer userId, LocalDateTime now);
 }

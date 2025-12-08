@@ -1,5 +1,6 @@
 package com.example.backend.service.implement;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,5 +149,10 @@ public class RatingService implements IRatingService {
         _userRepository.save(reviewee);
 
         return updatedRating;
+    }
+
+    @Override
+    public List<Rating> geRatingsByRevieweeId(Integer revieweeId) {
+        return _ratingRepository.findByRevieweeUserId(revieweeId);
     }
 }

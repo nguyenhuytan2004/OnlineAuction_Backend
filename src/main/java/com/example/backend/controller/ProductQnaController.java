@@ -39,7 +39,7 @@ public class ProductQnaController {
     // public ResponseEntity<?> createProductQuestion(
     // @Valid @RequestBody CreateProductQuestionRequest
     // createProductQuestionRequest,
-    // @AuthenticationPrincipal Integer userId) {
+    // (@AuthenticationPrincipal CustomUserDetails userDetails) {
     // try {
     // ProductQuestion createdQuestion = _productQnaService
     // .createProductQuestion(createProductQuestionRequest, userId);
@@ -62,7 +62,7 @@ public class ProductQnaController {
     // @PostMapping("{product_id}/answers")
     // public ResponseEntity<?> createProductAnswer(
     // @Valid @RequestBody CreateProductAnswerRequest createProductAnswerRequest,
-    // @AuthenticationPrincipal Integer userId) {
+    // (@AuthenticationPrincipal CustomUserDetails userDetails) {
     // try {
     // ProductAnswer createdAnswer = _productQnaService
     // .createProductAnswer(createProductAnswerRequest, userId);

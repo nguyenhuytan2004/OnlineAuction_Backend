@@ -1,64 +1,110 @@
 package com.example.backend.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.entity.Product;
+import com.example.backend.entity.Rating;
+import com.example.backend.entity.WatchList;
+import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.IBidderProfileService;
+import com.example.backend.service.IProductService;
+import com.example.backend.service.IRatingService;
+import com.example.backend.service.IWatchListService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
-@RequestMapping("api/bidder-profile")
+@RequestMapping("api/user-profile")
 public class BidderProfileController {
     @Autowired
     private IBidderProfileService _bidderProfileService;
+    @Autowired
+    private IWatchListService _watchListService;
+    @Autowired
+    private IProductService _productService;
+    @Autowired
+    private IRatingService _ratingService;
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(BidderProfileController.class);
+    @Operation(summary = "Get ratings for the authenticated user", description = "Retrieve all ratings received by the authenticated user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved ratings", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rating.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+    })
+    @GetMapping("/rating")
+    public ResponseEntity<?> getRatings(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            List<Rating> ratings = _ratingService.geRatingsByRevieweeId(userDetails.getUser().getUserId());
+            return new ResponseEntity<>(ratings, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error(
+                    "[CONTROLLER][GET][ERROR] /api/bidder-profile/rating - Error occurred for user with ID: {}: {}",
+                    userDetails.getUser().getUserId(), e.getMessage(), e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/watch-list")
+    public ResponseEntity<?> getWatchListByUserId(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        try {
+            List<WatchList> watchLists = _watchListService.getWatchList(userDetails.getUser().getUserId());
+
+            List<Product> products = new ArrayList<>();
+            for (WatchList watchList : watchLists) {
+                Product product = _productService.getProduct(watchList.getProduct().getProductId());
+                if (product != null) {
+                    products.add(product);
+                }
+            }
+            return new ResponseEntity<>(products, HttpStatus.OK);
+
+        } catch (Exception e) {
+            log.error(
+                    "[CONTROLLER][GET][ERROR] /api/user-profile/watch-list - Error occurred for user with ID: {}: {}",
+                    userDetails.getUser().getUserId(), e.getMessage(), e);
+
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/participating-products")
-    public ResponseEntity<?> getParticipatingProducts(@RequestParam Integer userId) {
+    public ResponseEntity<?> getParticipatingProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
-            List<Product> products = _bidderProfileService.getParticipatingProducts(userId);
-            if (products.isEmpty()) {
-                LOGGER.info(
-                        "[CONTROLLER][GET][WARN] /api/bidder-profile/participating-products - No participating products found for user with ID: {}",
-                        userId);
-                return new ResponseEntity<>(products, HttpStatus.OK);
-            }
-
+            List<Product> products = _bidderProfileService.getParticipatingProducts(userDetails.getUser().getUserId());
             return new ResponseEntity<>(products, HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.error(
+            log.error(
                     "[CONTROLLER][GET][ERROR] /api/bidder-profile/participating-products - Error occurred for user with ID: {}: {}",
-                    userId, e.getMessage(), e);
+                    userDetails.getUser().getUserId(), e.getMessage(), e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/won-products")
-    public ResponseEntity<?> getWonProducts(@RequestParam Integer userId) {
+    public ResponseEntity<?> getWonProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
-            List<Product> products = _bidderProfileService.getWonProducts(userId);
-            if (products.isEmpty()) {
-                LOGGER.info(
-                        "[CONTROLLER][GET][WARN] /api/bidder-profile/won-products - No won products found for user with ID: {}",
-                        userId);
-            }
+            List<Product> products = _bidderProfileService.getWonProducts(userDetails.getUser().getUserId());
 
             return new ResponseEntity<>(products, HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.error(
+            log.error(
                     "[CONTROLLER][GET][ERROR] /api/bidder-profile/won-products - Error occurred for user with ID: {}: {}",
-                    userId, e.getMessage(), e);
+                    userDetails.getUser().getUserId(), e.getMessage(), e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
