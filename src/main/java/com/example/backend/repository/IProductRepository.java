@@ -33,4 +33,6 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
         List<Product> findExpiredProductsWithoutResult(@Param("now") LocalDateTime now);
 
         List<Product> findBySellerUserIdAndEndTimeAfterOrderByEndTimeAsc(Integer userId, LocalDateTime now);
+
+        boolean existsByCategory_CategoryId(Integer categoryId);
 }

@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.backend.entity.Category;
 
 public interface ICategoryRepository extends JpaRepository<Category, Integer> {
-
+    boolean existsByParent_CategoryId(Integer parentId);
 }
