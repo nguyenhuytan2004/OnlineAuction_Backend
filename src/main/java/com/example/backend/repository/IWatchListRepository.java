@@ -8,4 +8,6 @@ import com.example.backend.entity.WatchList;
 
 public interface IWatchListRepository extends JpaRepository<WatchList, Integer> {
     List<WatchList> findByUserUserId(Integer userId);
+
+    WatchList findByUserUserIdAndProductProductId(Integer userId, Integer productId);
 }

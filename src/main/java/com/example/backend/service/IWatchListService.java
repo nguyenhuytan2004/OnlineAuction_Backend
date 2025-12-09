@@ -8,4 +8,8 @@ public interface IWatchListService {
     public List<WatchList> getWatchList(Integer userId);
 
     public WatchList addToWatchList(Integer userId, Integer productId);
+
+    public WatchList removeFromWatchList(Integer userId, Integer productId);
+
+    public boolean isInWatchList(Integer userId, Integer productId);
 }

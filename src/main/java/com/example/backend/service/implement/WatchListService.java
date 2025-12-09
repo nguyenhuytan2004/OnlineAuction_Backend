@@ -29,6 +29,12 @@ public class WatchListService implements IWatchListService {
     }
 
     @Override
+    public boolean isInWatchList(Integer userId, Integer productId) {
+        WatchList watchList = _watchListRepository.findByUserUserIdAndProductProductId(userId, productId);
+        return watchList != null;
+    }
+
+    @Override
     public WatchList addToWatchList(Integer userId, Integer productId) {
         User user = _userService.getUser(userId);
         Product product = _productService.getProduct(productId);
@@ -38,5 +44,15 @@ public class WatchListService implements IWatchListService {
         watchList.setProduct(product);
 
         return _watchListRepository.save(watchList);
+    }
+
+    @Override
+    public WatchList removeFromWatchList(Integer userId, Integer productId) {
+        WatchList watchList = _watchListRepository.findByUserUserIdAndProductProductId(userId, productId);
+        if (watchList != null) {
+            _watchListRepository.delete(watchList);
+            return watchList;
+        }
+        return null;
     }
 }

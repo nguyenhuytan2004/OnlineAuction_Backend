@@ -331,3 +331,19 @@ INSERT INTO `PRODUCT_ANSWER` (question_id, answer_user_id, answer_text) VALUES
 (9, 3, 'Màn hình Dynamic AMOLED 2X, hiển thị rất đẹp.'),
 (9, 3, 'Độ phân giải cao 2560x1600px.');
 -- Q10: 'Máy chạy Android phiên bản mấy?' (0 câu trả lời - Đang chờ seller)
+
+INSERT INTO RATING (product_id, reviewer_id, reviewee_id, rating_value, comment) VALUES
+-- Dòng 1: reviewer_id = 1 đánh giá tích cực (+1)
+(2, 1, 7, 1, 'Sản phẩm tuyệt vời, giao hàng nhanh chóng!'),
+
+-- Dòng 2: reviewer_id = 2 đánh giá tiêu cực (-1)
+(3, 2, 7, -1, 'Sản phẩm không đúng mô tả, thất vọng.'),
+
+-- Dòng 3: reviewer_id = 3 đánh giá tích cực (+1)
+(4, 3, 7, 1, 'Rất hài lòng với chất lượng và dịch vụ bán hàng.'),
+
+-- Dòng 4: reviewer_id = 4 đánh giá tiêu cực (-1)
+(5, 4, 7, -1, 'Phản hồi chậm và sản phẩm bị lỗi nhỏ.'),
+
+-- Dòng 5: reviewer_id = 5 đánh giá tích cực (+1)
+(6, 5, 7, 1, 'Giá tốt, chất lượng ổn. Sẽ ủng hộ lần sau.');

@@ -45,7 +45,7 @@ public class BidderProfileController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved ratings", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rating.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    @GetMapping("/rating")
+    @GetMapping("/ratings")
     public ResponseEntity<?> getRatings(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
             List<Rating> ratings = _ratingService.geRatingsByRevieweeId(userDetails.getUser().getUserId());
