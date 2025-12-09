@@ -1,9 +1,16 @@
 package com.example.backend.service.implement;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
+import com.example.backend.config.SearchAnalyzerConfig;
+import com.example.backend.entity.AuctionResult;
+import com.example.backend.entity.Product;
+import com.example.backend.entity.ProductImage;
+import com.example.backend.entity.User;
+import com.example.backend.helper.HtmlSanitizerHelper;
+import com.example.backend.model.Product.CreateProductRequest;
+import com.example.backend.repository.*;
+import com.example.backend.service.IAuctionService;
+import com.example.backend.service.IProductService;
+import jakarta.persistence.EntityManager;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
@@ -14,21 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.backend.config.SearchAnalyzerConfig;
-import com.example.backend.entity.AuctionResult;
-import com.example.backend.entity.Product;
-import com.example.backend.entity.ProductImage;
-import com.example.backend.entity.User;
-import com.example.backend.helper.HtmlSanitizerHelper;
-import com.example.backend.model.Product.CreateProductRequest;
-import com.example.backend.repository.IAuctionResultRepository;
-import com.example.backend.repository.ICategoryRepository;
-import com.example.backend.repository.IProductRepository;
-import com.example.backend.repository.IUserRepository;
-import com.example.backend.service.IAuctionService;
-import com.example.backend.service.IProductService;
-
-import jakarta.persistence.EntityManager;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 public class ProductService implements IProductService {
@@ -43,6 +38,8 @@ public class ProductService implements IProductService {
     private IAuctionResultRepository _auctionResultRepository;
     @Autowired
     private IAuctionService _auctionService;
+    @Autowired
+    private IBidRepository _bidRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -183,9 +180,9 @@ public class ProductService implements IProductService {
 
         return result.hits().isEmpty() ? Page.empty()
                 : new PageImpl<>(
-                        result.hits(),
-                        pageable,
-                        result.total().hitCount());
+                result.hits(),
+                pageable,
+                result.total().hitCount());
     }
 
     @SuppressWarnings("null")
@@ -321,5 +318,33 @@ public class ProductService implements IProductService {
         Integer userRatingCount = user.getRatingCount();
 
         return userRating * 1.0 / userRatingCount >= 0.8 && userRatingCount >= 5;
+    }
+
+    @Override
+    @Transactional
+    public void deleteProduct(Integer productId, Integer requesterId) {
+
+        Product product = _productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + productId));
+
+        /* Chỉ seller được xóa
+        if (!product.getSeller().getUserId().equals(requesterId)) {
+            throw new IllegalArgumentException("Only the seller can delete this product.");
+        }*/
+
+        // Check đã bán chưa
+        boolean isSold = _auctionResultRepository.existsByProduct_ProductId(productId);
+        if (isSold) {
+            throw new IllegalArgumentException("Product has already been sold and cannot be deleted.");
+        }
+
+        // Cấm xóa khi có bid
+        boolean hasBids = _bidRepository.existsByProduct_ProductId(productId);
+        if (hasBids) {
+            throw new IllegalArgumentException("Product already has bids and cannot be deleted.");
+        }
+
+        // Xóa
+        _productRepository.delete(product);
     }
 }

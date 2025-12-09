@@ -8,14 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.backend.entity.AuctionResult;
 import com.example.backend.entity.Bid;
@@ -219,4 +212,26 @@ public class ProductController {
         }
     }
 
+    @DeleteMapping("{product_id}")
+    public ResponseEntity<?> deleteProduct(
+            @PathVariable("product_id") Integer productId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            Integer requesterId = userDetails.getUser().getUserId();
+
+            _productService.deleteProduct(productId, requesterId);
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        } catch (IllegalArgumentException iae) {
+            LOGGER.error("[CONTROLLER][DELETE][ERROR] /api/products/{} - Illegal argument: {}", productId,
+                    iae.getMessage());
+            return new ResponseEntity<>("Illegal argument: " + iae.getMessage(), HttpStatus.BAD_REQUEST);
+
+        } catch (Exception e) {
+            LOGGER.error("[CONTROLLER][DELETE][ERROR] /api/products/{} - Error occurred: {}", productId,
+                    e.getMessage(), e);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

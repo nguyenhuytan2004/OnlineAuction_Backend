@@ -17,4 +17,6 @@ public interface IAuctionResultRepository extends JpaRepository<AuctionResult, I
 
     @Query("SELECT ar.product FROM AuctionResult ar WHERE ar.product.seller.userId = :userId")
     List<Product> findSoldProductsBySellerUserId(@Param("userId") Integer userId);
+
+    boolean existsByProduct_ProductId(Integer productId);
 }
