@@ -1,7 +1,5 @@
 package com.example.backend.model.Auth;
 
-import com.example.backend.model.User.UserDTO;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class AuthResponse {
     private String accessToken;
     private String refreshToken;
-    private UserDTO user;
+    private com.example.backend.model.User.UserResponse user;
 }

@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserDTO {
+public class UserResponse {
     private Integer userId;
     private String fullName;
     private String email;
@@ -21,7 +21,7 @@ public class UserDTO {
     private Integer ratingCount;
     private User.Role role;
 
-    public UserDTO(User user) {
+    public UserResponse(User user) {
         this.userId = user.getUserId();
         this.fullName = user.getFullName();
         this.email = user.getEmail();

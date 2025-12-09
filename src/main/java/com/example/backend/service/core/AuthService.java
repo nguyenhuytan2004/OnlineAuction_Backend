@@ -10,7 +10,6 @@ import com.example.backend.entity.User;
 import com.example.backend.model.Auth.AuthResponse;
 import com.example.backend.model.Auth.LoginRequest;
 import com.example.backend.model.Auth.RegisterRequest;
-import com.example.backend.model.User.UserDTO;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.security.JwtService;
@@ -41,7 +40,7 @@ public class AuthService {
 		userRepo.save(user);
 
 		UserDetails userDetails = new CustomUserDetails(user);
-		UserDTO userResponse = new UserDTO(user);
+		com.example.backend.model.User.UserResponse userResponse = new com.example.backend.model.User.UserResponse(user);
 
 		return new AuthResponse(
 				jwtService.generateAccessToken(userDetails),
@@ -57,7 +56,7 @@ public class AuthService {
 
 		UserDetails userDetails = userDetailsService.loadUserByUsername(req.getEmail());
 		User user = userRepo.findByEmail(req.getEmail()).orElse(null);
-		UserDTO userResponse = new UserDTO(user);
+		com.example.backend.model.User.UserResponse userResponse = new com.example.backend.model.User.UserResponse(user);
 
 		return new AuthResponse(
 				jwtService.generateAccessToken(userDetails),

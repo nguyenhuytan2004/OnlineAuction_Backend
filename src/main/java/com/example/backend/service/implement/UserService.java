@@ -1,15 +1,17 @@
 package com.example.backend.service.implement;
 
 import com.example.backend.entity.User;
-import com.example.backend.model.User.UserDTO;
+import com.example.backend.model.User.UpdateUserRequest;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.service.IUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class UserService implements IUserService {
 
     @Autowired
@@ -26,18 +28,18 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User updateUser(UserDTO userDto) {
-        User user = _userRepository.findById(userDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public User updateUser(UpdateUserRequest updateUserReqeust) {
 
-        if (!user.getEmail().equals(userDto.getEmail())) {
-            if (_userRepository.findByEmail(userDto.getEmail()).isPresent()) {
-                throw new RuntimeException("Email already in use");
+        User user = _userRepository.findById(updateUserReqeust.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + updateUserReqeust.getUserId()));
+
+        if (!user.getEmail().equals(updateUserReqeust.getEmail())) {
+            if (_userRepository.findByEmail(updateUserReqeust.getEmail()).isPresent()) {
+                throw new IllegalArgumentException("Email already in use");
             }
-            user.setEmail(userDto.getEmail());
+            user.setEmail(updateUserReqeust.getEmail());
         }
-
-        user.setFullName(userDto.getEmail());
+        user.setFullName(updateUserReqeust.getFullName());
 
         return _userRepository.save(user);
     }
