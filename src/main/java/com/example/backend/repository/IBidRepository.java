@@ -22,4 +22,6 @@ public interface IBidRepository extends JpaRepository<Bid, Integer> {
     Boolean existsByProductProductIdAndBidderUserId(Integer productId, Integer userId);
 
     boolean existsByProduct_ProductId(Integer productId);
+
+    void deleteByProductProductIdAndBidderUserId(Integer productId, Integer userId);
 }

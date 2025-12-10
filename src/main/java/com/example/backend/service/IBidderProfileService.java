@@ -8,4 +8,6 @@ public interface IBidderProfileService {
     List<Product> getParticipatingProducts(Integer userId);
 
     List<Product> getWonProducts(Integer userId);
+
+    void changePassword(Integer userId, String currentPassword, String newPassword, String confirmNewPassword);
 }

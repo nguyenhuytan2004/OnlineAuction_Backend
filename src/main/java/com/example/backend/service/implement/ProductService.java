@@ -1,29 +1,39 @@
 package com.example.backend.service.implement;
 
-import com.example.backend.config.SearchAnalyzerConfig;
-import com.example.backend.entity.AuctionResult;
-import com.example.backend.entity.Product;
-import com.example.backend.entity.ProductImage;
-import com.example.backend.entity.User;
-import com.example.backend.helper.HtmlSanitizerHelper;
-import com.example.backend.model.Product.CreateProductRequest;
-import com.example.backend.repository.*;
-import com.example.backend.service.IAuctionService;
-import com.example.backend.service.IProductService;
-import jakarta.persistence.EntityManager;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
+import com.example.backend.config.SearchAnalyzerConfig;
+import com.example.backend.entity.AuctionResult;
+import com.example.backend.entity.BlockedBidder;
+import com.example.backend.entity.Product;
+import com.example.backend.entity.ProductImage;
+import com.example.backend.entity.User;
+import com.example.backend.helper.HtmlSanitizerHelper;
+import com.example.backend.model.Product.CreateProductRequest;
+import com.example.backend.repository.IAuctionResultRepository;
+import com.example.backend.repository.IBidRepository;
+import com.example.backend.repository.IBlockedBidderRepository;
+import com.example.backend.repository.ICategoryRepository;
+import com.example.backend.repository.IProductRepository;
+import com.example.backend.repository.IUserRepository;
+import com.example.backend.service.IAuctionService;
+import com.example.backend.service.IBidService;
+import com.example.backend.service.IProductService;
+
+import jakarta.persistence.EntityManager;
 
 @Service
 public class ProductService implements IProductService {
@@ -37,9 +47,15 @@ public class ProductService implements IProductService {
     @Autowired
     private IAuctionResultRepository _auctionResultRepository;
     @Autowired
+    private IBidRepository _bidRepository;
+    @Autowired
+    private IBlockedBidderRepository _blockedBidderRepository;
+
+    @Autowired
     private IAuctionService _auctionService;
     @Autowired
-    private IBidRepository _bidRepository;
+    @Lazy
+    private IBidService _bidService;
 
     @Autowired
     private EntityManager entityManager;
@@ -180,9 +196,9 @@ public class ProductService implements IProductService {
 
         return result.hits().isEmpty() ? Page.empty()
                 : new PageImpl<>(
-                result.hits(),
-                pageable,
-                result.total().hitCount());
+                        result.hits(),
+                        pageable,
+                        result.total().hitCount());
     }
 
     @SuppressWarnings("null")
@@ -327,10 +343,13 @@ public class ProductService implements IProductService {
         Product product = _productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + productId));
 
-        /* Chỉ seller được xóa
-        if (!product.getSeller().getUserId().equals(requesterId)) {
-            throw new IllegalArgumentException("Only the seller can delete this product.");
-        }*/
+        /*
+         * Chỉ seller được xóa
+         * if (!product.getSeller().getUserId().equals(requesterId)) {
+         * throw new
+         * IllegalArgumentException("Only the seller can delete this product.");
+         * }
+         */
 
         // Check đã bán chưa
         boolean isSold = _auctionResultRepository.existsByProduct_ProductId(productId);
@@ -346,5 +365,28 @@ public class ProductService implements IProductService {
 
         // Xóa
         _productRepository.delete(product);
+    }
+
+    @Override
+    @Transactional
+    public BlockedBidder blockBidder(Integer productId, Integer blockerId, Integer blockedId, String reason) {
+        Product product = _productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + productId));
+        User blocker = _userRepository.findById(blockerId)
+                .orElseThrow(() -> new IllegalArgumentException("Blocker not found with ID: " + blockerId));
+        User blocked = _userRepository.findById(blockedId)
+                .orElseThrow(() -> new IllegalArgumentException("Blocked user not found with ID: " + blockedId));
+
+        BlockedBidder blockedBidder = new BlockedBidder();
+        blockedBidder.setProduct(product);
+        blockedBidder.setBlocker(blocker);
+        blockedBidder.setBlocked(blocked);
+        blockedBidder.setReason(reason);
+
+        _bidService.removeBidsByProductIdAndBidderId(productId, blockedId);
+
+        _auctionService.broadcastBidderBlocked(blockedId, reason);
+
+        return _blockedBidderRepository.save(blockedBidder);
     }
 }

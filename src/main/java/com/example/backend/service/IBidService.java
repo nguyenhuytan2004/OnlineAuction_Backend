@@ -15,4 +15,6 @@ public interface IBidService {
     List<Bid> getTop5BidsByProductId(Integer productId);
 
     Bid getBid(Integer bidId);
+
+    void removeBidsByProductIdAndBidderId(Integer productId, Integer bidderId);
 }

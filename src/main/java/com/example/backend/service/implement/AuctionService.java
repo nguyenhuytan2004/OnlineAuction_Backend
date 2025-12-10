@@ -133,4 +133,11 @@ public class AuctionService implements IAuctionService {
                         + "/answers",
                 productAnswer);
     }
+
+    @Override
+    public void broadcastBidderBlocked(Integer blockedId, String reason) {
+        auctionMessagingTemplate.convertAndSend(
+                "/user/" + blockedId + "/queue/blocked-notification",
+                reason);
+    }
 }

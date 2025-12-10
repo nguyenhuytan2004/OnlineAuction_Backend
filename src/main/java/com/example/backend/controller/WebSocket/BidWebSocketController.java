@@ -40,16 +40,8 @@ public class BidWebSocketController {
         } catch (IllegalArgumentException e) {
             log.warn("[WS] Invalid bid: {}", e.getMessage());
 
-            bidMessageTemplate.convertAndSendToUser(
-                    request.getBidderId().toString(),
-                    "/queue/bid-error", "Invalid bid: " + e.getMessage());
-
         } catch (Exception e) {
             log.error("[WS] Error placing bid: {}", e.getMessage(), e);
-
-            bidMessageTemplate.convertAndSendToUser(
-                    request.getBidderId().toString(),
-                    "/queue/bid-error", "Error placing bid: " + e.getMessage());
         }
     }
 

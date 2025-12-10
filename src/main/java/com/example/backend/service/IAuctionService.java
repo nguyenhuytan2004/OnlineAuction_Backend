@@ -22,4 +22,6 @@ public interface IAuctionService {
     public void broadcastQuestionAsked(ProductQuestion productQuestion);
 
     public void broadcastAnswerPosted(ProductAnswer productAnswer, Integer productId);
+
+    public void broadcastBidderBlocked(Integer blockedId, String reason);
 }

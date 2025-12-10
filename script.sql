@@ -138,6 +138,22 @@ CREATE TABLE `rating` (
     UNIQUE KEY unique_rating (product_id, reviewer_id, reviewee_id)
 ) ENGINE=InnoDB;
 
+-- Bảng chứa thông tin người bị chặn khỏi đấu giá một sản phẩm cụ thể
+CREATE TABLE `blocked_bidder` (
+    block_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    blocker_id INT NOT NULL, -- Người chặn
+    blocked_id INT NOT NULL,  -- Người bị chặn
+    blocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    reason VARCHAR(255),
+
+    UNIQUE KEY unique_block (product_id, blocked_id),
+    
+    FOREIGN KEY (product_id) REFERENCES `product`(product_id) ON DELETE CASCADE,
+    FOREIGN KEY (blocked_id) REFERENCES `user`(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (blocker_id) REFERENCES `user`(user_id) ON DELETE RESTRICT
+);
+
 -- Dữ liệu mẫu cho bảng CATEGORY
 INSERT INTO `category` (category_name, parent_id) VALUES
 ('Điện tử', NULL),

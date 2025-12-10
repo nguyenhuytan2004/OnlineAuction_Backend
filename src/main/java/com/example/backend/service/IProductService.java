@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.example.backend.entity.AuctionResult;
+import com.example.backend.entity.BlockedBidder;
 import com.example.backend.entity.Product;
 import com.example.backend.model.Product.CreateProductRequest;
 
@@ -36,4 +37,6 @@ public interface IProductService {
     public Boolean checkBiddingEligibility(Integer productId, Integer userId);
 
     void deleteProduct(Integer productId, Integer requesterId);
+
+    BlockedBidder blockBidder(Integer productId, Integer blockerId, Integer blockedId, String reason);
 }

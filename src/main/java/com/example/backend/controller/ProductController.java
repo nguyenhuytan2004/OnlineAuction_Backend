@@ -8,15 +8,25 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.entity.AuctionResult;
 import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
+import com.example.backend.model.CreateBlockedBidderRequest;
 import com.example.backend.model.Product.AppendDescriptionRequest;
 import com.example.backend.model.Product.CreateProductRequest;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.IBidService;
+import com.example.backend.service.IBlockedBidderService;
 import com.example.backend.service.IProductService;
 
 import jakarta.validation.Valid;
@@ -29,6 +39,8 @@ public class ProductController {
     private IProductService _productService;
     @Autowired
     private IBidService _bidService;
+    @Autowired
+    private IBlockedBidderService _blockedBidderService;
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
             .getLogger(ProductController.class);
@@ -231,6 +243,49 @@ public class ProductController {
         } catch (Exception e) {
             LOGGER.error("[CONTROLLER][DELETE][ERROR] /api/products/{} - Error occurred: {}", productId,
                     e.getMessage(), e);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("{product_id}/bid-blocking-inspection")
+    public ResponseEntity<?> inspectBidBlocking(
+            @PathVariable("product_id") Integer productId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            Integer userId = userDetails.getUser().getUserId();
+
+            Boolean isBlocked = _blockedBidderService.checkBidderBlocked(productId, userId);
+
+            return new ResponseEntity<>(isBlocked, HttpStatus.OK);
+
+        } catch (Exception e) {
+            LOGGER.error("[CONTROLLER][GET][ERROR] /api/products/{}/bid-blocking-inspection - Error occurred: {}",
+                    productId, e.getMessage(), e);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("{product_id}/block-bidder")
+    public ResponseEntity<?> blockBidder(
+            @PathVariable("product_id") Integer productId,
+            @RequestBody CreateBlockedBidderRequest createBlockedBidderRequest,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            Integer blockerId = userDetails.getUser().getUserId();
+
+            _productService.blockBidder(productId, blockerId, createBlockedBidderRequest.getBlockedId(),
+                    createBlockedBidderRequest.getReason());
+
+            return new ResponseEntity<>(HttpStatus.CREATED);
+
+        } catch (IllegalArgumentException iae) {
+            LOGGER.error("[CONTROLLER][POST][ERROR] /api/products/{}/block-bidder - Illegal argument: {}",
+                    productId, iae.getMessage());
+            return new ResponseEntity<>(iae.getMessage(), HttpStatus.BAD_REQUEST);
+
+        } catch (Exception e) {
+            LOGGER.error("[CONTROLLER][POST][ERROR] /api/products/{}/block-bidder - Error occurred: {}",
+                    productId, e.getMessage(), e);
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

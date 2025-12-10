@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.example.backend.entity.Bid;
@@ -34,6 +35,7 @@ public class BidService implements IBidService {
     private IUserRepository _userRepository;
 
     @Autowired
+    @Lazy
     private IProductService _productService;
 
     @Autowired
@@ -74,7 +76,10 @@ public class BidService implements IBidService {
             throw new IllegalArgumentException("Bidder is not eligible to place a bid on this product");
         }
 
-        // 4. Validate max bid amount
+        if (bidder.getUserId().equals(product.getSeller().getUserId())) {
+            throw new IllegalArgumentException("Seller cannot bid on their own product");
+        }
+
         BigDecimal minRequiredMaxBid = product.getCurrentPrice().add(product.getPriceStep());
         if (createBidRequest.getMaxAutoPrice().compareTo(minRequiredMaxBid) < 0) {
             throw new IllegalArgumentException("Max bid must be at least " + minRequiredMaxBid);
@@ -175,5 +180,20 @@ public class BidService implements IBidService {
     public Bid getBid(Integer bidId) {
         return _bidRepository.findById(bidId)
                 .orElseThrow(() -> new IllegalArgumentException("Bid not found"));
+    }
+
+    @Override
+    @Transactional
+    public void removeBidsByProductIdAndBidderId(Integer productId, Integer bidderId) {
+        _bidRepository.deleteByProductProductIdAndBidderUserId(productId, bidderId);
+
+        Bid highestBid = _bidRepository.findTopByProductProductIdOrderByBidPriceDesc(productId);
+
+        if (highestBid != null) {
+            Product product = highestBid.getProduct();
+            product.setHighestBidder(highestBid.getBidder());
+            product.setCurrentPrice(highestBid.getBidPrice());
+            _productRepository.save(product);
+        }
     }
 }
