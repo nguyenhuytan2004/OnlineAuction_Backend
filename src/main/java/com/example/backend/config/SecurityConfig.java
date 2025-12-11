@@ -88,6 +88,14 @@ public class SecurityConfig {
                                 "/api/categories/**")
                         .permitAll()
 
+                        .requestMatchers("/api/user-profile/active-products",
+                                "/api/user-profile/sold-products", 
+                                "/api/ratings/buyer")
+                        .hasRole("SELLER")
+
+                        .requestMatchers("/api/auction-results/product/*/cancel")
+                        .hasRole("SELLER")
+
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
 

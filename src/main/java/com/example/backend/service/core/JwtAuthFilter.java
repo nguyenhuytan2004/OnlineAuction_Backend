@@ -18,7 +18,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -43,13 +45,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         jwt = authHeader.substring(7);
         userId = jwtService.extractUserId(jwt);
+        log.info("[JWT-FILTER] Extracted userId: {}", userId);
 
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 UserDetails userDetails = customUserDetailsService.loadUserById(Integer.valueOf(userId));
+                log.info("[JWT-FILTER] Loaded user: {}, authorities: {}", userDetails.getUsername(),
+                        userDetails.getAuthorities());
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     if (!userDetails.isEnabled()) {
+                        log.warn("[JWT-FILTER] User is disabled");
                         filterChain.doFilter(request, response);
                         return;
                     }
@@ -61,8 +67,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     authToken.setDetails(
                             new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    log.info("[JWT-FILTER] Authentication set for user: {}", userId);
+                } else {
+                    log.warn("[JWT-FILTER] Token validation failed for user: {}", userId);
                 }
             } catch (UsernameNotFoundException e) {
+                log.error("[JWT-FILTER] User not found: {}", userId);
                 filterChain.doFilter(request, response);
                 return;
             }

@@ -34,6 +34,20 @@ public class RatingService implements IRatingService {
     private IUserRepository _userRepository;
 
     @Override
+    public Boolean checkIfRated(Integer productId, Integer reviewerId, Integer revieweeId) {
+        return _ratingRepository.existsByReviewerAndRevieweeAndProduct(reviewerId, revieweeId, productId);
+    }
+
+    @Override
+    public List<Boolean> checkIfSellerRatedBuyer(Integer sellerId, Integer buyerId) {
+        List<Product> soldProducts = _auctionResultRepository.findSoldProductsBySellerUserId(sellerId);
+        return soldProducts.stream()
+                .map(product -> _ratingRepository.existsByReviewerAndRevieweeAndProduct(
+                        sellerId, buyerId, product.getProductId()))
+                .toList();
+    }
+
+    @Override
     @Transactional
     public Rating rateSeller(CreateRatingRequest createRatingRequest, Integer userId) {
         Product product = _productRepository.findById(createRatingRequest.getProductId())

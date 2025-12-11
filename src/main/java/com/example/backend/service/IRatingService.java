@@ -7,6 +7,10 @@ import com.example.backend.model.Rating.CreateRatingRequest;
 import com.example.backend.model.Rating.UpdateRatingRequest;
 
 public interface IRatingService {
+    Boolean checkIfRated(Integer productId, Integer reviewerId, Integer revieweeId);
+
+    List<Boolean> checkIfSellerRatedBuyer(Integer sellerId, Integer buyerId);
+
     Rating rateSeller(CreateRatingRequest createRatingRequest, Integer userId);
 
     Rating rateBuyer(CreateRatingRequest createRatingRequest, Integer userId);

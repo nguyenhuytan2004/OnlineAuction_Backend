@@ -86,7 +86,7 @@ public class AuctionService implements IAuctionService {
             }
 
             auctionMessagingTemplate.convertAndSend(
-                    "/topic/product/" + product.getProductId() + "/auction-extended", product.getEndTime());
+                    "/topic/product/" + product.getProductId() + "/auction-extend", product.getEndTime());
 
             log.info("[AUTO-BID] Auction extended for product {}", product.getProductId());
         }
@@ -116,6 +116,8 @@ public class AuctionService implements IAuctionService {
 
     @Override
     public void broadcastAuctionEnd(Product product, String reason) {
+        System.out.println("[AUCTION-END] Broadcasting auction end for product " + product.getProductId());
+
         auctionMessagingTemplate.convertAndSend(
                 "/topic/product/" + product.getProductId() + "/auction-end", reason);
     }
