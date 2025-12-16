@@ -21,6 +21,8 @@ CREATE TABLE `user` (
     rating_score INT DEFAULT 0,
     rating_count INT DEFAULT 0,
     role ENUM('BIDDER', 'SELLER', 'ADMIN') NOT NULL DEFAULT 'BIDDER',
+    seller_expires_at DATETIME DEFAULT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -47,6 +49,21 @@ CREATE TABLE `product` (
     FOREIGN KEY (seller_id) REFERENCES `user`(user_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES `category`(category_id) ON DELETE RESTRICT,
     FOREIGN KEY (highest_bidder_id) REFERENCES `user`(user_id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- Bảng chứa thông tin yêu cầu nâng cấp seller
+CREATE TABLE `seller_upgrade_request` (
+    request_id INT AUTO_INCREMENT PRIMARY KEY,  
+    user_id INT NOT NULL,
+    request_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT '
+PENDING',
+    reviewer_id INT DEFAULT NULL,
+    reviewed_at TIMESTAMP DEFAULT NULL,
+    comments TEXT DEFAULT NULL, -- Lý do từ chối nếu có
+
+    FOREIGN KEY (user_id) REFERENCES `user`(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (reviewer_id) REFERENCES `user`(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- Bảng chứa thông tin ảnh phụ

@@ -29,78 +29,76 @@ import lombok.RequiredArgsConstructor;
 @Profile("!dev")
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
-    private final JwtAuthFilter jwtAuthFilter;
-    private final CorsConfigurationSource corsConfigurationSource;
+  private final CustomUserDetailsService userDetailsService;
+  private final JwtAuthFilter jwtAuthFilter;
+  private final CorsConfigurationSource corsConfigurationSource;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public DaoAuthenticationProvider authProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
+  @Bean
+  public DaoAuthenticationProvider authProvider() {
+    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    provider.setUserDetailsService(userDetailsService);
+    provider.setPasswordEncoder(passwordEncoder());
+    return provider;
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-            throws Exception {
-        return config.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+      throws Exception {
+    return config.getAuthenticationManager();
+  }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authProvider())
-                .authorizeHttpRequests(auth -> auth
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .cors(cors -> cors.configurationSource(corsConfigurationSource))
+        .csrf(csrf -> csrf.disable())
+        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authenticationProvider(authProvider())
+        .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers(
-                                "/api/auth/register",
-                                "/api/auth/login",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/swagger-resources/**",
-                                "/webjars/**",
-                                "/ws/**")
-                        .permitAll()
+            .requestMatchers(
+                "/api/auth/register",
+                "/api/auth/login",
+                "/v3/api-docs/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/swagger-resources/**",
+                "/webjars/**",
+                "/ws/**")
+            .permitAll()
 
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/products",
-                                "/api/products/{product_id}",
-                                "/api/products/{product_id}/bids",
-                                "/api/products/top-5-ending-soon",
-                                "/api/products/top-5-most-auctioned",
-                                "/api/products/top-5-highest-priced",
-                                "/api/products/{product_id}/top-5-related",
-                                "/api/products/full-text-search",
-                                "/api/products/category/{category_id}",
-                                "/api/products/category/{category_id}/full-text-search",
-                                "/api/products/{product_id}/questions",
-                                "/api/categories",
-                                "/api/categories/**")
-                        .permitAll()
+            .requestMatchers(HttpMethod.GET,
+                "/api/products",
+                "/api/products/{product_id}",
+                "/api/products/{product_id}/bids",
+                "/api/products/top-5-ending-soon",
+                "/api/products/top-5-most-auctioned",
+                "/api/products/top-5-highest-priced",
+                "/api/products/{product_id}/top-5-related",
+                "/api/products/full-text-search",
+                "/api/products/category/{category_id}",
+                "/api/products/category/{category_id}/full-text-search",
+                "/api/products/{product_id}/questions",
+                "/api/categories",
+                "/api/categories/**")
+            .permitAll()
 
-                        .requestMatchers("/api/user-profile/active-products",
-                                "/api/user-profile/sold-products", 
-                                "/api/ratings/buyer")
-                        .hasRole("SELLER")
+            .requestMatchers("/api/user-profile/active-products",
+                "/api/user-profile/sold-products",
+                "/api/ratings/buyer",
+                "/api/auction-results/product/*/cancel", "/api/products/*/description", "/api/products")
+            .hasRole("SELLER")
 
-                        .requestMatchers("/api/auction-results/product/*/cancel")
-                        .hasRole("SELLER")
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated())
 
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
+    return http.build();
+  }
 }

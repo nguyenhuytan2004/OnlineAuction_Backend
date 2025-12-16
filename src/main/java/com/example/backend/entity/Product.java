@@ -40,109 +40,109 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "PRODUCT")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Indexed
 public class Product {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "product_id")
-    private Integer productId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "product_id")
+  private Integer productId;
 
-    @NotNull(message = "Seller must not be null")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "seller_id", nullable = false)
-    // @JsonBackReference("user-products")
-    private User seller;
+  @NotNull(message = "Seller must not be null")
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "seller_id", nullable = false)
+  // @JsonBackReference("user-products")
+  private User seller;
 
-    @NotNull(message = "Category must not be null")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id", nullable = false)
-    // @JsonBackReference("category-products")
-    @IndexedEmbedded
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
-    private Category category;
+  @NotNull(message = "Category must not be null")
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "category_id", nullable = false)
+  // @JsonBackReference("category-products")
+  @IndexedEmbedded
+  @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
+  private Category category;
 
-    @Column(name = "main_image_url")
-    private String mainImageUrl;
+  @Column(name = "main_image_url")
+  private String mainImageUrl;
 
-    // Extra field
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference("product-images")
-    private List<ProductImage> auxiliaryImages;
+  // Extra field
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JsonManagedReference("product-images")
+  private List<ProductImage> auxiliaryImages;
 
-    @NotBlank(message = "Product name must not be blank")
-    @Size(max = 255, message = "Product name must not exceed 255 characters")
-    @Column(name = "product_name", nullable = false, length = 255)
-    @FullTextField(analyzer = SearchAnalyzerConfig.VIETNAMESE_SEARCH)
-    private String productName;
+  @NotBlank(message = "Product name must not be blank")
+  @Size(max = 255, message = "Product name must not exceed 255 characters")
+  @Column(name = "product_name", nullable = false, length = 255)
+  @FullTextField(analyzer = SearchAnalyzerConfig.VIETNAMESE_SEARCH)
+  private String productName;
 
-    @NotNull(message = "Current price must not be null")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Current price must be greater than 0")
-    @Digits(integer = 16, fraction = 2, message = "Invalid current price")
-    @Column(name = "current_price", nullable = false, precision = 18, scale = 2)
-    // Dùng để sắp xếp
-    @GenericField(sortable = Sortable.YES)
-    private BigDecimal currentPrice;
+  @NotNull(message = "Current price must not be null")
+  @DecimalMin(value = "0.0", inclusive = false, message = "Current price must be greater than 0")
+  @Digits(integer = 16, fraction = 2, message = "Invalid current price")
+  @Column(name = "current_price", nullable = false, precision = 18, scale = 2)
+  // Dùng để sắp xếp
+  @GenericField(sortable = Sortable.YES)
+  private BigDecimal currentPrice;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "highest_bidder_id")
-    private User highestBidder;
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "highest_bidder_id")
+  private User highestBidder;
 
-    @DecimalMin(value = "0.0", inclusive = false, message = "Buy now price must be greater than 0")
-    @Digits(integer = 16, fraction = 2, message = "Invalid buy now price")
-    @Column(name = "buy_now_price", precision = 18, scale = 2)
-    // Dùng để sắp xếp
-    @GenericField(sortable = Sortable.YES)
-    private BigDecimal buyNowPrice;
+  @DecimalMin(value = "0.0", inclusive = false, message = "Buy now price must be greater than 0")
+  @Digits(integer = 16, fraction = 2, message = "Invalid buy now price")
+  @Column(name = "buy_now_price", precision = 18, scale = 2)
+  // Dùng để sắp xếp
+  @GenericField(sortable = Sortable.YES)
+  private BigDecimal buyNowPrice;
 
-    @NotNull(message = "Start price must not be null")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Start price must be greater than 0")
-    @Digits(integer = 16, fraction = 2, message = "Invalid start price")
-    @Column(name = "start_price", nullable = false, precision = 18, scale = 2)
-    private BigDecimal startPrice;
+  @NotNull(message = "Start price must not be null")
+  @DecimalMin(value = "0.0", inclusive = false, message = "Start price must be greater than 0")
+  @Digits(integer = 16, fraction = 2, message = "Invalid start price")
+  @Column(name = "start_price", nullable = false, precision = 18, scale = 2)
+  private BigDecimal startPrice;
 
-    @NotNull(message = "Price step must not be null")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Price step must be greater than 0")
-    @Digits(integer = 16, fraction = 2, message = "Invalid price step")
-    @Column(name = "price_step", nullable = false, precision = 18, scale = 2)
-    private BigDecimal priceStep;
+  @NotNull(message = "Price step must not be null")
+  @DecimalMin(value = "0.0", inclusive = false, message = "Price step must be greater than 0")
+  @Digits(integer = 16, fraction = 2, message = "Invalid price step")
+  @Column(name = "price_step", nullable = false, precision = 18, scale = 2)
+  private BigDecimal priceStep;
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    @FullTextField(analyzer = SearchAnalyzerConfig.VIETNAMESE_SEARCH)
-    private String description;
+  @Column(name = "description", columnDefinition = "TEXT")
+  @FullTextField(analyzer = SearchAnalyzerConfig.VIETNAMESE_SEARCH)
+  private String description;
 
-    @NotNull(message = "End time must not be null")
-    // @Future(message = "End time must be in the future")
-    @Column(name = "end_time", nullable = false)
-    // Dùng để lọc(Is active?) và sắp xếp
-    @GenericField(sortable = Sortable.YES)
-    private LocalDateTime endTime;
+  @NotNull(message = "End time must not be null")
+  // @Future(message = "End time must be in the future")
+  @Column(name = "end_time", nullable = false)
+  // Dùng để lọc(Is active?) và sắp xếp
+  @GenericField(sortable = Sortable.YES)
+  private LocalDateTime endTime;
 
-    @Column(name = "is_auto_renew")
-    private Boolean isAutoRenew = false;
+  @Column(name = "is_auto_renew")
+  private Boolean isAutoRenew = false;
 
-    @Min(value = 0, message = "Bid count must be greater than or equal to 0")
-    @Column(name = "bid_count", columnDefinition = "INT DEFAULT 0")
-    private Integer bidCount = 0;
+  @Min(value = 0, message = "Bid count must be greater than or equal to 0")
+  @Column(name = "bid_count", columnDefinition = "INT DEFAULT 0")
+  private Integer bidCount = 0;
 
-    @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    // Dùng để lọc(Is active?)
-    @GenericField(sortable = Sortable.YES)
-    private Boolean isActive = true;
+  @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+  // Dùng để lọc(Is active?)
+  @GenericField(sortable = Sortable.YES)
+  private Boolean isActive = true;
 
-    @Column(name = "allow_unrated_bidder")
-    private Boolean allowUnratedBidder = true;
+  @Column(name = "allow_unrated_bidder")
+  private Boolean allowUnratedBidder = true;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @GenericField(sortable = Sortable.YES)
-    private LocalDateTime createdAt;
+  @CreationTimestamp
+  @Column(name = "created_at", nullable = false, updatable = false)
+  @GenericField(sortable = Sortable.YES)
+  private LocalDateTime createdAt;
 
-    // @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    // // @JsonManagedReference("product-watchlists")
-    // private List<WatchList> watchLists;
+  // @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+  // // @JsonManagedReference("product-watchlists")
+  // private List<WatchList> watchLists;
 }

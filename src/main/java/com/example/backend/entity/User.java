@@ -31,51 +31,57 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class User {
 
-    public enum Role {
-        BIDDER, SELLER, ADMIN
-    }
+  public enum Role {
+    BIDDER, SELLER, ADMIN
+  }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Integer userId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "user_id")
+  private Integer userId;
 
-    @NotBlank(message = "Full name must not be blank")
-    @Size(max = 100, message = "Full name must not exceed 100 characters")
-    @Column(name = "full_name", nullable = false, length = 100)
-    private String fullName;
+  @NotBlank(message = "Full name must not be blank")
+  @Size(max = 100, message = "Full name must not exceed 100 characters")
+  @Column(name = "full_name", nullable = false, length = 100)
+  private String fullName;
 
-    @NotBlank(message = "Email must not be blank")
-    @Email(message = "Invalid email address")
-    @Size(max = 100, message = "Email must not exceed 100 characters")
-    @Column(name = "email", nullable = false, unique = true, length = 100)
-    private String email;
+  @NotBlank(message = "Email must not be blank")
+  @Email(message = "Invalid email address")
+  @Size(max = 100, message = "Email must not exceed 100 characters")
+  @Column(name = "email", nullable = false, unique = true, length = 100)
+  private String email;
 
-    @NotBlank(message = "Password must not be blank")
-    @Size(max = 255, message = "Encrypted password must not exceed 255 characters")
-    @Column(name = "encrypted_password", nullable = false, length = 255)
-    @JsonIgnore
-    private String encryptedPassword;
+  @NotBlank(message = "Password must not be blank")
+  @Size(max = 255, message = "Encrypted password must not exceed 255 characters")
+  @Column(name = "encrypted_password", nullable = false, length = 255)
+  @JsonIgnore
+  private String encryptedPassword;
 
-    @Min(value = 0, message = "Rating score must be greater than or equal to 0")
-    @Column(name = "rating_score", columnDefinition = "INT DEFAULT 0")
-    private Integer ratingScore = 0;
+  @Min(value = 0, message = "Rating score must be greater than or equal to 0")
+  @Column(name = "rating_score", columnDefinition = "INT DEFAULT 0")
+  private Integer ratingScore = 0;
 
-    @Min(value = 0, message = "Rating count must be greater than or equal to 0")
-    @Column(name = "rating_count", columnDefinition = "INT DEFAULT 0")
-    private Integer ratingCount = 0;
+  @Min(value = 0, message = "Rating count must be greater than or equal to 0")
+  @Column(name = "rating_count", columnDefinition = "INT DEFAULT 0")
+  private Integer ratingCount = 0;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false, columnDefinition = "ENUM('BIDDER', 'SELLER', 'ADMIN') DEFAULT 'BIDDER'")
-    private Role role = Role.BIDDER;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "role", nullable = false, columnDefinition = "ENUM('BIDDER', 'SELLER', 'ADMIN') DEFAULT 'BIDDER'")
+  private Role role = Role.BIDDER;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+  @Column(name = "seller_expires_at")
+  private LocalDateTime sellerExpiresAt;
 
-    // @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
-    // private List<Product> sellingProducts;
-    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    // @JsonManagedReference("user-watchList")
-    // private List<WatchList> watchList;
+  @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+  private Boolean isActive = true;
+
+  @CreationTimestamp
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
+
+  // @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
+  // private List<Product> sellingProducts;
+  // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  // @JsonManagedReference("user-watchList")
+  // private List<WatchList> watchList;
 }

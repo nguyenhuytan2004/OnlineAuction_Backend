@@ -1,10 +1,8 @@
 package com.example.backend.model.Product;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -16,31 +14,27 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateProductRequest {
-    @NotNull(message = "Category ID cannot be null")
-    private Integer categoryId;
+  @NotNull(message = "Category ID cannot be null")
+  private Integer categoryId;
 
-    @NotBlank(message = "Main URL cannot be blank")
-    private String mainImageUrl;
+  @NotBlank(message = "Main URL cannot be blank")
+  private String mainImageUrl;
 
-    @Size(min = 3, message = "Auxiliary image URLs cannot exceed 10")
-    private List<String> auxiliaryImageUrls;
+  @Size(min = 3, message = "Auxiliary image URLs cannot exceed 10")
+  private List<String> auxiliaryImageUrls;
 
-    @NotBlank(message = "Product name cannot be blank")
-    private String productName;
+  @NotBlank(message = "Product name cannot be blank")
+  private String productName;
 
-    private BigDecimal buyNowPrice;
+  private BigDecimal buyNowPrice;
 
-    @NotNull(message = "Start price cannot be null")
-    private BigDecimal startPrice;
+  @NotNull(message = "Start price cannot be null")
+  private BigDecimal startPrice;
 
-    @NotNull(message = "Price step cannot be null")
-    private BigDecimal priceStep;
+  @NotNull(message = "Price step cannot be null")
+  private BigDecimal priceStep;
 
-    private String description;
+  private String description;
 
-    @NotNull(message = "End time cannot be null")
-    @Future(message = "End time must be in the future")
-    private LocalDateTime endTime;
-
-    private Boolean isAutoRenew = false;
+  private Boolean isAutoRenew = false;
 }
