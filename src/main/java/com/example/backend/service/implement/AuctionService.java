@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.example.backend.config.AuctionProperties;
 import com.example.backend.entity.AuctionResult;
 import com.example.backend.entity.Bid;
+import com.example.backend.entity.Conversation;
 import com.example.backend.entity.Product;
 import com.example.backend.entity.ProductQnA.ProductAnswer;
 import com.example.backend.entity.ProductQnA.ProductQuestion;
@@ -18,6 +19,7 @@ import com.example.backend.model.WebSocket.BidUpdateMessage;
 import com.example.backend.model.WebSocket.BidUpdateMessage.MessageType;
 import com.example.backend.repository.IAuctionResultRepository;
 import com.example.backend.repository.IBidRepository;
+import com.example.backend.repository.IConversationRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.service.IAuctionService;
 
@@ -40,6 +42,9 @@ public class AuctionService implements IAuctionService {
 
   @Autowired
   private IBidRepository _bidRepository;
+
+  @Autowired
+  private IConversationRepository _conversationRepository;
 
   @Override
   public void broadcastAuctionUpdate(Product product, Bid newBid, BigDecimal previousPrice,
@@ -108,6 +113,14 @@ public class AuctionService implements IAuctionService {
       auctionResult.setFinalPrice(product.getCurrentPrice());
       auctionResult.setPaymentStatus(AuctionResult.PaymentStatus.PENDING);
       _auctionResultRepository.save(auctionResult);
+
+      Conversation conversation = Conversation.builder()
+          .product(product)
+          .seller(product.getSeller())
+          .buyer(highestBid.getBidder())
+          .isActive(true)
+          .build();
+      _conversationRepository.save(conversation);
     }
 
     product.setIsActive(false);

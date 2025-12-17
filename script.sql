@@ -171,6 +171,32 @@ CREATE TABLE `blocked_bidder` (
     FOREIGN KEY (blocker_id) REFERENCES `user`(user_id) ON DELETE RESTRICT
 );
 
+-- Bảng chứa thông tin các cuộc hội thoại giữa người mua và người bán
+CREATE TABLE `conversation` (
+    conversation_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    seller_id INT NOT NULL,
+    buyer_id INT NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (product_id) REFERENCES `product`(product_id) ON DELETE CASCADE,
+    FOREIGN KEY (buyer_id) REFERENCES `user`(user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (seller_id) REFERENCES `user`(user_id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- Bảng chứa tin nhắn trong cuộc hội thoại
+CREATE TABLE `message` (
+    message_id INT AUTO_INCREMENT PRIMARY KEY,
+    conversation_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    message_text TEXT NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (conversation_id) REFERENCES `conversation`(conversation_id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES `user`(user_id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
 -- Dữ liệu mẫu cho bảng CATEGORY
 INSERT INTO `category` (category_name, parent_id) VALUES
 ('Điện tử', NULL),
