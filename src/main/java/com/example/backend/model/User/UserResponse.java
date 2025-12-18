@@ -16,7 +16,6 @@ public class UserResponse {
     private Integer userId;
     private String fullName;
     private String email;
-    private Boolean isSeller;
     private Integer ratingScore;
     private Integer ratingCount;
     private User.Role role;

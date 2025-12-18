@@ -46,11 +46,7 @@ public class UserController {
         try {
             Integer userId = userDetails.getUser().getUserId();
 
-            if (!userId.equals(request.getUserId())) {
-                return new ResponseEntity<>("Illegal argument: userId mismatch", HttpStatus.BAD_REQUEST);
-            }
-
-            User updatedUser = _userService.updateUser(request);
+            User updatedUser = _userService.updateUser(userId,request);
             return new ResponseEntity<>(new UserResponse(updatedUser), HttpStatus.OK);
 
         } catch (IllegalArgumentException iae) {
