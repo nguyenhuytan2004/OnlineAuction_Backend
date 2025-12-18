@@ -56,14 +56,11 @@ CREATE TABLE `seller_upgrade_request` (
     request_id INT AUTO_INCREMENT PRIMARY KEY,  
     user_id INT NOT NULL,
     request_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT '
-PENDING',
-    reviewer_id INT DEFAULT NULL,
+    status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
     reviewed_at TIMESTAMP DEFAULT NULL,
     comments TEXT DEFAULT NULL, -- Lý do từ chối nếu có
 
-    FOREIGN KEY (user_id) REFERENCES `user`(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (reviewer_id) REFERENCES `user`(user_id) ON DELETE SET NULL
+    FOREIGN KEY (user_id) REFERENCES `user`(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- Bảng chứa thông tin ảnh phụ
@@ -366,3 +363,10 @@ INSERT INTO `rating` (product_id, reviewer_id, reviewee_id, rating_value, commen
 (4, 3, 7, 1, 'Rất hài lòng với chất lượng và dịch vụ bán hàng.'),
 (5, 4, 7, -1, 'Phản hồi chậm và sản phẩm bị lỗi nhỏ.'),
 (6, 5, 7, 1, 'Giá tốt, chất lượng ổn. Sẽ ủng hộ lần sau.');
+
+INSERT INTO seller_upgrade_request
+(user_id, request_at, status, reviewed_at, comments) VALUES
+(4, NOW(), 'PENDING', NULL, NULL),
+(5, DATE_SUB(NOW(), INTERVAL 2 DAY), 'APPROVED', NOW(), 'User meets all seller requirements'),
+(6, DATE_SUB(NOW(), INTERVAL 1 DAY), 'REJECTED', NOW(), 'Insufficient transaction history');
+

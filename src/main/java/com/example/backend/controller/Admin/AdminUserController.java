@@ -1,4 +1,4 @@
-package com.example.backend.controller;
+package com.example.backend.controller.Admin;
 
 import com.example.backend.entity.User;
 import com.example.backend.model.User.CreateUserRequest;
@@ -10,17 +10,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/users")
 @Slf4j
 @RequiredArgsConstructor
-public class AdminController {
+public class AdminUserController {
 
     private final IUserService userService;
 
+    // ================= READ =================
 
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
@@ -57,6 +57,7 @@ public class AdminController {
         }
     }
 
+    // ================= CREATE =================
 
     @PostMapping
     public ResponseEntity<?> createUser(
@@ -81,6 +82,7 @@ public class AdminController {
         }
     }
 
+    // ================= UPDATE =================
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(
@@ -104,6 +106,7 @@ public class AdminController {
         }
     }
 
+    // ================= DELETE =================
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
