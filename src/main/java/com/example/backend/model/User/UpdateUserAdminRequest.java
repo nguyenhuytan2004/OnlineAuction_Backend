@@ -9,13 +9,13 @@ import lombok.Data;
 @Data
 public class UpdateUserAdminRequest {
 
-    @NotBlank
-    @Size(max = 100)
+    @NotBlank(message = "Full name cannot be blank")
+    @Size(max = 100, message = "Full name must not exceed 100 characters")
     private String fullName;
 
-    @NotBlank
-    @Email
-    @Size(max = 100)
+    @NotBlank(message = "Email cannot be blank")
+    @Email(message = "Email format is invalid")
+    @Size(max = 100, message = "Email must not exceed 100 characters")
     private String email;
 
     private User.Role role;
