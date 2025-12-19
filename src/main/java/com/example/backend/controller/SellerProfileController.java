@@ -20,34 +20,34 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("api/user-profile")
 public class SellerProfileController {
-    @Autowired
-    private ISellerProfileService _sellerProfileService;
+  @Autowired
+  private ISellerProfileService _sellerProfileService;
 
-    @GetMapping("/active-products")
-    public ResponseEntity<?> getActiveProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            List<Product> products = _sellerProfileService.getActiveProducts(userDetails.getUser().getUserId());
+  @GetMapping("/active-products")
+  public ResponseEntity<?> getActiveProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    try {
+      List<Product> products = _sellerProfileService.getActiveProducts(userDetails.getUser().getUserId());
 
-            return new ResponseEntity<>(products, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error(
-                    "[CONTROLLER][GET][ERROR] /api/user-profile/active-products - Error occurred: {}", e.getMessage(),
-                    e);
-            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+      return new ResponseEntity<>(products, HttpStatus.OK);
+    } catch (Exception e) {
+      log.error(
+          "[CONTROLLER][GET][ERROR] /api/user-profile/active-products - Error occurred: {}", e.getMessage(),
+          e);
+      return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
 
-    @GetMapping("/sold-products")
-    public ResponseEntity<?> getSoldProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            List<Product> products = _sellerProfileService.getSoldProducts(userDetails.getUser().getUserId());
+  @GetMapping("/sold-products")
+  public ResponseEntity<?> getSoldProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    try {
+      List<Product> products = _sellerProfileService.getSoldProducts(userDetails.getUser().getUserId());
 
-            return new ResponseEntity<>(products, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error(
-                    "[CONTROLLER][GET][ERROR] /api/user-profile/sold-products - Error occurred: {}", e.getMessage(),
-                    e);
-            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+      return new ResponseEntity<>(products, HttpStatus.OK);
+    } catch (Exception e) {
+      log.error(
+          "[CONTROLLER][GET][ERROR] /api/user-profile/sold-products - Error occurred: {}", e.getMessage(),
+          e);
+      return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
 }

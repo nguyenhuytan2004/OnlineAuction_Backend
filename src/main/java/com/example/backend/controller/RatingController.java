@@ -31,13 +31,36 @@ public class RatingController {
 
   @GetMapping("check-if-rated")
   public ResponseEntity<?> checkIfRated(@RequestParam Integer productId,
-      @RequestParam Integer reviewerId, @RequestParam Integer revieweeId) {
+      @RequestParam Integer reviewerId,
+      @RequestParam Integer revieweeId) {
     try {
-      Boolean isRated = _ratingService.checkIfRated(productId, reviewerId, revieweeId);
+      Boolean isRated = _ratingService.checkIfRated(
+          productId,
+          reviewerId,
+          revieweeId);
 
       return new ResponseEntity<>(isRated, HttpStatus.OK);
     } catch (Exception e) {
       log.error("[CONTROLLER][GET][ERROR] /api/ratings/check-if-rated - Error fetching ratings: {}",
+          e.getMessage(), e);
+
+      return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GetMapping
+  public ResponseEntity<?> getRating(@RequestParam Integer productId,
+      @RequestParam Integer reviewerId,
+      @RequestParam Integer revieweeId) {
+    try {
+      Rating rating = _ratingService.getRating(
+          productId,
+          reviewerId,
+          revieweeId);
+
+      return new ResponseEntity<>(rating, HttpStatus.OK);
+    } catch (Exception e) {
+      log.error("[CONTROLLER][GET][ERROR] /api/ratings - Error fetching rating: {}",
           e.getMessage(), e);
 
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -89,10 +112,10 @@ public class RatingController {
 
   @PatchMapping("")
   public ResponseEntity<?> updateRating(
-      @RequestParam Integer userId,
+      @AuthenticationPrincipal CustomUserDetails userDetails,
       @Valid @RequestBody UpdateRatingRequest updateRatingRequest) {
     try {
-      Rating updatedRating = _ratingService.updateRating(updateRatingRequest, userId);
+      Rating updatedRating = _ratingService.updateRating(updateRatingRequest, userDetails.getUser().getUserId());
 
       return new ResponseEntity<>(updatedRating, HttpStatus.OK);
     } catch (IllegalArgumentException e) {

@@ -132,7 +132,7 @@ CREATE TABLE `auction_result` (
     winner_id INT NOT NULL,
     final_price DECIMAL(18, 2) NOT NULL,
     result_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    payment_status VARCHAR(50) DEFAULT 'PENDING',
+    payment_status ENUM('PENDING', 'PAID', 'CANCELED') DEFAULT 'PENDING',
 
     FOREIGN KEY (product_id) REFERENCES `product`(product_id) ON DELETE CASCADE,
     FOREIGN KEY (winner_id) REFERENCES `user`(user_id) ON DELETE RESTRICT
