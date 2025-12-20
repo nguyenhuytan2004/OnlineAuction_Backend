@@ -7,15 +7,17 @@ import com.example.backend.model.Rating.CreateRatingRequest;
 import com.example.backend.model.Rating.UpdateRatingRequest;
 
 public interface IRatingService {
-    Boolean checkIfRated(Integer productId, Integer reviewerId, Integer revieweeId);
+  Boolean checkIfRated(Integer productId, Integer reviewerId, Integer revieweeId);
 
-    List<Boolean> checkIfSellerRatedBuyer(Integer sellerId, Integer buyerId);
+  Rating getRating(Integer productId, Integer reviewerId, Integer revieweeId);
 
-    Rating rateSeller(CreateRatingRequest createRatingRequest, Integer userId);
+  List<Boolean> checkIfSellerRatedBuyer(Integer sellerId, Integer buyerId);
 
-    Rating rateBuyer(CreateRatingRequest createRatingRequest, Integer userId);
+  Rating rateSeller(CreateRatingRequest createRatingRequest, Integer buyerId);
 
-    Rating updateRating(UpdateRatingRequest updateRatingRequest, Integer userId);
+  Rating rateBuyer(CreateRatingRequest createRatingRequest, Integer sellerId);
 
-    List<Rating> geRatingsByRevieweeId(Integer revieweeId);
+  Rating updateRating(UpdateRatingRequest updateRatingRequest, Integer reviewerId);
+
+  List<Rating> geRatingsByRevieweeId(Integer revieweeId);
 }
