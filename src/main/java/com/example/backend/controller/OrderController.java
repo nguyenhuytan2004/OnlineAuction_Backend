@@ -34,4 +34,10 @@ public class OrderController {
         orderService.setShippingAddress(orderId, req);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{orderId}/confirm-payment")
+    public ResponseEntity<?> sellerConfirmPayment(@PathVariable Integer orderId) {
+        orderService.sellerConfirmPayment(orderId);
+        return ResponseEntity.ok().build();
+    }
 }

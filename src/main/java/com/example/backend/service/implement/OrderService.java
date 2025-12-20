@@ -97,4 +97,19 @@ public class OrderService implements IOrderService {
 
         order.setShippingAddress(req.getShippingAddress());
     }
+
+    @Override
+    @Transactional
+    public void sellerConfirmPayment(Integer orderId) {
+        var order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (order.getStatus() != OrderStatus.PAID)
+            throw new RuntimeException("Invalid order status");
+
+        if (order.getShippingAddress() == null || order.getShippingAddress().isBlank())
+            throw new RuntimeException("Shipping address not provided");
+
+        order.setStatus(OrderStatus.ON_DELIVERING);
+    }
 }
