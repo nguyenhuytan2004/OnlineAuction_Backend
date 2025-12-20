@@ -6,6 +6,7 @@ import com.example.backend.entity.Product;
 import com.example.backend.model.AuctionOrder.OrderStatusResponse;
 import com.example.backend.model.AuctionOrder.PayOrderRequest;
 import com.example.backend.model.AuctionOrder.PayOrderResponse;
+import com.example.backend.model.AuctionOrder.SetShippingAddressRequest;
 import com.example.backend.repository.IAuctionOrderRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.service.IOrderService;
@@ -85,4 +86,15 @@ public class OrderService implements IOrderService {
         );
     }
 
+    @Override
+    @Transactional
+    public void setShippingAddress(Integer orderId, SetShippingAddressRequest req) {
+        var order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (order.getStatus() != OrderStatus.PAID)
+            throw new RuntimeException("Cannot set address in status " + order.getStatus());
+
+        order.setShippingAddress(req.getShippingAddress());
+    }
 }

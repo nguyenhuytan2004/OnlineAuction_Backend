@@ -2,6 +2,7 @@ package com.example.backend.controller;
 
 import com.example.backend.model.AuctionOrder.OrderStatusResponse;
 import com.example.backend.model.AuctionOrder.PayOrderRequest;
+import com.example.backend.model.AuctionOrder.SetShippingAddressRequest;
 import com.example.backend.service.implement.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +24,14 @@ public class OrderController {
     @GetMapping("/{orderId}/status")
     public OrderStatusResponse getStatus(@PathVariable Integer orderId) {
         return orderService.getStatus(orderId);
+    }
+
+    @PutMapping("/{orderId}/shipping-address")
+    public ResponseEntity<?> setAddress(
+            @PathVariable Integer orderId,
+            @RequestBody @Valid SetShippingAddressRequest req) {
+
+        orderService.setShippingAddress(orderId, req);
+        return ResponseEntity.ok().build();
     }
 }
