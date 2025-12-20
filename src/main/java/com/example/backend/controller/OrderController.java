@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.model.AuctionOrder.OrderStatusResponse;
 import com.example.backend.model.AuctionOrder.PayOrderRequest;
 import com.example.backend.service.implement.OrderService;
 import jakarta.validation.Valid;
@@ -17,5 +18,10 @@ public class OrderController {
     @PostMapping("/pay")
     public ResponseEntity<?> payAndCreate(@RequestBody @Valid PayOrderRequest req) {
         return ResponseEntity.ok(orderService.payAndCreateOrder(req));
+    }
+
+    @GetMapping("/{orderId}/status")
+    public OrderStatusResponse getStatus(@PathVariable Integer orderId) {
+        return orderService.getStatus(orderId);
     }
 }

@@ -3,6 +3,7 @@ package com.example.backend.service.implement;
 import com.example.backend.entity.AuctionOrder;
 import com.example.backend.entity.AuctionOrder.OrderStatus;
 import com.example.backend.entity.Product;
+import com.example.backend.model.AuctionOrder.OrderStatusResponse;
 import com.example.backend.model.AuctionOrder.PayOrderRequest;
 import com.example.backend.model.AuctionOrder.PayOrderResponse;
 import com.example.backend.repository.IAuctionOrderRepository;
@@ -68,6 +69,20 @@ public class OrderService implements IOrderService {
         orderRepo.save(order);
 
         return new PayOrderResponse(order.getOrderId(), order.getStatus());
+    }
+
+    @Override
+    @Transactional
+    public OrderStatusResponse getStatus(Integer orderId) {
+        var order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        return new OrderStatusResponse(
+                order.getOrderId(),
+                order.getStatus(),
+                order.getShippingAddress() != null && !order.getShippingAddress().isBlank(),
+                order.getFinalPrice()
+        );
     }
 
 }
