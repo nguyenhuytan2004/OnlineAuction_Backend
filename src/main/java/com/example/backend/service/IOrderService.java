@@ -7,6 +7,6 @@ public interface IOrderService {
     OrderStatusResponse getStatus(Integer orderId);
     void setShippingAddress(Integer orderId, SetShippingAddressRequest req);
     void sellerConfirmPayment(Integer orderId);
-    //void buyerConfirmReceived(Integer orderId);
+    void buyerConfirmReceived(Integer orderId);
     //void cancel(Integer orderId, CancelOrderRequest req);
 }

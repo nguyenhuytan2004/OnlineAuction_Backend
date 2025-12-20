@@ -40,4 +40,10 @@ public class OrderController {
         orderService.sellerConfirmPayment(orderId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{orderId}/confirm-received")
+    public ResponseEntity<?> buyerConfirmReceived(@PathVariable Integer orderId) {
+        orderService.buyerConfirmReceived(orderId);
+        return ResponseEntity.ok().build();
+    }
 }

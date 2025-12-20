@@ -112,4 +112,17 @@ public class OrderService implements IOrderService {
 
         order.setStatus(OrderStatus.ON_DELIVERING);
     }
+
+    @Override
+    @Transactional
+    public void buyerConfirmReceived(Integer orderId) {
+        var order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (order.getStatus() != OrderStatus.ON_DELIVERING)
+            throw new RuntimeException("Invalid order status");
+
+        order.setStatus(OrderStatus.COMPLETED);
+    }
+
 }
