@@ -194,6 +194,38 @@ CREATE TABLE `message` (
     FOREIGN KEY (sender_id) REFERENCES `user`(user_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
+CREATE TABLE auction_order (
+   order_id INT AUTO_INCREMENT PRIMARY KEY,
+
+   product_id INT NOT NULL,
+   seller_id INT NOT NULL,
+   buyer_id INT NOT NULL,
+
+   final_price DECIMAL(15,2) NOT NULL,
+
+   status ENUM(
+        'WAIT_PAYMENT',
+        'PAID',
+        'ON_DELIVERING'
+        'COMPLETED',
+        'CANCELLED'
+        ) NOT NULL DEFAULT 'WAIT_PAYMENT',
+
+-- Payment
+   paid_at TIMESTAMP NULL,
+
+-- Shipping
+   shipping_address TEXT,
+
+-- Cancel
+   cancelled_reason TEXT,
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+   FOREIGN KEY (product_id) REFERENCES product(product_id),
+   FOREIGN KEY (seller_id) REFERENCES user(user_id),
+   FOREIGN KEY (buyer_id) REFERENCES user(user_id)
+);
+
 -- Dữ liệu mẫu cho bảng CATEGORY
 INSERT INTO `category` (category_name, parent_id) VALUES
 ('Điện tử', NULL),
