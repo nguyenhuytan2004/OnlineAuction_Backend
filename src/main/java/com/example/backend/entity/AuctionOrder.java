@@ -24,7 +24,7 @@ public class AuctionOrder {
 
     public enum OrderStatus {
         WAIT_PAYMENT,
-        PAID_NO_ADDRESS,
+        PAID,
         ON_DELIVERING,
         COMPLETED,
         CANCELLED
