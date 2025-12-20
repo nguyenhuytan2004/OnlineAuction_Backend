@@ -3,10 +3,7 @@ package com.example.backend.service.implement;
 import com.example.backend.entity.AuctionOrder;
 import com.example.backend.entity.AuctionOrder.OrderStatus;
 import com.example.backend.entity.Product;
-import com.example.backend.model.AuctionOrder.OrderStatusResponse;
-import com.example.backend.model.AuctionOrder.PayOrderRequest;
-import com.example.backend.model.AuctionOrder.PayOrderResponse;
-import com.example.backend.model.AuctionOrder.SetShippingAddressRequest;
+import com.example.backend.model.AuctionOrder.*;
 import com.example.backend.repository.IAuctionOrderRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.service.IOrderService;
@@ -125,4 +122,17 @@ public class OrderService implements IOrderService {
         order.setStatus(OrderStatus.COMPLETED);
     }
 
+    @Override
+    @Transactional
+    public void cancel(Integer orderId, CancelOrderRequest req) {
+        var order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (order.getStatus() == OrderStatus.COMPLETED ||
+                order.getStatus() == OrderStatus.CANCELLED)
+            throw new RuntimeException("Cannot cancel completed/cancelled order");
+
+        order.setStatus(OrderStatus.CANCELLED);
+        order.setCancelledReason(req.getReason());
+    }
 }

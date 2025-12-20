@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.model.AuctionOrder.CancelOrderRequest;
 import com.example.backend.model.AuctionOrder.OrderStatusResponse;
 import com.example.backend.model.AuctionOrder.PayOrderRequest;
 import com.example.backend.model.AuctionOrder.SetShippingAddressRequest;
@@ -44,6 +45,15 @@ public class OrderController {
     @PostMapping("/{orderId}/confirm-received")
     public ResponseEntity<?> buyerConfirmReceived(@PathVariable Integer orderId) {
         orderService.buyerConfirmReceived(orderId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<?> cancel(
+            @PathVariable Integer orderId,
+            @RequestBody @Valid CancelOrderRequest req) {
+
+        orderService.cancel(orderId, req);
         return ResponseEntity.ok().build();
     }
 }
