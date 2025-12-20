@@ -10,5 +10,5 @@ public interface IPaymentService {
             String clientIp
     );
 
-    //Map<String, String> handleIpn(Map<String, String> params);
+    Map<String, String> handleIpn(Map<String, String> params);
 }

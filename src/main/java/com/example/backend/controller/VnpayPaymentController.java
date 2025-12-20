@@ -32,4 +32,13 @@ public class VnpayPaymentController {
                 )
         );
     }
+
+    @PostMapping("/ipn")
+    public ResponseEntity<Map<String, String>> handleIpn(
+            @RequestParam Map<String, String> params) {
+
+        return ResponseEntity.ok(
+                vnPayPaymentService.handleIpn(params)
+        );
+    }
 }

@@ -64,4 +64,50 @@ public class VnPayPaymentService implements IPaymentService {
                 "paymentUrl", paymentUrl
         );
     }
+
+    @Override
+    @Transactional
+    public Map<String, String> handleIpn(Map<String, String> params) {
+
+        Map<String, String> fields = new HashMap<>(params);
+
+        String secureHash = fields.remove("vnp_SecureHash");
+        fields.remove("vnp_SecureHashType");
+
+        String hashData = VnPayUtil.buildHashData(fields);
+        String signValue = VnPayUtil.hmacSHA512(
+                vnpayConfig.getHashSecret(),
+                hashData
+        );
+
+        if (!signValue.equals(secureHash)) {
+            return Map.of("RspCode", "97", "Message", "Invalid Checksum");
+        }
+
+        Integer orderId = Integer.valueOf(fields.get("vnp_TxnRef"));
+        BigDecimal amount = new BigDecimal(fields.get("vnp_Amount"))
+                .divide(BigDecimal.valueOf(100));
+
+        AuctionOrder order = orderRepo.findById(orderId).orElse(null);
+
+        if (order == null) {
+            return Map.of("RspCode", "01", "Message", "Order not Found");
+        }
+
+        if (order.getFinalPrice().compareTo(amount) != 0) {
+            return Map.of("RspCode", "04", "Message", "Invalid Amount");
+        }
+
+        if (order.getStatus() != AuctionOrder.OrderStatus.WAIT_PAYMENT) {
+            return Map.of("RspCode", "02", "Message", "Order already confirmed");
+        }
+
+        if ("00".equals(fields.get("vnp_ResponseCode"))) {
+            order.setStatus(AuctionOrder.OrderStatus.PAID);
+            order.setPaidAt(Instant.now());
+            orderRepo.save(order);
+        }
+
+        return Map.of("RspCode", "00", "Message", "Confirm Success");
+    }
 }
