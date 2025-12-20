@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Component
 @Getter
-public class VnpayConfig {
+public class VnPayConfig {
 
     @Value("${vnpay.tmn-code}")
     private String tmnCode;
