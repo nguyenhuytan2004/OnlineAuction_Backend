@@ -15,41 +15,41 @@ import com.example.backend.service.IBidderProfileService;
 
 @Service
 public class BidderProfileService implements IBidderProfileService {
-    @Autowired
-    private IBidRepository _bidRepository;
-    @Autowired
-    private IAuctionResultRepository _auctionResultRepository;
-    @Autowired
-    private IUserRepository _userRepository;
+  @Autowired
+  private IBidRepository _bidRepository;
+  @Autowired
+  private IAuctionResultRepository _auctionResultRepository;
+  @Autowired
+  private IUserRepository _userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
 
-    @Override
-    public List<Product> getParticipatingProducts(Integer userId) {
-        return _bidRepository.findDistinctProductsByBidderUserId(userId);
+  @Override
+  public List<Product> getParticipatingProducts(Integer userId) {
+    return _bidRepository.findDistinctProductsByBidderUserIdAndProductIsActiveTrue(userId);
+  }
+
+  @Override
+  public List<Product> getWonProducts(Integer userId) {
+    return _auctionResultRepository.findWonProductsByWinnerUserId(userId);
+  }
+
+  @Override
+  public void changePassword(Integer userId, String currentPassword,
+      String newPassword, String confirmNewPassword) {
+    if (!newPassword.equals(confirmNewPassword)) {
+      throw new RuntimeException("Mật khẩu mới và xác nhận mật khẩu mới không khớp");
     }
 
-    @Override
-    public List<Product> getWonProducts(Integer userId) {
-        return _auctionResultRepository.findWonProductsByWinnerUserId(userId);
+    User user = _userRepository.findById(userId)
+        .orElse(null);
+
+    if (!passwordEncoder.matches(currentPassword, user.getEncryptedPassword())) {
+      throw new RuntimeException("Mật khẩu hiện tại không đúng");
     }
 
-    @Override
-    public void changePassword(Integer userId, String currentPassword,
-            String newPassword, String confirmNewPassword) {
-        if (!newPassword.equals(confirmNewPassword)) {
-            throw new RuntimeException("Mật khẩu mới và xác nhận mật khẩu mới không khớp");
-        }
-
-        User user = _userRepository.findById(userId)
-                .orElse(null);
-
-        if (!passwordEncoder.matches(currentPassword, user.getEncryptedPassword())) {
-            throw new RuntimeException("Mật khẩu hiện tại không đúng");
-        }
-
-        user.setEncryptedPassword(passwordEncoder.encode(newPassword));
-        _userRepository.save(user);
-    }
+    user.setEncryptedPassword(passwordEncoder.encode(newPassword));
+    _userRepository.save(user);
+  }
 }

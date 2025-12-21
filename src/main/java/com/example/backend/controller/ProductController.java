@@ -184,10 +184,10 @@ public class ProductController {
 
   @PatchMapping("{product_id}/append-description")
   public ResponseEntity<?> appendDescription(@PathVariable("product_id") Integer productId,
-      @RequestParam Integer userId,
+      @AuthenticationPrincipal CustomUserDetails userDetails,
       @Valid @RequestBody AppendDescriptionRequest request) {
     try {
-      String updatedDescription = _productService.appendDescription(userId, productId,
+      String updatedDescription = _productService.appendDescription(userDetails.getUser().getUserId(), productId,
           request.getAdditionalDescription());
       return new ResponseEntity<>(updatedDescription, HttpStatus.OK);
     } catch (Exception e) {

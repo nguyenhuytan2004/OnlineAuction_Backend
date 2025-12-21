@@ -91,7 +91,7 @@ public class SecurityConfig {
             .requestMatchers("/api/user-profile/active-products",
                 "/api/user-profile/sold-products",
                 "/api/ratings/buyer",
-                "/api/auction-results/product/*/cancel", "/api/products/*/description", "/api/products")
+                "/api/auction-results/product/*/cancel", "/api/products/*/append-description", "/api/products")
             .hasRole("SELLER")
 
             .requestMatchers("/admin/**").hasRole("ADMIN")
