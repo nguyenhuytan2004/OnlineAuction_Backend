@@ -53,7 +53,7 @@ CREATE TABLE `product` (
 
 -- Bảng chứa thông tin yêu cầu nâng cấp seller
 CREATE TABLE `seller_upgrade_request` (
-    request_id INT AUTO_INCREMENT PRIMARY KEY,  
+    request_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     request_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
@@ -162,7 +162,7 @@ CREATE TABLE `blocked_bidder` (
     reason VARCHAR(255),
 
     UNIQUE KEY unique_block (product_id, blocked_id),
-    
+
     FOREIGN KEY (product_id) REFERENCES `product`(product_id) ON DELETE CASCADE,
     FOREIGN KEY (blocked_id) REFERENCES `user`(user_id) ON DELETE CASCADE,
     FOREIGN KEY (blocker_id) REFERENCES `user`(user_id) ON DELETE RESTRICT
@@ -206,7 +206,7 @@ CREATE TABLE auction_order (
    status ENUM(
         'WAIT_PAYMENT',
         'PAID',
-        'ON_DELIVERING'
+        'ON_DELIVERING',
         'COMPLETED',
         'CANCELLED'
         ) NOT NULL DEFAULT 'WAIT_PAYMENT',
@@ -401,4 +401,3 @@ INSERT INTO seller_upgrade_request
 (4, NOW(), 'PENDING', NULL, NULL),
 (5, DATE_SUB(NOW(), INTERVAL 2 DAY), 'APPROVED', NOW(), 'User meets all seller requirements'),
 (6, DATE_SUB(NOW(), INTERVAL 1 DAY), 'REJECTED', NOW(), 'Insufficient transaction history');
-
