@@ -23,52 +23,71 @@ public class EmailProducer {
     @Value("${rabbitmq.email.routing_key.name}")
     private String emailRoutingKeyName;
 
-    public void publishEmailNotification(EmailNotificationRequest emailRequest) {
+    /* ================= CORE ================= */
+
+    public void publishEmailNotification(EmailNotificationRequest request) {
         try {
-            log.debug("Publishing email notification to queue: recipient={}, subject={}, product={}",
-                    emailRequest.getRecipientEmail(),
-                    emailRequest.getSubject(),
-                    emailRequest.getProductName());
+            log.debug(
+                    "[EMAIL][PUBLISH] type={} recipient={} product={}",
+                    request.getEmailType(),
+                    request.getRecipientEmail(),
+                    request.getProductName()
+            );
 
-            // Publish message to exchange with routing key
-            rabbitTemplate.convertAndSend(emailExchangeName, emailRoutingKeyName, emailRequest);
+            rabbitTemplate.convertAndSend(
+                    emailExchangeName,
+                    emailRoutingKeyName,
+                    request
+            );
 
-            log.info("Email notification published successfully for recipient: {} about product: {}",
-                    emailRequest.getRecipientEmail(),
-                    emailRequest.getProductName());
+            log.info(
+                    "[EMAIL][PUBLISHED] type={} recipient={}",
+                    request.getEmailType(),
+                    request.getRecipientEmail()
+            );
 
         } catch (AmqpException e) {
-            log.error("[PRODUCER][EMAIL][ERROR] Failed to publish email notification for recipient: {} - Error: {}",
-                    emailRequest.getRecipientEmail(), e.getMessage(), e);
+            log.error(
+                    "[EMAIL][PRODUCER][ERROR] type={} recipient={} error={}",
+                    request.getEmailType(),
+                    request.getRecipientEmail(),
+                    e.getMessage(),
+                    e
+            );
             throw new RuntimeException("Failed to publish email notification", e);
         }
     }
 
-    public void publishQuestionNotification(EmailNotificationRequest emailRequest) {
-        try {
-            log.info("Publishing question notification for seller: {} about product: {}",
-                    emailRequest.getRecipientEmail(), emailRequest.getProductName());
-
-            emailRequest.setEmailType(EmailNotificationRequest.EmailType.QUESTION_ASKED);
-            publishEmailNotification(emailRequest);
-
-        } catch (Exception e) {
-            log.error("[PRODUCER][EMAIL][ERROR] Failed to publish question notification: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to publish question notification", e);
-        }
+    private void publishWithType(
+            EmailNotificationRequest request,
+            EmailNotificationRequest.EmailType emailType
+    ) {
+        request.setEmailType(emailType);
+        publishEmailNotification(request);
     }
 
-    public void publishAnswerNotification(EmailNotificationRequest emailRequest) {
-        try {
-            log.info("Publishing answer notification for buyer: {} about product: {}",
-                    emailRequest.getRecipientEmail(), emailRequest.getProductName());
 
-            emailRequest.setEmailType(EmailNotificationRequest.EmailType.QUESTION_ANSWERED);
-            publishEmailNotification(emailRequest);
+    public void publishQuestionNotification(EmailNotificationRequest request) {
+        publishWithType(request, EmailNotificationRequest.EmailType.QUESTION_ASKED);
+    }
 
-        } catch (Exception e) {
-            log.error("[PRODUCER][EMAIL][ERROR] Failed to publish answer notification: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to publish answer notification", e);
-        }
+    public void publishAnswerNotification(EmailNotificationRequest request) {
+        publishWithType(request, EmailNotificationRequest.EmailType.QUESTION_ANSWERED);
+    }
+
+    public void publishBidSuccessNotification(EmailNotificationRequest request) {
+        publishWithType(request, EmailNotificationRequest.EmailType.BID_SUCCESS);
+    }
+
+    public void publishBidRejectedNotification(EmailNotificationRequest request) {
+        publishWithType(request, EmailNotificationRequest.EmailType.BID_REJECTED);
+    }
+
+    public void publishAuctionEndedNoWinnerNotification(EmailNotificationRequest request) {
+        publishWithType(request, EmailNotificationRequest.EmailType.AUCTION_ENDED_NO_WINNER);
+    }
+
+    public void publishAuctionEndedHasWinnerNotification(EmailNotificationRequest request) {
+        publishWithType(request, EmailNotificationRequest.EmailType.AUCTION_ENDED_HAS_WINNER);
     }
 }
