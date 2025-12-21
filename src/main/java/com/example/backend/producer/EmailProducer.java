@@ -49,6 +49,7 @@ public class EmailProducer {
             log.info("Publishing question notification for seller: {} about product: {}",
                     emailRequest.getRecipientEmail(), emailRequest.getProductName());
 
+            emailRequest.setEmailType(EmailNotificationRequest.EmailType.QUESTION_ASKED);
             publishEmailNotification(emailRequest);
 
         } catch (Exception e) {
@@ -62,6 +63,7 @@ public class EmailProducer {
             log.info("Publishing answer notification for buyer: {} about product: {}",
                     emailRequest.getRecipientEmail(), emailRequest.getProductName());
 
+            emailRequest.setEmailType(EmailNotificationRequest.EmailType.QUESTION_ANSWERED);
             publishEmailNotification(emailRequest);
 
         } catch (Exception e) {
