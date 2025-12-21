@@ -1,16 +1,10 @@
 package com.example.backend.service.implement;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.example.backend.entity.Product;
 import com.example.backend.entity.ProductQnA.ProductAnswer;
 import com.example.backend.entity.ProductQnA.ProductQuestion;
 import com.example.backend.entity.User;
 import com.example.backend.helper.HtmlSanitizerHelper;
-import com.example.backend.model.Email.EmailNotificationRequest;
 import com.example.backend.model.ProductQna.ProductAnswer.CreateProductAnswerRequest;
 import com.example.backend.model.ProductQna.ProductQuestion.CreateProductQuestionRequest;
 import com.example.backend.producer.EmailProducer;
@@ -20,8 +14,11 @@ import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.service.IAuctionService;
 import com.example.backend.service.IProductQnaService;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -67,7 +64,6 @@ public class ProductQnaService implements IProductQnaService {
 
         _auctionService.broadcastQuestionAsked(savedQuestion);
 
-        // Gửi mail thông báo (thực hiện sau)
         emailProducer.sendQuestionAsked(product.getSeller().getUserId(),product.getProductId());
         return savedQuestion;
     }
