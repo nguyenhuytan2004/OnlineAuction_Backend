@@ -1,16 +1,10 @@
 package com.example.backend.service.implement;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.example.backend.entity.Product;
 import com.example.backend.entity.ProductQnA.ProductAnswer;
 import com.example.backend.entity.ProductQnA.ProductQuestion;
 import com.example.backend.entity.User;
 import com.example.backend.helper.HtmlSanitizerHelper;
-import com.example.backend.model.Email.EmailNotificationRequest;
 import com.example.backend.model.ProductQna.ProductAnswer.CreateProductAnswerRequest;
 import com.example.backend.model.ProductQna.ProductQuestion.CreateProductQuestionRequest;
 import com.example.backend.producer.EmailProducer;
@@ -20,8 +14,11 @@ import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.service.IAuctionService;
 import com.example.backend.service.IProductQnaService;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -67,26 +64,8 @@ public class ProductQnaService implements IProductQnaService {
 
         _auctionService.broadcastQuestionAsked(savedQuestion);
 
-        // Gửi mail thông báo (thực hiện sau)
-
+        emailProducer.sendQuestionAsked(product.getSeller().getUserId(),product.getProductId());
         return savedQuestion;
-    }
-
-    @Override
-    public void sendQuestionNotificationToSeller(EmailNotificationRequest request) {
-        try {
-            log.info("Preparing question notification email for seller: {} about product: {}",
-                    request.getRecipientEmail(), request.getProductName());
-
-            emailProducer.publishQuestionNotification(request);
-
-            log.info("Question notification email queued successfully for seller: {}", request.getRecipientEmail());
-
-        } catch (Exception e) {
-            log.error("Failed to queue question notification email for seller {}: {}",
-                    request.getRecipientEmail(), e.getMessage(), e);
-            throw new RuntimeException("Failed to send email notification", e);
-        }
     }
 
     @Override
@@ -111,26 +90,8 @@ public class ProductQnaService implements IProductQnaService {
 
         _auctionService.broadcastAnswerPosted(savedAnswer, product.getProductId());
 
-        // Gửi mail thông báo (thực hiện sau)
+        emailProducer.sendQuestionAnswered(question.getQuestionUser().getUserId(),product.getProductId());
 
         return savedAnswer;
-    }
-
-    @Override
-    public void sendAnswerNotificationToBuyer(EmailNotificationRequest request) {
-        try {
-            log.info("Preparing answer notification email for buyer: {} about product: {}",
-                    request.getRecipientEmail(), request.getProductName());
-
-            // Use EmailProducer to publish message
-            emailProducer.publishAnswerNotification(request);
-
-            log.info("Answer notification email queued successfully for buyer: {}", request.getRecipientEmail());
-
-        } catch (Exception e) {
-            log.error("Failed to queue answer notification email for buyer {}: {}",
-                    request.getRecipientEmail(), e.getMessage(), e);
-            throw new RuntimeException("Failed to send email notification", e);
-        }
     }
 }

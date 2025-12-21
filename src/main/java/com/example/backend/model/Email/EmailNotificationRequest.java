@@ -10,6 +10,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class EmailNotificationRequest {
+
+    public enum EmailType {
+        BID_SUCCESS,
+        BID_REJECTED,
+        AUCTION_ENDED_NO_WINNER,
+        AUCTION_ENDED_HAS_WINNER,
+        QUESTION_ASKED,
+        QUESTION_ANSWERED
+    }
+
+    private EmailType emailType;
+
     // Thông tin Người nhận
     private Integer recipientUserId;
     private String recipientEmail;
@@ -18,10 +30,6 @@ public class EmailNotificationRequest {
     // Thông tin Sản phẩm
     private Integer productId;
     private String productName;
-
-    // Thông tin người gửi
-    private Integer senderUserId;
-    private String senderName;
 
     // Nội dung cần thiết
     private String subject;

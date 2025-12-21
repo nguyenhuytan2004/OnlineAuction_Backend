@@ -55,7 +55,7 @@ CREATE TABLE `product` (
 
 -- Bảng chứa thông tin yêu cầu nâng cấp seller
 CREATE TABLE `seller_upgrade_request` (
-    request_id INT AUTO_INCREMENT PRIMARY KEY,  
+    request_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     request_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
@@ -164,7 +164,7 @@ CREATE TABLE `blocked_bidder` (
     reason VARCHAR(255),
 
     UNIQUE KEY unique_block (product_id, blocked_id),
-    
+
     FOREIGN KEY (product_id) REFERENCES `product`(product_id) ON DELETE CASCADE,
     FOREIGN KEY (blocked_id) REFERENCES `user`(user_id) ON DELETE CASCADE,
     FOREIGN KEY (blocker_id) REFERENCES `user`(user_id) ON DELETE RESTRICT
@@ -195,6 +195,38 @@ CREATE TABLE `message` (
     FOREIGN KEY (conversation_id) REFERENCES `conversation`(conversation_id) ON DELETE CASCADE,
     FOREIGN KEY (sender_id) REFERENCES `user`(user_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
+
+CREATE TABLE auction_order (
+   order_id INT AUTO_INCREMENT PRIMARY KEY,
+
+   product_id INT NOT NULL,
+   seller_id INT NOT NULL,
+   buyer_id INT NOT NULL,
+
+   final_price DECIMAL(15,2) NOT NULL,
+
+   status ENUM(
+        'WAIT_PAYMENT',
+        'PAID',
+        'ON_DELIVERING',
+        'COMPLETED',
+        'CANCELLED'
+        ) NOT NULL DEFAULT 'WAIT_PAYMENT',
+
+-- Payment
+   paid_at TIMESTAMP NULL,
+
+-- Shipping
+   shipping_address TEXT,
+
+-- Cancel
+   cancelled_reason TEXT,
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+   FOREIGN KEY (product_id) REFERENCES product(product_id),
+   FOREIGN KEY (seller_id) REFERENCES user(user_id),
+   FOREIGN KEY (buyer_id) REFERENCES user(user_id)
+);
 
 -- Dữ liệu mẫu cho bảng CATEGORY
 INSERT INTO `category` (category_id, category_name, description, parent_id) VALUES
@@ -377,3 +409,40 @@ INSERT INTO seller_upgrade_request
 (5, DATE_SUB(NOW(), INTERVAL 2 DAY), 'APPROVED', NOW(), 'User meets all seller requirements'),
 (6, DATE_SUB(NOW(), INTERVAL 1 DAY), 'REJECTED', NOW(), 'Insufficient transaction history');
 
+INSERT INTO auction_result
+(product_id, winner_id, final_price, payment_status)
+VALUES
+    (1, 9, 1500000.00, 'PAID'),
+    (2, 9, 2750000.00, 'PENDING'),
+    (3, 9, 980000.00, 'CANCELED');
+
+INSERT INTO auction_order (
+    product_id,
+    seller_id,
+    buyer_id,
+    final_price,
+    status,
+    paid_at,
+    shipping_address,
+    cancelled_reason
+) VALUES
+-- 1. Đơn vừa trúng đấu giá, chờ thanh toán
+(1, 3, 9, 1500000.00, 'WAIT_PAYMENT', NULL,
+ '12 Nguyễn Trãi, Quận 1, TP.HCM', NULL),
+
+-- 2. Đơn đã thanh toán, chuẩn bị giao hàng
+(2, 3, 6, 2750000.00, 'PAID', NOW(),
+ '45 Lê Lợi, Quận Hải Châu, Đà Nẵng', NULL),
+
+-- 3. Đơn đang giao hàng
+(3, 4, 7, 3200000.00, 'ON_DELIVERING', NOW(),
+ '89 Trần Phú, Nha Trang, Khánh Hòa', NULL),
+
+-- 4. Đơn đã hoàn tất
+(4, 5, 8, 9800000.00, 'COMPLETED', NOW(),
+ '120 Phạm Văn Đồng, Cầu Giấy, Hà Nội', NULL),
+
+-- 5. Đơn bị hủy (không thanh toán)
+(5, 6, 9, 4500000.00, 'CANCELLED', NULL,
+ '77 Nguyễn Huệ, Quận 1, TP.HCM',
+ 'Buyer did not complete payment within allowed time')

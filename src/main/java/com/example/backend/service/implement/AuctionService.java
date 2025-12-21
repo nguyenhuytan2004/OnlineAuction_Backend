@@ -49,7 +49,7 @@ public class AuctionService implements IAuctionService {
   @Override
   public void broadcastAuctionUpdate(Product product, Bid newBid, BigDecimal previousPrice,
       MessageType messageType, String message) {
-    BidUpdateMessage biđUpateMessage = BidUpdateMessage.builder()
+    BidUpdateMessage bidUpdateMessage = BidUpdateMessage.builder()
         .productId(product.getProductId())
         .productName(product.getProductName())
         .currentPrice(product.getCurrentPrice())
@@ -71,7 +71,7 @@ public class AuctionService implements IAuctionService {
     // Broadcast tới tất cả clients
     auctionMessagingTemplate.convertAndSend(
         "/topic/product/" + product.getProductId() + "/place-bid",
-        biđUpateMessage);
+            bidUpdateMessage);
 
     log.info("[AUTO-BID] Broadcasted {} for product {}", messageType, product.getProductId());
   }

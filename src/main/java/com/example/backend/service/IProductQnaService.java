@@ -13,9 +13,7 @@ public interface IProductQnaService {
 
     public ProductQuestion createProductQuestion(CreateProductQuestionRequest createQuestionRequest);
 
-    public void sendQuestionNotificationToSeller(EmailNotificationRequest request);
 
     public ProductAnswer createProductAnswer(CreateProductAnswerRequest createAnswerRequest);
 
-    public void sendAnswerNotificationToBuyer(EmailNotificationRequest request);
 }
