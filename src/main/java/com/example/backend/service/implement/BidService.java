@@ -110,6 +110,7 @@ public class BidService implements IBidService {
                 product.getProductId(), bidder.getUserId(), request.getMaxAutoPrice());
 
         BigDecimal previousPrice = product.getCurrentPrice();
+        User previousHighestBidder = null;
 
         // 1. Lấy bid có bidPrice cao nhất
         Bid currentHighestBid = _bidRepository
@@ -153,6 +154,7 @@ public class BidService implements IBidService {
                         + currentHighestBid.getBidder().getFullName() + " with bid of "
                         + newBid.getBidPrice();
             } else {
+                previousHighestBidder = currentHighestBid.getBidder();
                 newBid.setBidder(bidder);
                 newBid.setProduct(product);
                 newBid.setBidPrice(competitorMaxPrice.add(product.getPriceStep()));
@@ -179,6 +181,12 @@ public class BidService implements IBidService {
         log.info("[AUTO-BID] Completed: currentPrice={}, winner={}",
                 savedBid.getBidPrice(), savedBid.getBidder().getFullName());
 
+        if (previousHighestBidder != null) {
+            emailProducer.sendBidRejected(
+                    previousHighestBidder.getUserId(),
+                    product.getProductId()
+            );
+        }
         return savedBid;
     }
 
