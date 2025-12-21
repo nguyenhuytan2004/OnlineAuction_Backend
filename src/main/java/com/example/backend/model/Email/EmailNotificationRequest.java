@@ -31,10 +31,6 @@ public class EmailNotificationRequest {
     private Integer productId;
     private String productName;
 
-    // Thông tin người gửi
-    private Integer senderUserId;
-    private String senderName;
-
     // Nội dung cần thiết
     private String subject;
     private String messageContent;

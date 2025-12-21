@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.backend.producer.EmailProducer;
+import com.example.backend.service.IEmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,9 @@ public class BidService implements IBidService {
     @Autowired
     private IAuctionService _auctionService;
 
+    @Autowired
+    private EmailProducer emailProducer;
+
     @Override
     public User getHighestBidderByProductId(Integer productId) {
         Bid highestBid = _bidRepository.findTopByProductProductIdOrderByBidPriceDesc(productId);
@@ -64,6 +69,8 @@ public class BidService implements IBidService {
                 .orElseThrow(() -> new IllegalArgumentException("Bidder not found"));
 
         if (LocalDateTime.now().isAfter(product.getEndTime())) {
+            emailProducer.sendBidSuccess(bidder.getUserId(),product.getProductId());
+            emailProducer.sendBidSuccess(product.getSeller().getUserId(),product.getProductId());
             throw new IllegalArgumentException("Auction has already ended");
         }
 
@@ -73,10 +80,12 @@ public class BidService implements IBidService {
 
         Boolean isEligible = _productService.checkBiddingEligibility(product.getProductId(), bidder.getUserId());
         if (!isEligible) {
+            emailProducer.sendBidRejected(bidder.getUserId(),product.getProductId());
             throw new IllegalArgumentException("Bidder is not eligible to place a bid on this product");
         }
 
         if (bidder.getUserId().equals(product.getSeller().getUserId())) {
+            emailProducer.sendBidRejected(bidder.getUserId(),product.getProductId());
             throw new IllegalArgumentException("Seller cannot bid on their own product");
         }
 
@@ -86,9 +95,11 @@ public class BidService implements IBidService {
         }
 
         Bid savedBid = processAutoBid(product, bidder, createBidRequest);
-
         _auctionService.checkAndRenewAuction(product);
-
+        //
+        emailProducer.sendBidSuccess(bidder.getUserId(),product.getProductId());
+        emailProducer.sendBidSuccess(product.getSeller().getUserId(),product.getProductId());
+        // thêm gửi mail cho người giữ giá trước đó
         return savedBid;
     }
 

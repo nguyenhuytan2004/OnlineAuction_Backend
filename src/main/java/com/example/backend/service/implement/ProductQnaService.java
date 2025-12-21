@@ -68,25 +68,8 @@ public class ProductQnaService implements IProductQnaService {
         _auctionService.broadcastQuestionAsked(savedQuestion);
 
         // Gửi mail thông báo (thực hiện sau)
-
+        emailProducer.sendQuestionAsked(product.getSeller().getUserId(),product.getProductId());
         return savedQuestion;
-    }
-
-    @Override
-    public void sendQuestionNotificationToSeller(EmailNotificationRequest request) {
-        try {
-            log.info("Preparing question notification email for seller: {} about product: {}",
-                    request.getRecipientEmail(), request.getProductName());
-
-            emailProducer.publishQuestionNotification(request);
-
-            log.info("Question notification email queued successfully for seller: {}", request.getRecipientEmail());
-
-        } catch (Exception e) {
-            log.error("Failed to queue question notification email for seller {}: {}",
-                    request.getRecipientEmail(), e.getMessage(), e);
-            throw new RuntimeException("Failed to send email notification", e);
-        }
     }
 
     @Override
@@ -111,26 +94,8 @@ public class ProductQnaService implements IProductQnaService {
 
         _auctionService.broadcastAnswerPosted(savedAnswer, product.getProductId());
 
-        // Gửi mail thông báo (thực hiện sau)
+        emailProducer.sendQuestionAnswered(question.getQuestionUser().getUserId(),product.getProductId());
 
         return savedAnswer;
-    }
-
-    @Override
-    public void sendAnswerNotificationToBuyer(EmailNotificationRequest request) {
-        try {
-            log.info("Preparing answer notification email for buyer: {} about product: {}",
-                    request.getRecipientEmail(), request.getProductName());
-
-            // Use EmailProducer to publish message
-            emailProducer.publishAnswerNotification(request);
-
-            log.info("Answer notification email queued successfully for buyer: {}", request.getRecipientEmail());
-
-        } catch (Exception e) {
-            log.error("Failed to queue answer notification email for buyer {}: {}",
-                    request.getRecipientEmail(), e.getMessage(), e);
-            throw new RuntimeException("Failed to send email notification", e);
-        }
     }
 }
