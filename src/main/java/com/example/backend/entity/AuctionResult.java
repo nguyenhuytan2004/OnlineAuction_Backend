@@ -32,7 +32,6 @@ public class AuctionResult {
     PENDING,
     PAID,
     CANCELED
-
   }
 
   @Id

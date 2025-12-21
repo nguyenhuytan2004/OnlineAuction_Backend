@@ -401,3 +401,41 @@ INSERT INTO seller_upgrade_request
 (4, NOW(), 'PENDING', NULL, NULL),
 (5, DATE_SUB(NOW(), INTERVAL 2 DAY), 'APPROVED', NOW(), 'User meets all seller requirements'),
 (6, DATE_SUB(NOW(), INTERVAL 1 DAY), 'REJECTED', NOW(), 'Insufficient transaction history');
+
+INSERT INTO auction_result
+(product_id, winner_id, final_price, payment_status)
+VALUES
+    (1, 9, 1500000.00, 'PAID'),
+    (2, 9, 2750000.00, 'PENDING'),
+    (3, 9, 980000.00, 'CANCELED');
+
+INSERT INTO auction_order (
+    product_id,
+    seller_id,
+    buyer_id,
+    final_price,
+    status,
+    paid_at,
+    shipping_address,
+    cancelled_reason
+) VALUES
+-- 1. Đơn vừa trúng đấu giá, chờ thanh toán
+(1, 3, 9, 1500000.00, 'WAIT_PAYMENT', NULL,
+ '12 Nguyễn Trãi, Quận 1, TP.HCM', NULL),
+
+-- 2. Đơn đã thanh toán, chuẩn bị giao hàng
+(2, 3, 6, 2750000.00, 'PAID', NOW(),
+ '45 Lê Lợi, Quận Hải Châu, Đà Nẵng', NULL),
+
+-- 3. Đơn đang giao hàng
+(3, 4, 7, 3200000.00, 'ON_DELIVERING', NOW(),
+ '89 Trần Phú, Nha Trang, Khánh Hòa', NULL),
+
+-- 4. Đơn đã hoàn tất
+(4, 5, 8, 9800000.00, 'COMPLETED', NOW(),
+ '120 Phạm Văn Đồng, Cầu Giấy, Hà Nội', NULL),
+
+-- 5. Đơn bị hủy (không thanh toán)
+(5, 6, 9, 4500000.00, 'CANCELLED', NULL,
+ '77 Nguyễn Huệ, Quận 1, TP.HCM',
+ 'Buyer did not complete payment within allowed time')
