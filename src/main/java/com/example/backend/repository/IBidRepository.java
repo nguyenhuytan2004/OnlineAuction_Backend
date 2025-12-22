@@ -10,18 +10,18 @@ import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
 
 public interface IBidRepository extends JpaRepository<Bid, Integer> {
-    Bid findTopByProductProductIdOrderByBidPriceDesc(Integer productId);
+  Bid findTopByProductProductIdOrderByBidPriceDesc(Integer productId);
 
-    @Query("SELECT b.product FROM Bid b WHERE b.bidder.userId = :userId GROUP BY b.product.productId ORDER BY MAX(b.bidAt) DESC")
-    List<Product> findDistinctProductsByBidderUserId(@Param("userId") Integer userId);
+  @Query("SELECT b.product FROM Bid b WHERE b.bidder.userId = :userId AND b.product.isActive = true GROUP BY b.product.productId ORDER BY MAX(b.bidAt) DESC")
+  List<Product> findDistinctProductsByBidderUserIdAndProductIsActiveTrue(@Param("userId") Integer userId);
 
-    List<Bid> findTop5ByProductProductIdOrderByBidPriceDescBidAtAsc(Integer productId);
+  List<Bid> findTop5ByProductProductIdOrderByBidPriceDescBidAtAsc(Integer productId);
 
-    List<Bid> findByProductProductIdOrderByMaxAutoPriceDescBidAtAsc(Integer productId);
+  List<Bid> findByProductProductIdOrderByMaxAutoPriceDescBidAtAsc(Integer productId);
 
-    Boolean existsByProductProductIdAndBidderUserId(Integer productId, Integer userId);
+  Boolean existsByProductProductIdAndBidderUserId(Integer productId, Integer userId);
 
-    boolean existsByProduct_ProductId(Integer productId);
+  boolean existsByProduct_ProductId(Integer productId);
 
-    void deleteByProductProductIdAndBidderUserId(Integer productId, Integer userId);
+  void deleteByProductProductIdAndBidderUserId(Integer productId, Integer userId);
 }

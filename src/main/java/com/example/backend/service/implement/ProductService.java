@@ -305,7 +305,7 @@ public class ProductService implements IProductService {
     }
 
     String safeAdditionalDescription = HtmlSanitizerHelper.sanitize(additionalDescription);
-    String updatedDescription = product.getDescription() + safeAdditionalDescription;
+    String updatedDescription = product.getDescription() + "<div>" + safeAdditionalDescription + "</div>";
     product.setDescription(updatedDescription);
     _productRepository.save(product);
 

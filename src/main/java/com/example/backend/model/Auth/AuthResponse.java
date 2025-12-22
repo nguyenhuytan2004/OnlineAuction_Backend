@@ -1,5 +1,7 @@
 package com.example.backend.model.Auth;
 
+import com.example.backend.model.User.UserResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthResponse {
-    private String accessToken;
-    private String refreshToken;
-    private com.example.backend.model.User.UserResponse user;
+  private String accessToken;
+  private String refreshToken;
+  private UserResponse user;
 }

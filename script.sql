@@ -7,7 +7,9 @@ USE online_auction_db;
 CREATE TABLE `category` (
     category_id INT AUTO_INCREMENT PRIMARY KEY,
     category_name VARCHAR(100) NOT NULL,
+    description TEXT,
     parent_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (parent_id) REFERENCES `category`(category_id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
@@ -228,17 +230,22 @@ CREATE TABLE auction_order (
 );
 
 -- Dữ liệu mẫu cho bảng CATEGORY
-INSERT INTO `category` (category_name, parent_id) VALUES
-('Điện tử', NULL),
-('Thời trang', NULL),
-('Điện thoại di động', 1),
-('Máy tính xách tay', 1),
-('Đồng hồ', 2),
-('Giày dép', 2),
-('Sách', NULL),
-('Đồ gia dụng', NULL),
-('Đồ chơi', NULL),
-('Máy tính bảng', 1);
+INSERT INTO `category` (category_id, category_name, description, parent_id) VALUES
+-- Danh mục cấp 1 (Parent là NULL)
+(1, 'Điện tử', 'Các thiết bị điện tử, máy móc công nghệ cao', NULL),
+(2, 'Thời trang', 'Quần áo, phụ kiện và xu hướng thời trang mới nhất', NULL),
+(3, 'Sách', 'Kho tàng tri thức với đa dạng thể loại từ văn học đến khoa học', NULL),
+(4, 'Đồ gia dụng', 'Thiết bị và vật dụng tiện ích cho gia đình', NULL),
+(5, 'Đồ chơi', 'Đồ chơi giải trí và phát triển trí tuệ cho trẻ em', NULL),
+
+-- Danh mục cấp 2 thuộc Điện tử (parent_id = 1)
+(6, 'Điện thoại di động', 'Smartphone, điện thoại phổ thông và phụ kiện đi kèm', 1),
+(7, 'Máy tính xách tay', 'Laptop văn phòng, gaming và workstation', 1),
+(8, 'Máy tính bảng', 'Các dòng tablet phục vụ công việc và giải trí', 1),
+
+-- Danh mục cấp 2 thuộc Thời trang (parent_id = 2)
+(9, 'Đồng hồ', 'Đồng hồ đeo tay nam nữ, đồng hồ thông minh', 2),
+(10, 'Giày dép', 'Giày thể thao, giày tây và dép thời trang', 2);
 
 -- USER (Realistic names + realistic emails)
 INSERT INTO `user` (full_name, email, encrypted_password, rating_score, rating_count) VALUES

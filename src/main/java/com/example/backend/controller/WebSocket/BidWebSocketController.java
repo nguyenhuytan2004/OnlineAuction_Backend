@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.example.backend.model.Bid.CreateBidRequest;
@@ -17,32 +16,29 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 public class BidWebSocketController {
 
-    @Autowired
-    private IBidService _bidService;
+  @Autowired
+  private IBidService _bidService;
 
-    @Autowired
-    private SimpMessagingTemplate bidMessageTemplate;
+  @MessageMapping("/product/{productId}/place-bid")
+  public void placeBid(
+      @DestinationVariable Integer productId,
+      @Valid @Payload CreateBidRequest request) {
+    try {
+      log.info("[WS] Received bid for product {} from bidder {}",
+          productId, request.getBidderId());
 
-    @MessageMapping("/product/{productId}/place-bid")
-    public void placeBid(
-            @DestinationVariable Integer productId,
-            @Valid @Payload CreateBidRequest request) {
-        try {
-            log.info("[WS] Received bid for product {} from bidder {}",
-                    productId, request.getBidderId());
+      if (!request.getProductId().equals(productId)) {
+        throw new IllegalArgumentException("Product ID mismatch");
+      }
 
-            if (!request.getProductId().equals(productId)) {
-                throw new IllegalArgumentException("Product ID mismatch");
-            }
+      _bidService.placeBid(request);
 
-            _bidService.placeBid(request);
+    } catch (IllegalArgumentException e) {
+      log.warn("[WS] Invalid bid: {}", e.getMessage());
 
-        } catch (IllegalArgumentException e) {
-            log.warn("[WS] Invalid bid: {}", e.getMessage());
-
-        } catch (Exception e) {
-            log.error("[WS] Error placing bid: {}", e.getMessage(), e);
-        }
+    } catch (Exception e) {
+      log.error("[WS] Error placing bid: {}", e.getMessage(), e);
     }
+  }
 
 }
