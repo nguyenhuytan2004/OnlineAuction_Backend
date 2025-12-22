@@ -17,7 +17,8 @@ public class EmailNotificationRequest {
         AUCTION_ENDED_NO_WINNER,
         AUCTION_ENDED_HAS_WINNER,
         QUESTION_ASKED,
-        QUESTION_ANSWERED
+        QUESTION_ANSWERED,
+        EMAIL_OTP_VERIFY
     }
 
     private EmailType emailType;

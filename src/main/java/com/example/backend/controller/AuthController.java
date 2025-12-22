@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.model.EmailOtp.VerifyEmailRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,9 +27,9 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
         try {
-            AuthResponse response = authService.register(req);
+            authService.register(req);
 
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return ResponseEntity.ok("OTP đã được gửi tới email");
         } catch (RuntimeException e) {
             log.warn("[CONTROLLER][AUTH][WARN] /api/auth/register - Error occurred: {}", e.getMessage());
 

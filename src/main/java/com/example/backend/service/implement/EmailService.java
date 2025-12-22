@@ -1,15 +1,13 @@
 package com.example.backend.service.implement;
 
+import com.example.backend.model.Email.EmailNotificationRequest;
+import com.example.backend.service.IEmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
-import com.example.backend.model.Email.EmailNotificationRequest;
-import com.example.backend.service.IEmailService;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -52,6 +50,7 @@ public class EmailService implements IEmailService {
             case AUCTION_ENDED_NO_WINNER -> "Đấu giá kết thúc – Không có người mua";
             case QUESTION_ASKED -> "Có câu hỏi mới về sản phẩm";
             case QUESTION_ANSWERED -> "Câu hỏi về sản phẩm đã được trả lời";
+            case EMAIL_OTP_VERIFY -> "Mã xác thực Auction Onlne";
         };
     }
 
@@ -62,74 +61,74 @@ public class EmailService implements IEmailService {
         return switch (r.getEmailType()) {
 
             case BID_SUCCESS -> """
-                Xin chào %s,
-
-                Bạn đã ra giá thành công cho sản phẩm "%s".
-                Giá hiện tại của sản phẩm đã được cập nhật.
-
-                Hãy theo dõi để không bỏ lỡ diễn biến tiếp theo.
-
-                Xem chi tiết: %s
-                """.formatted(
+                    Xin chào %s,
+                    
+                    Bạn đã ra giá thành công cho sản phẩm "%s".
+                    Giá hiện tại của sản phẩm đã được cập nhật.
+                    
+                    Hãy theo dõi để không bỏ lỡ diễn biến tiếp theo.
+                    
+                    Xem chi tiết: %s
+                    """.formatted(
                     r.getRecipientName(),
                     r.getProductName(),
                     r.getDeepLinkPath()
             );
 
             case BID_REJECTED -> """
-                Xin chào %s,
-
-                Rất tiếc, lượt ra giá của bạn cho sản phẩm "%s" không được chấp nhận.
-                Nguyên nhân có thể do giá thấp hơn giá hiện tại hoặc đấu giá đã kết thúc.
-
-                Vui lòng kiểm tra lại và thử lại nếu còn thời gian.
-
-                Xem chi tiết: %s
-                """.formatted(
+                    Xin chào %s,
+                    
+                    Rất tiếc, lượt ra giá của bạn cho sản phẩm "%s" không được chấp nhận.
+                    Nguyên nhân có thể do giá thấp hơn giá hiện tại hoặc đấu giá đã kết thúc.
+                    
+                    Vui lòng kiểm tra lại và thử lại nếu còn thời gian.
+                    
+                    Xem chi tiết: %s
+                    """.formatted(
                     r.getRecipientName(),
                     r.getProductName(),
                     r.getDeepLinkPath()
             );
 
             case AUCTION_ENDED_HAS_WINNER -> """
-                Xin chào %s,
-
-                Đấu giá cho sản phẩm "%s" đã kết thúc thành công.
-                Người thắng đấu giá sẽ sớm liên hệ để tiến hành giao dịch.
-
-                Cảm ơn bạn đã sử dụng hệ thống.
-
-                Xem chi tiết: %s
-                """.formatted(
+                    Xin chào %s,
+                    
+                    Đấu giá cho sản phẩm "%s" đã kết thúc thành công.
+                    Người thắng đấu giá sẽ sớm liên hệ để tiến hành giao dịch.
+                    
+                    Cảm ơn bạn đã sử dụng hệ thống.
+                    
+                    Xem chi tiết: %s
+                    """.formatted(
                     r.getRecipientName(),
                     r.getProductName(),
                     r.getDeepLinkPath()
             );
 
             case AUCTION_ENDED_NO_WINNER -> """
-                Xin chào %s,
-
-                Đấu giá cho sản phẩm "%s" đã kết thúc nhưng chưa có người mua.
-                Bạn có thể cân nhắc đăng lại sản phẩm vào thời điểm khác.
-
-                Xem chi tiết: %s
-                """.formatted(
+                    Xin chào %s,
+                    
+                    Đấu giá cho sản phẩm "%s" đã kết thúc nhưng chưa có người mua.
+                    Bạn có thể cân nhắc đăng lại sản phẩm vào thời điểm khác.
+                    
+                    Xem chi tiết: %s
+                    """.formatted(
                     r.getRecipientName(),
                     r.getProductName(),
                     r.getDeepLinkPath()
             );
 
             case QUESTION_ASKED -> """
-                Xin chào %s,
-
-                Có người mua vừa đặt câu hỏi về sản phẩm "%s":
-
-                "%s"
-
-                Vui lòng truy cập hệ thống để trả lời câu hỏi.
-
-                Trả lời tại: %s
-                """.formatted(
+                    Xin chào %s,
+                    
+                    Có người mua vừa đặt câu hỏi về sản phẩm "%s":
+                    
+                    "%s"
+                    
+                    Vui lòng truy cập hệ thống để trả lời câu hỏi.
+                    
+                    Trả lời tại: %s
+                    """.formatted(
                     r.getRecipientName(),
                     r.getProductName(),
                     r.getMessageContent(),
@@ -137,21 +136,36 @@ public class EmailService implements IEmailService {
             );
 
             case QUESTION_ANSWERED -> """
-                Xin chào %s,
-
-                Người bán đã trả lời câu hỏi về sản phẩm "%s":
-
-                "%s"
-
-                Bạn có thể xem chi tiết tại liên kết bên dưới.
-
-                Xem tại: %s
-                """.formatted(
+                    Xin chào %s,
+                    
+                    Người bán đã trả lời câu hỏi về sản phẩm "%s":
+                    
+                    "%s"
+                    
+                    Bạn có thể xem chi tiết tại liên kết bên dưới.
+                    
+                    Xem tại: %s
+                    """.formatted(
                     r.getRecipientName(),
                     r.getProductName(),
                     r.getMessageContent(),
                     r.getDeepLinkPath()
             );
+
+            case EMAIL_OTP_VERIFY -> """
+                    Xin chào %s,
+                    
+                    Mã OTP xác nhận email của bạn là: %s
+                    
+                    Mã có hiệu lực trong 5 phút.
+                    
+                    Nếu bạn không thực hiện hành động này, vui lòng bỏ qua email.
+                    """
+                    .formatted(
+                            r.getRecipientName(),
+                            r.getMessageContent()
+            );
         };
     }
 }
+

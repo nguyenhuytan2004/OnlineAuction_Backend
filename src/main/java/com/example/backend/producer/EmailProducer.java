@@ -2,18 +2,15 @@ package com.example.backend.producer;
 
 import com.example.backend.entity.Product;
 import com.example.backend.entity.User;
+import com.example.backend.model.Email.EmailNotificationRequest;
 import com.example.backend.service.implement.ProductService;
 import com.example.backend.service.implement.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import com.example.backend.model.Email.EmailNotificationRequest;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -30,10 +27,7 @@ public class EmailProducer {
     @Value("${rabbitmq.email.routing_key.name}")
     private String emailRoutingKeyName;
 
-    /* ================= CORE ================= */
-
     private void publish(EmailNotificationRequest request) {
-
         try {
             log.info(
                     "[EMAIL][PUBLISH] type={} recipientId={} productId={}",
@@ -72,15 +66,36 @@ public class EmailProducer {
                 .productId(product.getProductId())
                 .productName(product.getProductName())
 
-                // subject & content: EmailService sẽ build
                 .subject(null)
                 .messageContent(null)
                 .deepLinkPath("/products/" + product.getProductId())
-
                 .build();
     }
 
-    /* ================= PUBLIC API (BUSINESS CALL) ================= */
+
+    public void sendEmailOtp(Integer userId, String otp) {
+
+        User user = userService.getUser(userId);
+
+        EmailNotificationRequest request = EmailNotificationRequest.builder()
+                .emailType(EmailNotificationRequest.EmailType.EMAIL_OTP_VERIFY)
+
+                .recipientUserId(user.getUserId())
+                .recipientEmail(user.getEmail())
+                .recipientName(user.getFullName())
+
+                .productId(null)
+                .productName(null)
+
+                .subject(null)
+                .messageContent(otp)
+                .deepLinkPath(null)
+
+                .build();
+
+        publish(request);
+    }
+
 
     public void sendQuestionAsked(Integer recipientUserId, Integer productId) {
         publish(buildRequest(
