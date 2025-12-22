@@ -73,12 +73,16 @@ public class EmailProducer {
     }
 
 
-    public void sendEmailOtp(Integer userId, String otp) {
+    public void sendEmailOtp(
+            Integer userId,
+            String otp,
+            EmailNotificationRequest.EmailType emailType
+    ) {
 
         User user = userService.getUser(userId);
 
         EmailNotificationRequest request = EmailNotificationRequest.builder()
-                .emailType(EmailNotificationRequest.EmailType.EMAIL_OTP_VERIFY)
+                .emailType(emailType)
 
                 .recipientUserId(user.getUserId())
                 .recipientEmail(user.getEmail())

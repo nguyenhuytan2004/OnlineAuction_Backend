@@ -50,7 +50,8 @@ public class EmailService implements IEmailService {
             case AUCTION_ENDED_NO_WINNER -> "Đấu giá kết thúc – Không có người mua";
             case QUESTION_ASKED -> "Có câu hỏi mới về sản phẩm";
             case QUESTION_ANSWERED -> "Câu hỏi về sản phẩm đã được trả lời";
-            case EMAIL_OTP_VERIFY -> "Mã xác thực Auction Onlne";
+            case EMAIL_OTP_VERIFY -> "Xác nhận email tài khoản Auction Online";
+            case EMAIL_OTP_RESET_PASSWORD -> "Đặt lại mật khẩu tài khoản Auction Online";
         };
     }
 
@@ -164,7 +165,23 @@ public class EmailService implements IEmailService {
                     .formatted(
                             r.getRecipientName(),
                             r.getMessageContent()
-            );
+                    );
+
+            case EMAIL_OTP_RESET_PASSWORD -> """
+                    Xin chào %s,
+                    
+                    Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.
+                    
+                    Mã OTP đặt lại mật khẩu là: %s
+                    
+                    Mã có hiệu lực trong 5 phút.
+                    
+                    Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng đổi mật khẩu ngay hoặc liên hệ hỗ trợ.
+                    """
+                    .formatted(
+                            r.getRecipientName(),
+                            r.getMessageContent()
+                    );
         };
     }
 }

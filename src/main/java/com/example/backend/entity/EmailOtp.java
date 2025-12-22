@@ -15,6 +15,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class EmailOtp {
 
+    public enum OtpType {
+        VERIFY_EMAIL,
+        RESET_PASSWORD
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,4 +35,8 @@ public class EmailOtp {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OtpType type;
 }

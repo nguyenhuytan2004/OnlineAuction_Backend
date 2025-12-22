@@ -105,6 +105,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         boolean isAlwaysPublic = path.equals("/api/auth/register")
                 || path.equals("/api/auth/login")
                 || path.equals("/api/auth/verify-email")
+                || path.equals("/api/auth/forgot-password")
+                || path.equals("/api/auth/reset-password")
                 || path.startsWith("/v3/api-docs/")
                 || path.startsWith("/swagger-ui/")
                 || path.equals("/swagger-ui.html")

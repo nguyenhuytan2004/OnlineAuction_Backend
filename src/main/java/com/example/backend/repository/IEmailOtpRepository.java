@@ -9,9 +9,13 @@ import java.util.Optional;
 
 public interface IEmailOtpRepository extends JpaRepository<EmailOtp, Long> {
 
-    Optional<EmailOtp> findByEmailAndOtp(String email, String otp);
+    Optional<EmailOtp> findByEmailAndOtpAndType(
+            String email,
+            String otp,
+            EmailOtp.OtpType type
+    );
 
     @Modifying
     @Transactional
-    void deleteByEmail(String email);
+    void deleteByEmailAndType(String email, EmailOtp.OtpType type);
 }

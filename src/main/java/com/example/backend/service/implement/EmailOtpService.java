@@ -2,6 +2,7 @@ package com.example.backend.service.implement;
 
 import com.example.backend.entity.EmailOtp;
 import com.example.backend.entity.User;
+import com.example.backend.model.Email.EmailNotificationRequest;
 import com.example.backend.producer.EmailProducer;
 import com.example.backend.repository.IEmailOtpRepository;
 import com.example.backend.repository.IUserRepository;
@@ -22,11 +23,12 @@ public class EmailOtpService implements IEmailOtpService {
     private final EmailProducer emailProducer;
 
     @Transactional
-    public void sendOtp(String email) {
+    public void sendOtp(String email, EmailOtp.OtpType type) {
+
         User user = _userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        _emailOtpRepository.deleteByEmail(email);
+        _emailOtpRepository.deleteByEmailAndType(email, type);
 
         String otp = String.valueOf(100000 + new SecureRandom().nextInt(900000));
 
@@ -34,14 +36,25 @@ public class EmailOtpService implements IEmailOtpService {
         emailOtp.setEmail(email);
         emailOtp.setOtp(otp);
         emailOtp.setExpiredAt(LocalDateTime.now().plusMinutes(5));
+        emailOtp.setType(type);
 
         _emailOtpRepository.save(emailOtp);
 
-        emailProducer.sendEmailOtp(user.getUserId(), otp);
+        EmailNotificationRequest.EmailType emailType =
+                (type == EmailOtp.OtpType.VERIFY_EMAIL)
+                        ? EmailNotificationRequest.EmailType.EMAIL_OTP_VERIFY
+                        : EmailNotificationRequest.EmailType.EMAIL_OTP_RESET_PASSWORD;
+
+        emailProducer.sendEmailOtp(
+                user.getUserId(),
+                otp,
+                emailType
+        );
     }
 
-    public EmailOtp validateOtp(String email, String otp) {
-        EmailOtp emailOtp = _emailOtpRepository.findByEmailAndOtp(email, otp)
+    public EmailOtp validateOtp(String email, String otp, EmailOtp.OtpType type) {
+        EmailOtp emailOtp = _emailOtpRepository
+                .findByEmailAndOtpAndType(email, otp, type)
                 .orElseThrow(() -> new RuntimeException("OTP không hợp lệ"));
 
         if (emailOtp.getExpiredAt().isBefore(LocalDateTime.now())) {
@@ -51,4 +64,5 @@ public class EmailOtpService implements IEmailOtpService {
         return emailOtp;
     }
 }
+
 

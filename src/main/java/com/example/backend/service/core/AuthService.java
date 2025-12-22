@@ -5,6 +5,8 @@ import com.example.backend.entity.User;
 import com.example.backend.model.Auth.AuthResponse;
 import com.example.backend.model.Auth.LoginRequest;
 import com.example.backend.model.Auth.RegisterRequest;
+import com.example.backend.model.EmailOtp.ForgotPasswordRequest;
+import com.example.backend.model.EmailOtp.ResetPasswordRequest;
 import com.example.backend.model.EmailOtp.VerifyEmailRequest;
 import com.example.backend.model.User.UserResponse;
 import com.example.backend.repository.IEmailOtpRepository;
@@ -42,18 +44,24 @@ public class AuthService {
         user.setFullName(req.getFullName());
         user.setEncryptedPassword(passwordEncoder.encode(req.getPassword()));
         user.setRole(User.Role.BIDDER);
+        user.setIsVerified(false);
 
         userRepo.save(user);
-        emailOtpService.sendOtp(user.getEmail());
 
-        UserDetails userDetails = new CustomUserDetails(user);
-        UserResponse userResponse = new UserResponse(user);
+        emailOtpService.sendOtp(
+                user.getEmail(),
+                EmailOtp.OtpType.VERIFY_EMAIL
+        );
     }
 
     @Transactional
     public AuthResponse verifyEmail(VerifyEmailRequest req) {
 
-        EmailOtp emailOtp = emailOtpService.validateOtp(req.getEmail(), req.getOtp());
+        emailOtpService.validateOtp(
+                req.getEmail(),
+                req.getOtp(),
+                EmailOtp.OtpType.VERIFY_EMAIL
+        );
 
         User user = userRepo.findByEmail(req.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -61,7 +69,10 @@ public class AuthService {
         user.setIsVerified(true);
         userRepo.save(user);
 
-        _emailOtpRepository.deleteByEmail(req.getEmail());
+        _emailOtpRepository.deleteByEmailAndType(
+                req.getEmail(),
+                EmailOtp.OtpType.VERIFY_EMAIL
+        );
 
         UserDetails userDetails = new CustomUserDetails(user);
         UserResponse userResponse = new UserResponse(user);
@@ -69,9 +80,9 @@ public class AuthService {
         return new AuthResponse(
                 jwtService.generateAccessToken(userDetails),
                 jwtService.generateRefreshToken(userDetails),
-                userResponse);
+                userResponse
+        );
     }
-
 
     public AuthResponse login(LoginRequest req) {
 
@@ -95,4 +106,36 @@ public class AuthService {
                 jwtService.generateRefreshToken(userDetails),
                 userResponse);
     }
+
+    public void forgotPassword(ForgotPasswordRequest req) {
+        emailOtpService.sendOtp(
+                req.getEmail(),
+                EmailOtp.OtpType.RESET_PASSWORD
+        );
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest req) {
+
+        emailOtpService.validateOtp(
+                req.getEmail(),
+                req.getOtp(),
+                EmailOtp.OtpType.RESET_PASSWORD
+        );
+
+        User user = userRepo.findByEmail(req.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setEncryptedPassword(
+                passwordEncoder.encode(req.getNewPassword())
+        );
+
+        userRepo.save(user);
+
+        _emailOtpRepository.deleteByEmailAndType(
+                req.getEmail(),
+                EmailOtp.OtpType.RESET_PASSWORD
+        );
+    }
+
 }

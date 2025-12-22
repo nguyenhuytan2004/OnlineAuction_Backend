@@ -1,5 +1,7 @@
 package com.example.backend.controller;
 
+import com.example.backend.model.EmailOtp.ForgotPasswordRequest;
+import com.example.backend.model.EmailOtp.ResetPasswordRequest;
 import com.example.backend.model.EmailOtp.VerifyEmailRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +46,21 @@ public class AuthController {
     @PostMapping("/verify-email")
     public ResponseEntity<AuthResponse> verifyEmail(
             @RequestBody VerifyEmailRequest req) {
-        return ResponseEntity.ok(authService.verifyEmail(req));
+
+        log.info("[CONTROLLER][AUTH][VERIFY_EMAIL][START] email={}", req.getEmail());
+
+        try {
+            AuthResponse response = authService.verifyEmail(req);
+
+            log.info("[CONTROLLER][AUTH][VERIFY_EMAIL][SUCCESS] email={}", req.getEmail());
+            return ResponseEntity.ok(response);
+
+        } catch (RuntimeException e) {
+            log.warn("[CONTROLLER][AUTH][VERIFY_EMAIL][FAIL] email={} reason={}",
+                    req.getEmail(), e.getMessage());
+
+            throw e;
+        }
     }
 
 
@@ -61,6 +77,67 @@ public class AuthController {
         } catch (Exception e) {
             log.error("[CONTROLLER][AUTH][ERROR] /api/auth/login - Unexpected error occurred: {}", e.getMessage(), e);
             return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+            @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(
+            @RequestBody ForgotPasswordRequest req) {
+
+        log.info("[CONTROLLER][AUTH][FORGOT_PASSWORD][START] email={}", req.getEmail());
+
+        try {
+            authService.forgotPassword(req);
+
+            log.info("[CONTROLLER][AUTH][FORGOT_PASSWORD][SUCCESS] email={}", req.getEmail());
+            return ResponseEntity.ok("OTP đặt lại mật khẩu đã được gửi");
+
+        } catch (RuntimeException e) {
+            log.warn("[CONTROLLER][AUTH][FORGOT_PASSWORD][FAIL] email={} reason={}",
+                    req.getEmail(), e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+
+        } catch (Exception e) {
+            log.error("[CONTROLLER][AUTH][FORGOT_PASSWORD][ERROR] email={}",
+                    req.getEmail(), e);
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đã xảy ra lỗi hệ thống");
+        }
+    }
+
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @RequestBody ResetPasswordRequest req) {
+
+        log.info("[CONTROLLER][AUTH][RESET_PASSWORD][START] email={}", req.getEmail());
+
+        try {
+            authService.resetPassword(req);
+
+            log.info("[CONTROLLER][AUTH][RESET_PASSWORD][SUCCESS] email={}", req.getEmail());
+            return ResponseEntity.ok("Đổi mật khẩu thành công");
+
+        } catch (RuntimeException e) {
+            log.warn("[CONTROLLER][AUTH][RESET_PASSWORD][FAIL] email={} reason={}",
+                    req.getEmail(), e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+
+        } catch (Exception e) {
+            log.error("[CONTROLLER][AUTH][RESET_PASSWORD][ERROR] email={}",
+                    req.getEmail(), e);
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đã xảy ra lỗi hệ thống");
         }
     }
 }
