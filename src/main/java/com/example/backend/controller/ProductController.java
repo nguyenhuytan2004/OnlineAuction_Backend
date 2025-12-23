@@ -24,6 +24,7 @@ import com.example.backend.entity.Product;
 import com.example.backend.model.CreateBlockedBidderRequest;
 import com.example.backend.model.Product.AppendDescriptionRequest;
 import com.example.backend.model.Product.CreateProductRequest;
+import com.example.backend.model.Product.UpdateProductRequest;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.IBidService;
 import com.example.backend.service.IBlockedBidderService;
@@ -46,11 +47,15 @@ public class ProductController {
       .getLogger(ProductController.class);
 
   @GetMapping("")
-  public ResponseEntity<?> getAllProducts(Pageable pageable) {
+  public ResponseEntity<?> getProductsWithStatus(@RequestParam(required = false) String status, Pageable pageable) {
     try {
-      Page<Product> productPage = _productService.getAllProducts(pageable);
-      return new ResponseEntity<>(productPage, HttpStatus.OK);
+      Page<Product> products = _productService.getProducts(status, pageable);
+      return new ResponseEntity<>(products, HttpStatus.OK);
+    } catch (IllegalArgumentException iae) {
+      LOGGER.error("[CONTROLLER][GET][ERROR] /api/products?status={} - Illegal argument: {}", status, iae.getMessage());
+      return new ResponseEntity<>(iae.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
+      LOGGER.error("[CONTROLLER][GET][ERROR] /api/products?status={} - Exception: {}", status, e.getMessage());
       return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -287,6 +292,26 @@ public class ProductController {
     } catch (Exception e) {
       LOGGER.error("[CONTROLLER][POST][ERROR] /api/products/{}/block-bidder - Error occurred: {}",
           productId, e.getMessage(), e);
+      return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PatchMapping("/{product_id}")
+  public ResponseEntity<?> updateProduct(
+      @PathVariable("product_id") Integer productId,
+      @RequestBody @Valid UpdateProductRequest updateProductRequest) {
+    try {
+      Product updatedProduct = _productService.updateProduct(productId, updateProductRequest);
+      return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
+
+    } catch (IllegalArgumentException iae) {
+      LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{} - Illegal argument: {}", productId,
+          iae.getMessage());
+      return new ResponseEntity<>("Illegal argument: " + iae.getMessage(), HttpStatus.BAD_REQUEST);
+
+    } catch (Exception e) {
+      LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{} - Error occurred: {}", productId,
+          e.getMessage(), e);
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
