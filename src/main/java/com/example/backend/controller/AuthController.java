@@ -1,8 +1,5 @@
 package com.example.backend.controller;
 
-import com.example.backend.model.EmailOtp.ForgotPasswordRequest;
-import com.example.backend.model.EmailOtp.ResetPasswordRequest;
-import com.example.backend.model.EmailOtp.VerifyEmailRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.model.Auth.AuthResponse;
 import com.example.backend.model.Auth.LoginRequest;
 import com.example.backend.model.Auth.RegisterRequest;
+import com.example.backend.model.EmailOtp.ForgotPasswordRequest;
+import com.example.backend.model.EmailOtp.ResetPasswordRequest;
+import com.example.backend.model.EmailOtp.VerifyEmailRequest;
 import com.example.backend.service.core.AuthService;
 
 import lombok.RequiredArgsConstructor;
@@ -94,10 +94,14 @@ public class AuthController {
       AuthResponse response = authService.login(req);
 
       return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (RuntimeException e) {
+    } catch (DisabledException e) {
       log.warn("[CONTROLLER][AUTH][WARN] /api/auth/login - Error occurred: {}", e.getMessage());
 
-      return new ResponseEntity<>("Tài khoản hoặc mật khẩu không đúng", HttpStatus.UNAUTHORIZED);
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+    } catch (BadCredentialsException e) {
+      log.warn("[CONTROLLER][AUTH][WARN] /api/auth/login - Error occurred: {}", e.getMessage());
+
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
     } catch (Exception e) {
       log.error("[CONTROLLER][AUTH][ERROR] /api/auth/login - Unexpected error occurred: {}", e.getMessage(), e);
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

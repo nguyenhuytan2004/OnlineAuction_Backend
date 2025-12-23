@@ -25,40 +25,40 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "BID")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Bid {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bid_id")
-    private Integer bidId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "bid_id")
+  private Integer bidId;
 
-    @NotNull(message = "Product must not be null")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+  @NotNull(message = "Product must not be null")
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "product_id", nullable = false)
+  private Product product;
 
-    @NotNull(message = "Bidder must not be null")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "bidder_id", nullable = false)
-    private User bidder;
+  @NotNull(message = "Bidder must not be null")
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "bidder_id", nullable = false)
+  private User bidder;
 
-    @NotNull(message = "Bid price must not be null")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Bid price must be greater than 0")
-    @Digits(integer = 16, fraction = 2, message = "Invalid bid price")
-    @Column(name = "bid_price", nullable = false, precision = 18, scale = 2)
-    private BigDecimal bidPrice;
+  @NotNull(message = "Bid price must not be null")
+  @DecimalMin(value = "0.0", inclusive = false, message = "Bid price must be greater than 0")
+  @Digits(integer = 16, fraction = 2, message = "Invalid bid price")
+  @Column(name = "bid_price", nullable = false, precision = 18, scale = 2)
+  private BigDecimal bidPrice;
 
-    @NotNull(message = "Max auto price must not be null")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Max auto price must be greater than 0")
-    @Digits(integer = 16, fraction = 2, message = "Invalid max auto price")
-    @Column(name = "max_auto_price", nullable = false, precision = 18, scale = 2)
-    private BigDecimal maxAutoPrice;
+  @NotNull(message = "Max auto price must not be null")
+  @DecimalMin(value = "0.0", inclusive = false, message = "Max auto price must be greater than 0")
+  @Digits(integer = 16, fraction = 2, message = "Invalid max auto price")
+  @Column(name = "max_auto_price", nullable = false, precision = 18, scale = 2)
+  private BigDecimal maxAutoPrice;
 
-    @CreationTimestamp
-    @Column(name = "bid_at", nullable = false, updatable = false)
-    private LocalDateTime bidAt;
+  @CreationTimestamp
+  @Column(name = "bid_at", nullable = false, updatable = false)
+  private LocalDateTime bidAt;
 }

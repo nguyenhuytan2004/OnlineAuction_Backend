@@ -1,6 +1,5 @@
 package com.example.backend.service.core;
 
-import com.example.backend.entity.EmailOtp;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -8,9 +7,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.example.backend.entity.EmailOtp;
 import com.example.backend.entity.User;
-import com.example.backend.entity.User.Role;
 import com.example.backend.model.Auth.AuthResponse;
 import com.example.backend.model.Auth.LoginRequest;
 import com.example.backend.model.Auth.RegisterRequest;
@@ -23,13 +23,8 @@ import com.example.backend.repository.IUserRepository;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.security.JwtService;
 import com.example.backend.service.implement.EmailOtpService;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -126,10 +121,12 @@ public class AuthService {
 
     UserDetails userDetails = userDetailsService.loadUserByUsername(req.getEmail());
     User user = userRepo.findByEmail(req.getEmail())
-        .orElseThrow(() -> new RuntimeException("User not found"));
-
+        .orElseThrow(() -> new BadCredentialsException("Tài khoản không tồn tại"));
+    if (Boolean.FALSE.equals(user.getIsActive())) {
+      throw new DisabledException("Tài khoản đã bị khóa");
+    }
     if (!user.getIsVerified()) {
-      throw new RuntimeException("Email chưa được xác nhận");
+      throw new DisabledException("Email chưa được xác nhận");
     }
 
     UserResponse userResponse = new UserResponse(user);

@@ -95,11 +95,12 @@ public class UserService implements IUserService {
     user.setRatingCount(0);
     user.setRole(request.getRole());
 
-    if (request.getRole() == Role.SELLER && request.getSellerExpiresAt() != null) {
+    if (request.getRole() == Role.SELLER) {
       user.setSellerExpiresAt(LocalDateTime.now().plusDays(7));
     }
 
     user.setIsActive(true);
+    user.setIsVerified(true);
 
     User savedUser = _userRepository.save(user);
 

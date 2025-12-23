@@ -25,7 +25,7 @@ CREATE TABLE `user` (
     role ENUM('BIDDER', 'SELLER', 'ADMIN') NOT NULL DEFAULT 'BIDDER',
     seller_expires_at DATETIME DEFAULT NULL,
     is_active BOOLEAN DEFAULT TRUE,
-    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    is_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -248,15 +248,15 @@ INSERT INTO `category` (category_id, category_name, description, parent_id) VALU
 (10, 'Giày dép', 'Giày thể thao, giày tây và dép thời trang', 2);
 
 -- USER (Realistic names + realistic emails)
-INSERT INTO `user` (full_name, email, encrypted_password, rating_score, rating_count) VALUES
-('Nguyễn Hoàng Minh', 'minh.nguyen@gmail.com', '$2a$10$5K7irzpbIRu8CobNZJFVDempz9WDIf.LDvGLOB0wxM0ElH5eQodhC', 8, 10),
-('Trần Khánh Linh', 'linh.tran@gmail.com', '$2a$10$savotgG5leGb/SwtvrRPguX76AwBumNxFZMJYegUUncRvegOucX4O', 10, 10),
-('Lê Quốc Huy', 'huy.le@gmail.com', '$2a$10$BOtUAA6RN.v581tSt7vW4.vgDr8DdFrtXSkTKArazSZC.dWl.wLVm', 12, 15),
-('Phạm Bảo Trân', 'tran.pham@gmail.com', '$2a$10$examplehashforsellerd', 14, 20),
-('Hoàng Gia Bảo', 'bao.hoang@gmail.com', '$2a$10$examplehashforsellere', 16, 25),
-('Nguyễn Thu Hà', 'ha.nguyen@gmail.com', '$2a$10$examplehashforbidderf', 9, 12),
-('Nguyễn Huy Tấn', 'nhtan22@clc.fitus.edu.vn', '$2a$10$F4RGn9dExHFHf1kCcFSNa.BzlanrhH3wt0mdSbzAtdZ7cQSIQI/Ae', 15, 20),
-('Đăng Văn Quang', 'dvquang22@clc.fitus.edu.vn', '$2a$10$MHmloXfvFV7ar1N/clY3getdUu2/rWND21KaWQbx5eAsp49RLpdOW', 38, 43);
+INSERT INTO `user` (full_name, email, encrypted_password, rating_score, rating_count, role, seller_expires_at) VALUES
+('Nguyễn Hoàng Minh', 'minh.nguyen@gmail.com', '$2a$10$biWJYj6QdRH/uQQ8ZjhFL.uzgzRQQKptyuffdgR7jKQSpCiakyg42', 8, 10, "ADMIN", NULL),
+('Trần Khánh Linh', 'linh.tran@gmail.com', '$2a$10$z848BvAPrkiyGesaKe4t.O.cl31Kbvi673w6cn3JAB6tTdhK9feoW', 10, 10, "BIDDER", NULL),
+('Lê Quốc Huy', 'huy.le@gmail.com', '$2a$10$ar7nlwDhBGR0zhkdx91/TuWOvdcQvNvZKykwq.gvzPLg8QlPD1CHi', 12, 15, "SELLER", DATE_ADD(NOW(), INTERVAL 7 DAY)),
+('Phạm Bảo Trân', 'tran.pham@gmail.com', '$2a$10$nfeKkytJQVKgLf1oNPuqT./jaOU8VL2sfp1MCLQOhvlMEIOwgGkX6', 14, 20, "BIDDER", NULL),
+('Hoàng Gia Bảo', 'bao.hoang@gmail.com', '$2a$10$eORh7G2q68kXUQmcsU7E1.vN5WrFHu9Yl1FHxrnq0EfPyukTdllFG', 16, 25, "BIDDER", NULL),
+('Nguyễn Thu Hà', 'ha.nguyen@gmail.com', '$2a$10$ENoPzpks2zRYu1P/j8TELOHpGoF2KE4HUil7UbBGVZERsQh4qHXmi', 9, 12, "BIDDER", NULL),
+('Nguyễn Huy Tấn', 'nhtan22@clc.fitus.edu.vn', '$2a$10$ENoPzpks2zRYu1P/j8TELOHpGoF2KE4HUil7UbBGVZERsQh4qHXmi', 15, 20, "BIDDER", NULL),
+('Đăng Văn Quang', 'dvquang22@clc.fitus.edu.vn', '$2a$09$c/EAtme1ly8YmmeyaluffetqzxkivIyjRnlH9sqXJdlbwEyT7gEy.', 38, 43, "BIDDER", NULL);
 
 -- INSERT PRODUCT
 INSERT INTO `product`
@@ -413,9 +413,9 @@ INSERT INTO seller_upgrade_request
 INSERT INTO auction_result
 (product_id, winner_id, final_price, payment_status)
 VALUES
-    (1, 9, 1500000.00, 'PAID'),
-    (2, 9, 2750000.00, 'PENDING'),
-    (3, 9, 980000.00, 'CANCELED');
+    (1, 8, 1500000.00, 'PAID'),
+    (2, 8, 2750000.00, 'PENDING'),
+    (3, 8, 980000.00, 'CANCELED');
 
 INSERT INTO auction_order (
     product_id,
@@ -428,7 +428,7 @@ INSERT INTO auction_order (
     cancelled_reason
 ) VALUES
 -- 1. Đơn vừa trúng đấu giá, chờ thanh toán
-(1, 3, 9, 1500000.00, 'WAIT_PAYMENT', NULL,
+(1, 3, 8, 1500000.00, 'WAIT_PAYMENT', NULL,
  '12 Nguyễn Trãi, Quận 1, TP.HCM', NULL),
 
 -- 2. Đơn đã thanh toán, chuẩn bị giao hàng
@@ -444,6 +444,6 @@ INSERT INTO auction_order (
  '120 Phạm Văn Đồng, Cầu Giấy, Hà Nội', NULL),
 
 -- 5. Đơn bị hủy (không thanh toán)
-(5, 6, 9, 4500000.00, 'CANCELLED', NULL,
+(5, 6, 8, 4500000.00, 'CANCELLED', NULL,
  '77 Nguyễn Huệ, Quận 1, TP.HCM',
  'Buyer did not complete payment within allowed time')
