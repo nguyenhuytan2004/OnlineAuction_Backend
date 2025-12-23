@@ -6,6 +6,6 @@ import java.math.BigDecimal;
 
 @Data
 public class CreateMomoPaymentRequest {
-    private Long orderId;
-    private BigDecimal amount;
+    private Long amount;
+    private String orderInfo;
 }

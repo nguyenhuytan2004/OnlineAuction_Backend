@@ -26,12 +26,29 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/register")
+    /*@PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
         try {
             authService.register(req);
 
             return ResponseEntity.ok("OTP đã được gửi tới email");
+        } catch (RuntimeException e) {
+            log.warn("[CONTROLLER][AUTH][WARN] /api/auth/register - Error occurred: {}", e.getMessage());
+
+            return new ResponseEntity<>("Email đã tồn tại", HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            log.error("[CONTROLLER][AUTH][ERROR] /api/auth/register - Unexpected error occurred: {}", e.getMessage(),
+                    e);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }*/
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
+        try {
+            AuthResponse response = authService.register(req);
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             log.warn("[CONTROLLER][AUTH][WARN] /api/auth/register - Error occurred: {}", e.getMessage());
 

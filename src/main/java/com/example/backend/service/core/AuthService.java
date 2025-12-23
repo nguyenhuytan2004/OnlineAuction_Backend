@@ -34,10 +34,10 @@ public class AuthService {
     private final EmailOtpService emailOtpService;
     private final IEmailOtpRepository _emailOtpRepository;
 
-    public void register(RegisterRequest req) {
-        /*if (userRepo.findByEmail(req.getEmail()).isPresent()) {
+    /*public void register(RegisterRequest req) {
+        *//*if (userRepo.findByEmail(req.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
-        }*/
+        }*//*
 
         User user = new User();
         user.setEmail(req.getEmail());
@@ -52,6 +52,28 @@ public class AuthService {
                 user.getEmail(),
                 EmailOtp.OtpType.VERIFY_EMAIL
         );
+    }*/
+
+    public AuthResponse register(RegisterRequest req) {
+        if (userRepo.findByEmail(req.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        User user = new User();
+        user.setEmail(req.getEmail());
+        user.setFullName(req.getFullName());
+        user.setEncryptedPassword(passwordEncoder.encode(req.getPassword())); // HASH
+        user.setRole(User.Role.BIDDER);
+
+        userRepo.save(user);
+
+        UserDetails userDetails = new CustomUserDetails(user);
+        com.example.backend.model.User.UserResponse userResponse = new com.example.backend.model.User.UserResponse(user);
+
+        return new AuthResponse(
+                jwtService.generateAccessToken(userDetails),
+                jwtService.generateRefreshToken(userDetails),
+                userResponse);
     }
 
     @Transactional
