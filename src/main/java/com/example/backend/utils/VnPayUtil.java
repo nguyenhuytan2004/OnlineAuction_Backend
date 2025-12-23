@@ -12,14 +12,14 @@ public class VnPayUtil {
 
     public static String hmacSHA512(String key, String data) {
         try {
-            Mac hmac512 = Mac.getInstance("HmacSHA512");
+            Mac hmac = Mac.getInstance("HmacSHA512");
             SecretKeySpec secretKey =
                     new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
-            hmac512.init(secretKey);
-            byte[] bytes = hmac512.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(bytes);
+            hmac.init(secretKey);
+            byte[] raw = hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(raw);
         } catch (Exception e) {
-            throw new RuntimeException("VNPay hash error", e);
+            throw new RuntimeException("VNPay Hmac error", e);
         }
     }
 

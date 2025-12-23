@@ -10,11 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +36,9 @@ public class VnPayPaymentService implements IPaymentService {
         vnpParams.put("vnp_Version", "2.1.0");
         vnpParams.put("vnp_Command", "pay");
         vnpParams.put("vnp_TmnCode", vnpayConfig.getTmnCode());
-        vnpParams.put("vnp_Amount", amount.multiply(BigDecimal.valueOf(100))
-                .toBigInteger().toString());
+        vnpParams.put("vnp_Amount",
+                amount.multiply(BigDecimal.valueOf(100))
+                        .toBigInteger().toString());
         vnpParams.put("vnp_CurrCode", "VND");
         vnpParams.put("vnp_TxnRef", String.valueOf(orderId));
         vnpParams.put("vnp_OrderInfo", "Auction order #" + orderId);
@@ -44,18 +47,49 @@ public class VnPayPaymentService implements IPaymentService {
         vnpParams.put("vnp_ReturnUrl", vnpayConfig.getReturnUrl());
         vnpParams.put("vnp_IpAddr", clientIp);
 
-        String createDate = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        // 🔥 TIMEZONE VN
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+
+        String createDate = formatter.format(cld.getTime());
         vnpParams.put("vnp_CreateDate", createDate);
 
-        String hashData = VnPayUtil.buildHashData(vnpParams);
+        cld.add(Calendar.MINUTE, 15);
+        String expireDate = formatter.format(cld.getTime());
+        vnpParams.put("vnp_ExpireDate", expireDate);
+
+        List<String> fieldNames = new ArrayList<>(vnpParams.keySet());
+        Collections.sort(fieldNames);
+
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+
+        for (Iterator<String> it = fieldNames.iterator(); it.hasNext(); ) {
+            String field = it.next();
+            String value = vnpParams.get(field);
+            if (value != null && !value.isEmpty()) {
+
+                hashData.append(field).append('=')
+                        .append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
+
+                query.append(URLEncoder.encode(field, StandardCharsets.US_ASCII))
+                        .append('=')
+                        .append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
+
+                if (it.hasNext()) {
+                    hashData.append('&');
+                    query.append('&');
+                }
+            }
+        }
+
         String secureHash = VnPayUtil.hmacSHA512(
                 vnpayConfig.getHashSecret(),
-                hashData
+                hashData.toString()
         );
 
         String paymentUrl = vnpayConfig.getPayUrl()
-                + "?" + hashData
+                + "?" + query
                 + "&vnp_SecureHash=" + secureHash;
 
         return Map.of(
@@ -64,6 +98,7 @@ public class VnPayPaymentService implements IPaymentService {
                 "paymentUrl", paymentUrl
         );
     }
+
 
     @Override
     @Transactional

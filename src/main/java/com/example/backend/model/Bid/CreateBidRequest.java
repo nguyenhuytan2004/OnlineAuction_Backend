@@ -18,7 +18,7 @@ public class CreateBidRequest {
     private Integer productId;
 
     @NotNull(message = "Bidder ID is not null")
-    private Integer bidderId;
+        private Integer bidderId;
 
     @NotNull(message = "Bid price is not null")
     @DecimalMin(value = "0.0", inclusive = false, message = "Max auto price must be greater than 0")
