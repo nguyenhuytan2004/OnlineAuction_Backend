@@ -20,7 +20,6 @@ public class AdminUserController {
 
     private final IUserService userService;
 
-    // ================= READ =================
 
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
@@ -57,7 +56,6 @@ public class AdminUserController {
         }
     }
 
-    // ================= CREATE =================
 
     @PostMapping
     public ResponseEntity<?> createUser(
@@ -106,7 +104,6 @@ public class AdminUserController {
         }
     }
 
-    // ================= DELETE =================
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Integer id) {

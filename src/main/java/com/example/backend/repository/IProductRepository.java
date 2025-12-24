@@ -35,4 +35,23 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
         List<Product> findBySellerUserIdAndEndTimeAfterOrderByEndTimeAsc(Integer userId, LocalDateTime now);
 
         boolean existsByCategory_CategoryId(Integer categoryId);
+
+        @Query("SELECT COUNT(p) FROM Product p")
+        long countAll();
+
+        @Query("""
+            SELECT YEAR(p.createdAt), MONTH(p.createdAt), COUNT(p)
+            FROM Product p
+            GROUP BY YEAR(p.createdAt), MONTH(p.createdAt)
+            ORDER BY YEAR(p.createdAt) DESC, MONTH(p.createdAt) DESC
+        """)
+        List<Object[]> countProductsByMonth();
+
+        @Query("""
+                SELECT COUNT(p)
+                FROM Product p
+                WHERE MONTH(p.createdAt) = MONTH(CURRENT_DATE)
+                  AND YEAR(p.createdAt) = YEAR(CURRENT_DATE)
+            """)
+        long countThisMonth();
 }
