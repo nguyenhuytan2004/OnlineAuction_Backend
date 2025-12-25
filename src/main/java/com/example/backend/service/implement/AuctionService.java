@@ -68,7 +68,6 @@ public class AuctionService implements IAuctionService {
         .message(message)
         .build();
 
-    // Broadcast tới tất cả clients
     auctionMessagingTemplate.convertAndSend(
         "/topic/product/" + product.getProductId() + "/place-bid",
         bidUpdateMessage);
@@ -88,12 +87,12 @@ public class AuctionService implements IAuctionService {
       if (triggerDuration.compareTo(Duration.between(now, endTime)) >= 0) {
         product.setEndTime(endTime.plus(extendDuration));
         _productRepository.save(product);
+
+        auctionMessagingTemplate.convertAndSend(
+            "/topic/product/" + product.getProductId() + "/auction-extend", product.getEndTime());
+
+        log.info("[AUTO-BID] Auction extended for product {}", product.getProductId());
       }
-
-      auctionMessagingTemplate.convertAndSend(
-          "/topic/product/" + product.getProductId() + "/auction-extend", product.getEndTime());
-
-      log.info("[AUTO-BID] Auction extended for product {}", product.getProductId());
     }
   }
 

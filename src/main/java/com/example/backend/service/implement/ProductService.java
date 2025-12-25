@@ -162,11 +162,11 @@ public class ProductService implements IProductService {
             bool.must(keywordBool);
           }
 
-          // Boost sản phẩm mới hơn (đăng trong 7 ngày)
+          // Boost sản phẩm mới hơn (đăng trong 1 ngày)
           bool.should(f
               .range()
               .field("createdAt")
-              .atLeast(java.time.LocalDateTime.now().minusDays(7))
+              .atLeast(java.time.LocalDateTime.now().minusDays(1))
               .boost(1.2f));
 
           // Lọc theo categoryId nếu có
@@ -182,11 +182,7 @@ public class ProductService implements IProductService {
         .sort(f -> {
           var sortStep = f.composite();
 
-          // Ưu tiên 1: Sắp xếp theo điểm số (score) giảm dần
-          // Sản phẩm mới được boost trong WHERE clause sẽ có score cao hơn
-          sortStep.add(f.score().desc());
-
-          // Ưu tiên 2: Sắp xếp theo các trường được chỉ định trong pageable
+          // Ưu tiên 1: Sắp xếp theo các trường được chỉ định trong pageable
           if (pageable.getSort().isSorted()) {
             for (var order : pageable.getSort()) {
               if (order.isAscending()) {
@@ -195,13 +191,13 @@ public class ProductService implements IProductService {
                 sortStep.add(f.field(order.getProperty()).desc());
               }
             }
-            return sortStep;
           }
 
-          // Ưu tiên 2(Mặc định): Sắp xếp theo endTime tăng dần nếu không có sắp xếp nào
-          // được chỉ định
-          return sortStep.add(f.field("endTime").asc());
+          // Ưu tiên 2: Sắp xếp theo điểm số (score) giảm dần
+          // Sản phẩm mới được boost trong WHERE clause sẽ có score cao hơn
+          sortStep.add(f.score().desc());
 
+          return sortStep;
         })
         .fetch(pageable.getPageNumber() * pageable.getPageSize(), pageable.getPageSize());
 

@@ -91,6 +91,11 @@ public class SecurityConfig {
                 "/api/categories/**")
             .permitAll()
 
+            .requestMatchers(HttpMethod.POST,
+                "/api/products/{product_id}/questions")
+            .hasAnyRole("SELLER", "BIDDER")
+            .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("SELLER", "BIDDER")
+
             .requestMatchers(
                 "/api/user-profile/active-products",
                 "/api/user-profile/sold-products",
