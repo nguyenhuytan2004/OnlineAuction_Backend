@@ -2,6 +2,7 @@ package com.example.backend.service;
 
 import java.util.List;
 
+import com.example.backend.model.User.UpdateUserAdminRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,4 +23,7 @@ public interface IUserService {
   UserResponse createUser(CreateUserRequest request);
 
   void deleteUser(Integer userId);
+
+  User updateUserByAdmin(Integer userId, UpdateUserAdminRequest request);
+
 }

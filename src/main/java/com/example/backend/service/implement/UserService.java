@@ -3,6 +3,7 @@ package com.example.backend.service.implement;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.backend.model.User.UpdateUserAdminRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -59,7 +60,7 @@ public class UserService implements IUserService {
   public User updateUser(Integer userId, UpdateUserRequest updateUserRequest) {
 
     User user = _userRepository.findById(userId)
-        .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+            .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
     if (!user.getEmail().equals(updateUserRequest.getEmail())) {
       if (_userRepository.findByEmail(updateUserRequest.getEmail()).isPresent()) {
@@ -112,8 +113,31 @@ public class UserService implements IUserService {
   @Override
   public void deleteUser(Integer userId) {
     User user = _userRepository.findById(userId)
-        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
     _userRepository.delete(user);
   }
+
+  @Override
+  public User updateUserByAdmin(Integer userId, UpdateUserAdminRequest request) {
+
+    User user = _userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+    if (!user.getEmail().equals(request.getEmail())) {
+      if (_userRepository.findByEmail(request.getEmail()).isPresent()) {
+        throw new IllegalArgumentException("Email already in use");
+      }
+      user.setEmail(request.getEmail());
+    }
+    user.setFullName(request.getFullName());
+    if (request.getRole() != null) {
+      user.setRole(request.getRole());
+    }
+    if (request.getIsActive() != null) {
+      user.setIsActive(request.getIsActive());
+    }
+    return _userRepository.save(user);
+  }
+
 }
