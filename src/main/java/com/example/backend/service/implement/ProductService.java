@@ -22,6 +22,7 @@ import com.example.backend.entity.ProductImage;
 import com.example.backend.entity.User;
 import com.example.backend.helper.HtmlSanitizerHelper;
 import com.example.backend.model.Product.CreateProductRequest;
+import com.example.backend.model.Product.UpdateProductRequest;
 import com.example.backend.repository.IAuctionResultRepository;
 import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IBlockedBidderRepository;
@@ -60,11 +61,22 @@ public class ProductService implements IProductService {
   private EntityManager entityManager;
 
   @Override
-  public Page<Product> getAllProducts(Pageable pageable) {
-    return _productRepository.findByIsActiveTrue(pageable);
+  public Page<Product> getProducts(String status, Pageable pageable) {
+    if (status != null) {
+      if (status.equalsIgnoreCase("active")) {
+        return _productRepository.findByIsActiveTrue(pageable);
+      } else if (status.equalsIgnoreCase("inactive")) {
+        return _productRepository.findByIsActiveFalse(pageable);
+      } else if (status.equalsIgnoreCase("all")) {
+        return _productRepository.findAll(pageable);
+      } else {
+        throw new IllegalArgumentException("Invalid status value. Must be 'active', 'inactive', or 'all'.");
+      }
+    } else {
+      return _productRepository.findAll(pageable);
+    }
   }
 
-  @SuppressWarnings("null")
   @Override
   public Product getProduct(Integer productId) {
     return _productRepository.findById(productId).orElse(null);
@@ -381,5 +393,33 @@ public class ProductService implements IProductService {
     _auctionService.broadcastBidderBlocked(blockedId, reason);
 
     return _blockedBidderRepository.save(blockedBidder);
+  }
+
+  @Override
+  @Transactional
+  public Product updateProduct(Integer productId, UpdateProductRequest updateProductRequest) {
+    Product product = _productRepository.findById(productId)
+        .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + productId));
+
+    product.setCategory(_categoryRepository.findById(updateProductRequest.getCategoryId()).orElse(null));
+    product.setMainImageUrl(updateProductRequest.getMainImageUrl());
+    product.setProductName(updateProductRequest.getProductName());
+
+    if (updateProductRequest.getBuyNowPrice() != null)
+      product.setCurrentPrice(updateProductRequest.getCurrentPrice());
+
+    if (updateProductRequest.getBuyNowPrice() != null)
+      product.setBuyNowPrice(updateProductRequest.getBuyNowPrice());
+
+    product.setStartPrice(updateProductRequest.getStartPrice());
+    product.setPriceStep(updateProductRequest.getPriceStep());
+    String safeHtmlDescription = HtmlSanitizerHelper.sanitize(updateProductRequest.getDescription());
+    product.setDescription(safeHtmlDescription);
+    product.setEndTime(updateProductRequest.getEndTime());
+    product.setIsAutoRenew(updateProductRequest.getIsAutoRenew());
+    product.setAllowUnratedBidder(updateProductRequest.getAllowUnratedBidder());
+    product.setIsActive(updateProductRequest.getIsActive());
+
+    return _productRepository.save(product);
   }
 }

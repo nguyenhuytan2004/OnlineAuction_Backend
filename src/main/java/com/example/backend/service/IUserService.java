@@ -1,23 +1,29 @@
 package com.example.backend.service;
 
-import com.example.backend.entity.User;
-import com.example.backend.model.User.CreateUserRequest;
-import com.example.backend.model.User.UpdateUserAdminRequest;
-import com.example.backend.model.User.UpdateUserRequest;
-
 import java.util.List;
 
+import com.example.backend.model.User.UpdateUserAdminRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import com.example.backend.entity.User;
+import com.example.backend.model.User.CreateUserRequest;
+import com.example.backend.model.User.UpdateUserRequest;
+import com.example.backend.model.User.UserResponse;
+
 public interface IUserService {
-    public User getUser(Integer userId);
+  public Page<User> getUsers(String role, Pageable pageable);
 
-    public List<User> getAllUsers();
+  public User getUser(Integer userId);
 
-    public User updateUser(Integer userId,UpdateUserRequest updateUserResponse);
+  public List<User> getAllUsers();
 
-    // ADMIN
-    User createUser(CreateUserRequest request);
+  public User updateUser(Integer userId, UpdateUserRequest updateUserResponse);
 
-    User updateUserByAdmin(Integer userId, UpdateUserAdminRequest request);
+  UserResponse createUser(CreateUserRequest request);
 
-    void deleteUser(Integer userId);
+  void deleteUser(Integer userId);
+
+  User updateUserByAdmin(Integer userId, UpdateUserAdminRequest request);
+
 }

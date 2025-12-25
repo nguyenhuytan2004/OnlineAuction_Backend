@@ -20,6 +20,7 @@ public class AdminUserController {
 
     private final IUserService userService;
 
+    // ================= READ =================
 
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
@@ -56,15 +57,16 @@ public class AdminUserController {
         }
     }
 
+    // ================= CREATE =================
 
     @PostMapping
     public ResponseEntity<?> createUser(
             @Valid @RequestBody CreateUserRequest request) {
         try {
-            User user = userService.createUser(request);
+            UserResponse user = userService.createUser(request);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(new UserResponse(user));
+                    .body(user);
 
         } catch (IllegalArgumentException iae) {
             log.error("[ADMIN][CREATE][ERROR] {}", iae.getMessage());
@@ -104,6 +106,7 @@ public class AdminUserController {
         }
     }
 
+    // ================= DELETE =================
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Integer id) {

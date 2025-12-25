@@ -91,13 +91,18 @@ public class SecurityConfig {
                 "/api/categories/**")
             .permitAll()
 
-            .requestMatchers("/api/user-profile/active-products",
+            .requestMatchers(
+                "/api/user-profile/active-products",
                 "/api/user-profile/sold-products",
                 "/api/ratings/buyer",
-                "/api/auction-results/product/*/cancel", "/api/products/*/append-description", "/api/products")
+                "/api/auction-results/product/*/cancel",
+                "/api/products/*/append-description", "/api/products")
             .hasRole("SELLER")
 
-            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .requestMatchers("/api/categories/**").hasRole("ADMIN")
+            .requestMatchers("/api/products/**").hasRole("ADMIN")
+            .requestMatchers("/api/users/**").hasRole("ADMIN")
+
             .anyRequest().authenticated())
 
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

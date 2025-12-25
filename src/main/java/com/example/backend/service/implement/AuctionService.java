@@ -71,7 +71,7 @@ public class AuctionService implements IAuctionService {
     // Broadcast tới tất cả clients
     auctionMessagingTemplate.convertAndSend(
         "/topic/product/" + product.getProductId() + "/place-bid",
-            bidUpdateMessage);
+        bidUpdateMessage);
 
     log.info("[AUTO-BID] Broadcasted {} for product {}", messageType, product.getProductId());
   }

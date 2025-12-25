@@ -1,5 +1,14 @@
 package com.example.backend.service.core;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.backend.entity.EmailOtp;
 import com.example.backend.entity.User;
 import com.example.backend.model.Auth.AuthResponse;
@@ -14,150 +23,145 @@ import com.example.backend.repository.IUserRepository;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.security.JwtService;
 import com.example.backend.service.implement.EmailOtpService;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final IUserRepository userRepo;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authManager;
-    private final JwtService jwtService;
-    private final CustomUserDetailsService userDetailsService;
-    private final EmailOtpService emailOtpService;
-    private final IEmailOtpRepository _emailOtpRepository;
+  private final IUserRepository userRepo;
+  private final PasswordEncoder passwordEncoder;
+  private final AuthenticationManager authManager;
+  private final JwtService jwtService;
+  private final CustomUserDetailsService userDetailsService;
+  private final EmailOtpService emailOtpService;
+  private final IEmailOtpRepository _emailOtpRepository;
 
-    /*public void register(RegisterRequest req) {
-        *//*if (userRepo.findByEmail(req.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
-        }*//*
+  /*
+   * public void register(RegisterRequest req) {
+   *//*
+      * if (userRepo.findByEmail(req.getEmail()).isPresent()) {
+      * throw new RuntimeException("Email already exists");
+      * }
+      *//*
+         * 
+         * User user = new User();
+         * user.setEmail(req.getEmail());
+         * user.setFullName(req.getFullName());
+         * user.setEncryptedPassword(passwordEncoder.encode(req.getPassword()));
+         * user.setRole(User.Role.BIDDER);
+         * user.setIsVerified(false);
+         * 
+         * userRepo.save(user);
+         * 
+         * emailOtpService.sendOtp(
+         * user.getEmail(),
+         * EmailOtp.OtpType.VERIFY_EMAIL
+         * );
+         * }
+         */
 
-        User user = new User();
-        user.setEmail(req.getEmail());
-        user.setFullName(req.getFullName());
-        user.setEncryptedPassword(passwordEncoder.encode(req.getPassword()));
-        user.setRole(User.Role.BIDDER);
-        user.setIsVerified(false);
-
-        userRepo.save(user);
-
-        emailOtpService.sendOtp(
-                user.getEmail(),
-                EmailOtp.OtpType.VERIFY_EMAIL
-        );
-    }*/
-
-    public AuthResponse register(RegisterRequest req) {
-        if (userRepo.findByEmail(req.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        User user = new User();
-        user.setEmail(req.getEmail());
-        user.setFullName(req.getFullName());
-        user.setEncryptedPassword(passwordEncoder.encode(req.getPassword())); // HASH
-        user.setRole(User.Role.BIDDER);
-
-        userRepo.save(user);
-
-        UserDetails userDetails = new CustomUserDetails(user);
-        com.example.backend.model.User.UserResponse userResponse = new com.example.backend.model.User.UserResponse(user);
-
-        return new AuthResponse(
-                jwtService.generateAccessToken(userDetails),
-                jwtService.generateRefreshToken(userDetails),
-                userResponse);
+  public AuthResponse register(RegisterRequest req) {
+    if (userRepo.findByEmail(req.getEmail()).isPresent()) {
+      throw new RuntimeException("Email already exists");
     }
 
-    @Transactional
-    public AuthResponse verifyEmail(VerifyEmailRequest req) {
+    User user = new User();
+    user.setEmail(req.getEmail());
+    user.setFullName(req.getFullName());
+    user.setEncryptedPassword(passwordEncoder.encode(req.getPassword())); // HASH
+    user.setRole(User.Role.BIDDER);
 
-        emailOtpService.validateOtp(
-                req.getEmail(),
-                req.getOtp(),
-                EmailOtp.OtpType.VERIFY_EMAIL
-        );
+    userRepo.save(user);
 
-        User user = userRepo.findByEmail(req.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    UserDetails userDetails = new CustomUserDetails(user);
+    com.example.backend.model.User.UserResponse userResponse = new com.example.backend.model.User.UserResponse(user);
 
-        user.setIsVerified(true);
-        userRepo.save(user);
+    return new AuthResponse(
+        jwtService.generateAccessToken(userDetails),
+        jwtService.generateRefreshToken(userDetails),
+        userResponse);
+  }
 
-        _emailOtpRepository.deleteByEmailAndType(
-                req.getEmail(),
-                EmailOtp.OtpType.VERIFY_EMAIL
-        );
+  @Transactional
+  public AuthResponse verifyEmail(VerifyEmailRequest req) {
 
-        UserDetails userDetails = new CustomUserDetails(user);
-        UserResponse userResponse = new UserResponse(user);
+    emailOtpService.validateOtp(
+        req.getEmail(),
+        req.getOtp(),
+        EmailOtp.OtpType.VERIFY_EMAIL);
 
-        return new AuthResponse(
-                jwtService.generateAccessToken(userDetails),
-                jwtService.generateRefreshToken(userDetails),
-                userResponse
-        );
+    User user = userRepo.findByEmail(req.getEmail())
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+    user.setIsVerified(true);
+    userRepo.save(user);
+
+    _emailOtpRepository.deleteByEmailAndType(
+        req.getEmail(),
+        EmailOtp.OtpType.VERIFY_EMAIL);
+
+    UserDetails userDetails = new CustomUserDetails(user);
+    UserResponse userResponse = new UserResponse(user);
+
+    return new AuthResponse(
+        jwtService.generateAccessToken(userDetails),
+        jwtService.generateRefreshToken(userDetails),
+        userResponse);
+  }
+
+  public AuthResponse login(LoginRequest req) {
+    try {
+      authManager.authenticate(
+          new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword()));
+    } catch (BadCredentialsException e) {
+      throw new BadCredentialsException("Tài khoản hoặc mật khẩu không đúng");
     }
 
-    public AuthResponse login(LoginRequest req) {
-
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        req.getEmail(),
-                        req.getPassword()));
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(req.getEmail());
-        User user = userRepo.findByEmail(req.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!user.getIsVerified()) {
-            throw new RuntimeException("Email chưa được xác nhận");
-        }
-
-        UserResponse userResponse = new UserResponse(user);
-
-        return new AuthResponse(
-                jwtService.generateAccessToken(userDetails),
-                jwtService.generateRefreshToken(userDetails),
-                userResponse);
+    UserDetails userDetails = userDetailsService.loadUserByUsername(req.getEmail());
+    User user = userRepo.findByEmail(req.getEmail())
+        .orElseThrow(() -> new BadCredentialsException("Tài khoản không tồn tại"));
+    if (Boolean.FALSE.equals(user.getIsActive())) {
+      throw new DisabledException("Tài khoản đã bị khóa");
+    }
+    if (!user.getIsVerified()) {
+      throw new DisabledException("Email chưa được xác nhận");
     }
 
-    public void forgotPassword(ForgotPasswordRequest req) {
-        emailOtpService.sendOtp(
-                req.getEmail(),
-                EmailOtp.OtpType.RESET_PASSWORD
-        );
-    }
+    UserResponse userResponse = new UserResponse(user);
 
-    @Transactional
-    public void resetPassword(ResetPasswordRequest req) {
+    return new AuthResponse(
+        jwtService.generateAccessToken(userDetails),
+        jwtService.generateRefreshToken(userDetails),
+        userResponse);
+  }
 
-        emailOtpService.validateOtp(
-                req.getEmail(),
-                req.getOtp(),
-                EmailOtp.OtpType.RESET_PASSWORD
-        );
+  public void forgotPassword(ForgotPasswordRequest req) {
+    emailOtpService.sendOtp(
+        req.getEmail(),
+        EmailOtp.OtpType.RESET_PASSWORD);
+  }
 
-        User user = userRepo.findByEmail(req.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+  @Transactional
+  public void resetPassword(ResetPasswordRequest req) {
 
-        user.setEncryptedPassword(
-                passwordEncoder.encode(req.getNewPassword())
-        );
+    emailOtpService.validateOtp(
+        req.getEmail(),
+        req.getOtp(),
+        EmailOtp.OtpType.RESET_PASSWORD);
 
-        userRepo.save(user);
+    User user = userRepo.findByEmail(req.getEmail())
+        .orElseThrow(() -> new RuntimeException("User not found"));
 
-        _emailOtpRepository.deleteByEmailAndType(
-                req.getEmail(),
-                EmailOtp.OtpType.RESET_PASSWORD
-        );
-    }
+    user.setEncryptedPassword(
+        passwordEncoder.encode(req.getNewPassword()));
+
+    userRepo.save(user);
+
+    _emailOtpRepository.deleteByEmailAndType(
+        req.getEmail(),
+        EmailOtp.OtpType.RESET_PASSWORD);
+  }
 
 }
