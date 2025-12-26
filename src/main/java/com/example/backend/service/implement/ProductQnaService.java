@@ -5,6 +5,7 @@ import com.example.backend.entity.ProductQnA.ProductAnswer;
 import com.example.backend.entity.ProductQnA.ProductQuestion;
 import com.example.backend.entity.User;
 import com.example.backend.helper.HtmlSanitizerHelper;
+import com.example.backend.model.Email.EmailNotificationRequest;
 import com.example.backend.model.ProductQna.ProductAnswer.CreateProductAnswerRequest;
 import com.example.backend.model.ProductQna.ProductQuestion.CreateProductQuestionRequest;
 import com.example.backend.producer.EmailProducer;
@@ -64,7 +65,10 @@ public class ProductQnaService implements IProductQnaService {
 
         _auctionService.broadcastQuestionAsked(savedQuestion);
 
-        emailProducer.sendQuestionAsked(product.getSeller().getUserId(),product.getProductId());
+        emailProducer.sendProductEmail(EmailNotificationRequest.EmailType.QUESTION_ANSWERED,
+                product.getSeller().getUserId(),
+                product.getProductId());
+
         return savedQuestion;
     }
 
@@ -90,7 +94,7 @@ public class ProductQnaService implements IProductQnaService {
 
         _auctionService.broadcastAnswerPosted(savedAnswer, product.getProductId());
 
-        emailProducer.sendQuestionAnswered(question.getQuestionUser().getUserId(),product.getProductId());
+        emailProducer.sendProductEmail(EmailNotificationRequest.EmailType.QUESTION_ANSWERED,question.getQuestionUser().getUserId(), product.getProductId());
 
         return savedAnswer;
     }

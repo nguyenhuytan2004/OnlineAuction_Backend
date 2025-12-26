@@ -69,8 +69,8 @@ public class BidService implements IBidService {
                 .orElseThrow(() -> new IllegalArgumentException("Bidder not found"));
 
         if (LocalDateTime.now().isAfter(product.getEndTime())) {
-            emailProducer.sendBidSuccess(bidder.getUserId(),product.getProductId());
-            emailProducer.sendBidSuccess(product.getSeller().getUserId(),product.getProductId());
+            /*emailProducer.sendBidSuccess(bidder.getUserId(),product.getProductId());
+            emailProducer.sendBidSuccess(product.getSeller().getUserId(),product.getProductId());*/
             throw new IllegalArgumentException("Auction has already ended");
         }
 
