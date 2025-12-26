@@ -1,5 +1,8 @@
 package com.example.backend.service.core;
 
+import com.example.backend.model.User.UserResponse;
+import com.example.backend.producer.EmailProducer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -17,7 +20,6 @@ import com.example.backend.model.Auth.RegisterRequest;
 import com.example.backend.model.EmailOtp.ForgotPasswordRequest;
 import com.example.backend.model.EmailOtp.ResetPasswordRequest;
 import com.example.backend.model.EmailOtp.VerifyEmailRequest;
-import com.example.backend.model.User.UserResponse;
 import com.example.backend.repository.IEmailOtpRepository;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.security.CustomUserDetails;
@@ -38,31 +40,10 @@ public class AuthService {
   private final EmailOtpService emailOtpService;
   private final IEmailOtpRepository _emailOtpRepository;
 
-  /*
-   * public void register(RegisterRequest req) {
-   *//*
-      * if (userRepo.findByEmail(req.getEmail()).isPresent()) {
-      * throw new RuntimeException("Email already exists");
-      * }
-      *//*
-         * 
-         * User user = new User();
-         * user.setEmail(req.getEmail());
-         * user.setFullName(req.getFullName());
-         * user.setEncryptedPassword(passwordEncoder.encode(req.getPassword()));
-         * user.setRole(User.Role.BIDDER);
-         * user.setIsVerified(false);
-         * 
-         * userRepo.save(user);
-         * 
-         * emailOtpService.sendOtp(
-         * user.getEmail(),
-         * EmailOtp.OtpType.VERIFY_EMAIL
-         * );
-         * }
-         */
+  @Autowired
+  private EmailProducer emailProducer;
 
-  public AuthResponse register(RegisterRequest req) {
+  public void register(RegisterRequest req) {
     if (userRepo.findByEmail(req.getEmail()).isPresent()) {
       throw new RuntimeException("Email already exists");
     }
@@ -72,16 +53,11 @@ public class AuthService {
     user.setFullName(req.getFullName());
     user.setEncryptedPassword(passwordEncoder.encode(req.getPassword())); // HASH
     user.setRole(User.Role.BIDDER);
-
     userRepo.save(user);
-
-    UserDetails userDetails = new CustomUserDetails(user);
-    com.example.backend.model.User.UserResponse userResponse = new com.example.backend.model.User.UserResponse(user);
-
-    return new AuthResponse(
-        jwtService.generateAccessToken(userDetails),
-        jwtService.generateRefreshToken(userDetails),
-        userResponse);
+    emailOtpService.sendOtp(
+            req.getEmail(),
+            EmailOtp.OtpType.VERIFY_EMAIL
+    );
   }
 
   @Transactional

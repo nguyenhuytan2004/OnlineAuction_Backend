@@ -26,145 +26,126 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthController {
 
-  private final AuthService authService;
+    private final AuthService authService;
 
-  /*
-   * @PostMapping("/register")
-   * public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
-   * try {
-   * authService.register(req);
-   * 
-   * return ResponseEntity.ok("OTP đã được gửi tới email");
-   * } catch (RuntimeException e) {
-   * log.warn("[CONTROLLER][AUTH][WARN] /api/auth/register - Error occurred: {}",
-   * e.getMessage());
-   * 
-   * return new ResponseEntity<>("Email đã tồn tại", HttpStatus.CONFLICT);
-   * } catch (Exception e) {
-   * log.
-   * error("[CONTROLLER][AUTH][ERROR] /api/auth/register - Unexpected error occurred: {}"
-   * , e.getMessage(),
-   * e);
-   * return new ResponseEntity<>("Error occurred: " + e.getMessage(),
-   * HttpStatus.INTERNAL_SERVER_ERROR);
-   * }
-   * }
-   */
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
+        try {
+            authService.register(req);
 
-  @PostMapping("/register")
-  public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
-    try {
-      AuthResponse response = authService.register(req);
+            return ResponseEntity.ok("OTP đã được gửi tới email");
+        } catch (RuntimeException e) {
+            log.warn("[CONTROLLER][AUTH][WARN] /api/auth/register - Error occurred: {}",
+                    e.getMessage());
 
-      return new ResponseEntity<>(response, HttpStatus.CREATED);
-    } catch (RuntimeException e) {
-      log.warn("[CONTROLLER][AUTH][WARN] /api/auth/register - Error occurred: {}", e.getMessage());
-
-      return new ResponseEntity<>("Email đã tồn tại", HttpStatus.CONFLICT);
-    } catch (Exception e) {
-      log.error("[CONTROLLER][AUTH][ERROR] /api/auth/register - Unexpected error occurred: {}", e.getMessage(),
-          e);
-      return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Email đã tồn tại", HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            log.
+                    error("[CONTROLLER][AUTH][ERROR] /api/auth/register - Unexpected error occurred: {}"
+                            , e.getMessage(),
+                            e);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-  }
 
-  @PostMapping("/verify-email")
-  public ResponseEntity<AuthResponse> verifyEmail(
-      @RequestBody VerifyEmailRequest req) {
+    @PostMapping("/verify-email")
+    public ResponseEntity<AuthResponse> verifyEmail(
+            @RequestBody VerifyEmailRequest req) {
 
-    log.info("[CONTROLLER][AUTH][VERIFY_EMAIL][START] email={}", req.getEmail());
+        log.info("[CONTROLLER][AUTH][VERIFY_EMAIL][START] email={}", req.getEmail());
 
-    try {
-      AuthResponse response = authService.verifyEmail(req);
+        try {
+            AuthResponse response = authService.verifyEmail(req);
 
-      log.info("[CONTROLLER][AUTH][VERIFY_EMAIL][SUCCESS] email={}", req.getEmail());
-      return ResponseEntity.ok(response);
+            log.info("[CONTROLLER][AUTH][VERIFY_EMAIL][SUCCESS] email={}", req.getEmail());
+            return ResponseEntity.ok(response);
 
-    } catch (RuntimeException e) {
-      log.warn("[CONTROLLER][AUTH][VERIFY_EMAIL][FAIL] email={} reason={}",
-          req.getEmail(), e.getMessage());
+        } catch (RuntimeException e) {
+            log.warn("[CONTROLLER][AUTH][VERIFY_EMAIL][FAIL] email={} reason={}",
+                    req.getEmail(), e.getMessage());
 
-      throw e;
+            throw e;
+        }
     }
-  }
 
-  @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestBody LoginRequest req) {
-    try {
-      AuthResponse response = authService.login(req);
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+        try {
+            AuthResponse response = authService.login(req);
 
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (DisabledException e) {
-      log.warn("[CONTROLLER][AUTH][WARN] /api/auth/login - Error occurred: {}", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (DisabledException e) {
+            log.warn("[CONTROLLER][AUTH][WARN] /api/auth/login - Error occurred: {}", e.getMessage());
 
-      return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
-    } catch (BadCredentialsException e) {
-      log.warn("[CONTROLLER][AUTH][WARN] /api/auth/login - Error occurred: {}", e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (BadCredentialsException e) {
+            log.warn("[CONTROLLER][AUTH][WARN] /api/auth/login - Error occurred: {}", e.getMessage());
 
-      return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
-    } catch (Exception e) {
-      log.error("[CONTROLLER][AUTH][ERROR] /api/auth/login - Unexpected error occurred: {}", e.getMessage(), e);
-      return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            log.error("[CONTROLLER][AUTH][ERROR] /api/auth/login - Unexpected error occurred: {}", e.getMessage(), e);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-  }
 
-  @PostMapping("/forgot-password")
-  public ResponseEntity<?> forgotPassword(
-      @RequestBody ForgotPasswordRequest req) {
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(
+            @RequestBody ForgotPasswordRequest req) {
 
-    log.info("[CONTROLLER][AUTH][FORGOT_PASSWORD][START] email={}", req.getEmail());
+        log.info("[CONTROLLER][AUTH][FORGOT_PASSWORD][START] email={}", req.getEmail());
 
-    try {
-      authService.forgotPassword(req);
+        try {
+            authService.forgotPassword(req);
 
-      log.info("[CONTROLLER][AUTH][FORGOT_PASSWORD][SUCCESS] email={}", req.getEmail());
-      return ResponseEntity.ok("OTP đặt lại mật khẩu đã được gửi");
+            log.info("[CONTROLLER][AUTH][FORGOT_PASSWORD][SUCCESS] email={}", req.getEmail());
+            return ResponseEntity.ok("OTP đặt lại mật khẩu đã được gửi");
 
-    } catch (RuntimeException e) {
-      log.warn("[CONTROLLER][AUTH][FORGOT_PASSWORD][FAIL] email={} reason={}",
-          req.getEmail(), e.getMessage());
+        } catch (RuntimeException e) {
+            log.warn("[CONTROLLER][AUTH][FORGOT_PASSWORD][FAIL] email={} reason={}",
+                    req.getEmail(), e.getMessage());
 
-      return ResponseEntity
-          .status(HttpStatus.BAD_REQUEST)
-          .body(e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
 
-    } catch (Exception e) {
-      log.error("[CONTROLLER][AUTH][FORGOT_PASSWORD][ERROR] email={}",
-          req.getEmail(), e);
+        } catch (Exception e) {
+            log.error("[CONTROLLER][AUTH][FORGOT_PASSWORD][ERROR] email={}",
+                    req.getEmail(), e);
 
-      return ResponseEntity
-          .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("Đã xảy ra lỗi hệ thống");
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đã xảy ra lỗi hệ thống");
+        }
     }
-  }
 
-  @PostMapping("/reset-password")
-  public ResponseEntity<?> resetPassword(
-      @RequestBody ResetPasswordRequest req) {
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @RequestBody ResetPasswordRequest req) {
 
-    log.info("[CONTROLLER][AUTH][RESET_PASSWORD][START] email={}", req.getEmail());
+        log.info("[CONTROLLER][AUTH][RESET_PASSWORD][START] email={}", req.getEmail());
 
-    try {
-      authService.resetPassword(req);
+        try {
+            authService.resetPassword(req);
 
-      log.info("[CONTROLLER][AUTH][RESET_PASSWORD][SUCCESS] email={}", req.getEmail());
-      return ResponseEntity.ok("Đổi mật khẩu thành công");
+            log.info("[CONTROLLER][AUTH][RESET_PASSWORD][SUCCESS] email={}", req.getEmail());
+            return ResponseEntity.ok("Đổi mật khẩu thành công");
 
-    } catch (RuntimeException e) {
-      log.warn("[CONTROLLER][AUTH][RESET_PASSWORD][FAIL] email={} reason={}",
-          req.getEmail(), e.getMessage());
+        } catch (RuntimeException e) {
+            log.warn("[CONTROLLER][AUTH][RESET_PASSWORD][FAIL] email={} reason={}",
+                    req.getEmail(), e.getMessage());
 
-      return ResponseEntity
-          .status(HttpStatus.BAD_REQUEST)
-          .body(e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
 
-    } catch (Exception e) {
-      log.error("[CONTROLLER][AUTH][RESET_PASSWORD][ERROR] email={}",
-          req.getEmail(), e);
+        } catch (Exception e) {
+            log.error("[CONTROLLER][AUTH][RESET_PASSWORD][ERROR] email={}",
+                    req.getEmail(), e);
 
-      return ResponseEntity
-          .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("Đã xảy ra lỗi hệ thống");
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đã xảy ra lỗi hệ thống");
+        }
     }
-  }
 }
