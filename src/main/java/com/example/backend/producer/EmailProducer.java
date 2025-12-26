@@ -1,151 +1,143 @@
 package com.example.backend.producer;
 
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+
 import com.example.backend.entity.Product;
 import com.example.backend.entity.User;
 import com.example.backend.model.Email.EmailNotificationRequest;
 import com.example.backend.service.implement.ProductService;
 import com.example.backend.service.implement.UserService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.AmqpException;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class EmailProducer {
 
-    private final RabbitTemplate rabbitTemplate;
-    private final UserService userService;
-    private final ProductService productService;
+  private final RabbitTemplate rabbitTemplate;
+  private final UserService userService;
+  @Lazy
+  private final ProductService productService;
 
-    @Value("${rabbitmq.email.exchange.name}")
-    private String emailExchangeName;
+  @Value("${rabbitmq.email.exchange.name}")
+  private String emailExchangeName;
 
-    @Value("${rabbitmq.email.routing_key.name}")
-    private String emailRoutingKeyName;
+  @Value("${rabbitmq.email.routing_key.name}")
+  private String emailRoutingKeyName;
 
-    private void publish(EmailNotificationRequest request) {
-        try {
-            log.info(
-                    "[EMAIL][PUBLISH] type={} recipientId={} productId={}",
-                    request.getEmailType(),
-                    request.getRecipientUserId(),
-                    request.getProductId()
-            );
+  private void publish(EmailNotificationRequest request) {
+    try {
+      log.info(
+          "[EMAIL][PRODUCER] type={} recipientId={} productId={}",
+          request.getEmailType(),
+          request.getRecipientUserId(),
+          request.getProductId());
 
-            rabbitTemplate.convertAndSend(
-                    emailExchangeName,
-                    emailRoutingKeyName,
-                    request
-            );
+      rabbitTemplate.convertAndSend(
+          emailExchangeName,
+          emailRoutingKeyName,
+          request);
 
-        } catch (AmqpException e) {
-            log.error("[EMAIL][PRODUCER][ERROR]", e);
-            throw new RuntimeException("Failed to publish email notification", e);
-        }
+    } catch (AmqpException e) {
+      log.error("[EMAIL][PRODUCER][ERROR]", e);
+      throw new RuntimeException("Failed to publish email notification", e);
     }
+  }
 
-    private EmailNotificationRequest buildRequest(
-            EmailNotificationRequest.EmailType type,
-            Integer recipientUserId,
-            Integer productId
-    ) {
-        User user = userService.getUser(recipientUserId);
-        Product product = productService.getProduct(productId);
+  private EmailNotificationRequest buildRequest(
+      EmailNotificationRequest.EmailType type,
+      Integer recipientUserId,
+      Integer productId) {
+    User user = userService.getUser(recipientUserId);
+    Product product = productService.getProduct(productId);
 
-        return EmailNotificationRequest.builder()
-                .emailType(type)
+    return EmailNotificationRequest.builder()
+        .emailType(type)
 
-                .recipientUserId(user.getUserId())
-                .recipientEmail(user.getEmail())
-                .recipientName(user.getFullName())
+        .recipientUserId(user.getUserId())
+        .recipientEmail(user.getEmail())
+        .recipientName(user.getFullName())
 
-                .productId(product.getProductId())
-                .productName(product.getProductName())
+        .productId(product.getProductId())
+        .productName(product.getProductName())
 
-                .subject(null)
-                .messageContent(null)
-                .deepLinkPath("/products/" + product.getProductId())
-                .build();
-    }
+        .subject(null)
+        .messageContent(null)
+        .deepLinkPath("/products/" + product.getProductId())
+        .build();
+  }
 
+  public void sendEmailOtp(
+      Integer userId,
+      String otp,
+      EmailNotificationRequest.EmailType emailType) {
 
-    public void sendEmailOtp(
-            Integer userId,
-            String otp,
-            EmailNotificationRequest.EmailType emailType
-    ) {
+    User user = userService.getUser(userId);
 
-        User user = userService.getUser(userId);
+    EmailNotificationRequest request = EmailNotificationRequest.builder()
+        .emailType(emailType)
 
-        EmailNotificationRequest request = EmailNotificationRequest.builder()
-                .emailType(emailType)
+        .recipientUserId(user.getUserId())
+        .recipientEmail(user.getEmail())
+        .recipientName(user.getFullName())
 
-                .recipientUserId(user.getUserId())
-                .recipientEmail(user.getEmail())
-                .recipientName(user.getFullName())
+        .productId(null)
+        .productName(null)
 
-                .productId(null)
-                .productName(null)
+        .subject(null)
+        .messageContent(otp)
+        .deepLinkPath(null)
 
-                .subject(null)
-                .messageContent(otp)
-                .deepLinkPath(null)
+        .build();
 
-                .build();
+    publish(request);
+  }
 
-        publish(request);
-    }
+  public void sendQuestionAsked(Integer recipientUserId, Integer productId) {
+    publish(buildRequest(
+        EmailNotificationRequest.EmailType.QUESTION_ASKED,
+        recipientUserId,
+        productId));
+  }
 
+  public void sendQuestionAnswered(Integer recipientUserId, Integer productId) {
+    publish(buildRequest(
+        EmailNotificationRequest.EmailType.QUESTION_ANSWERED,
+        recipientUserId,
+        productId));
+  }
 
-    public void sendQuestionAsked(Integer recipientUserId, Integer productId) {
-        publish(buildRequest(
-                EmailNotificationRequest.EmailType.QUESTION_ASKED,
-                recipientUserId,
-                productId
-        ));
-    }
+  public void sendBidSuccess(Integer recipientUserId, Integer productId) {
+    publish(buildRequest(
+        EmailNotificationRequest.EmailType.BID_SUCCESS,
+        recipientUserId,
+        productId));
+  }
 
-    public void sendQuestionAnswered(Integer recipientUserId, Integer productId) {
-        publish(buildRequest(
-                EmailNotificationRequest.EmailType.QUESTION_ANSWERED,
-                recipientUserId,
-                productId
-        ));
-    }
+  public void sendBidBlocked(Integer recipientUserId, Integer productId) {
+    publish(buildRequest(
+        EmailNotificationRequest.EmailType.BID_BLOCKED,
+        recipientUserId,
+        productId));
+  }
 
-    public void sendBidSuccess(Integer recipientUserId, Integer productId) {
-        publish(buildRequest(
-                EmailNotificationRequest.EmailType.BID_SUCCESS,
-                recipientUserId,
-                productId
-        ));
-    }
+  public void sendAuctionEndedNoWinner(Integer recipientUserId, Integer productId) {
+    publish(buildRequest(
+        EmailNotificationRequest.EmailType.AUCTION_ENDED_NO_WINNER,
+        recipientUserId,
+        productId));
+  }
 
-    public void sendBidRejected(Integer recipientUserId, Integer productId) {
-        publish(buildRequest(
-                EmailNotificationRequest.EmailType.BID_REJECTED,
-                recipientUserId,
-                productId
-        ));
-    }
-
-    public void sendAuctionEndedNoWinner(Integer recipientUserId, Integer productId) {
-        publish(buildRequest(
-                EmailNotificationRequest.EmailType.AUCTION_ENDED_NO_WINNER,
-                recipientUserId,
-                productId
-        ));
-    }
-
-    public void sendAuctionEndedHasWinner(Integer recipientUserId, Integer productId) {
-        publish(buildRequest(
-                EmailNotificationRequest.EmailType.AUCTION_ENDED_HAS_WINNER,
-                recipientUserId,
-                productId
-        ));
-    }
+  public void sendAuctionEndedHasWinner(Integer recipientUserId, Integer productId) {
+    publish(buildRequest(
+        EmailNotificationRequest.EmailType.AUCTION_ENDED_HAS_WINNER,
+        recipientUserId,
+        productId));
+  }
 }

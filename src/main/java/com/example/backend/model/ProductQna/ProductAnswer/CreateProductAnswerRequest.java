@@ -11,16 +11,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateProductAnswerRequest {
-    @NotNull(message = "User ID must not be null")
-    private Integer userId;
+  @NotNull(message = "User ID must not be null")
+  private Integer userId;
 
-    @NotNull(message = "Product ID must not be null")
-    private Integer productId;
+  @NotNull(message = "Product ID must not be null")
+  private Integer productId;
 
-    @NotNull(message = "Question ID must not be null")
-    private Integer questionId;
+  @NotNull(message = "Question ID must not be null")
+  private Integer questionId;
 
-    @NotBlank(message = "Answer text must not be blank")
-    @Size(max = 1000, message = "Answer text must not exceed 1000 characters")
-    private String answerText;
+  @NotBlank(message = "Answer text must not be blank")
+  @Size(max = 1000, message = "Answer text must not exceed 1000 characters")
+  private String answerText;
 }

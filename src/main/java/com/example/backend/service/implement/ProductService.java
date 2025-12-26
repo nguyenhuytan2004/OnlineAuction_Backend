@@ -23,6 +23,7 @@ import com.example.backend.entity.User;
 import com.example.backend.helper.HtmlSanitizerHelper;
 import com.example.backend.model.Product.CreateProductRequest;
 import com.example.backend.model.Product.UpdateProductRequest;
+import com.example.backend.producer.EmailProducer;
 import com.example.backend.repository.IAuctionResultRepository;
 import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IBlockedBidderRepository;
@@ -56,6 +57,9 @@ public class ProductService implements IProductService {
   @Autowired
   @Lazy
   private IBidService _bidService;
+
+  @Autowired
+  private EmailProducer emailProducer;
 
   @Autowired
   private EntityManager entityManager;
@@ -387,6 +391,8 @@ public class ProductService implements IProductService {
     _bidService.removeBidsByProductIdAndBidderId(productId, blockedId);
 
     _auctionService.broadcastBidderBlocked(blockedId, reason);
+
+    emailProducer.sendBidBlocked(blockerId, productId);
 
     return _blockedBidderRepository.save(blockedBidder);
   }
