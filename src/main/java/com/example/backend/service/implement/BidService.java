@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.backend.producer.EmailProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,9 @@ import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
 import com.example.backend.entity.User;
 import com.example.backend.model.Bid.CreateBidRequest;
+import com.example.backend.model.Email.EmailNotificationRequest.EmailType;
 import com.example.backend.model.WebSocket.BidUpdateMessage.MessageType;
+import com.example.backend.producer.EmailProducer;
 import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IUserRepository;
@@ -102,7 +103,7 @@ public class BidService implements IBidService {
         product.getProductId(), bidder.getUserId(), request.getMaxAutoPrice());
 
     BigDecimal previousPrice = product.getCurrentPrice();
-    User previousHighestBidder = null;
+    User previousHighestBidder;
 
     // Lấy bid có bidPrice cao nhất
     Bid currentHighestBid = _bidRepository
@@ -123,8 +124,9 @@ public class BidService implements IBidService {
       message = bidder.getFullName() + " placed the first bid of "
           + newBid.getBidPrice();
 
-      emailProducer.sendBidSuccess(bidder.getUserId(), product.getProductId());
-      emailProducer.sendBidSuccess(product.getSeller().getUserId(), product.getProductId());
+      emailProducer.sendProductEmail(EmailType.BID_SUCCESS_WINNER, bidder.getUserId(), product.getProductId());
+      emailProducer.sendProductEmail(EmailType.BID_SUCCESS_SELLER, product.getSeller().getUserId(),
+          product.getProductId());
     } else {
       // Người đặt giá cao nhất là người hiện tại, cập nhật lại maxAutoPrice
       if (currentHighestBid.getBidder().getUserId().equals(bidder.getUserId())) {
@@ -134,8 +136,10 @@ public class BidService implements IBidService {
         log.info("[AUTO-BID] Updated existing highest bid for same bidder: new maxAutoPrice={}",
             request.getMaxAutoPrice());
 
-        emailProducer.sendBidSuccess(currentHighestBid.getBidder().getUserId(), product.getProductId());
-        emailProducer.sendBidSuccess(product.getSeller().getUserId(), product.getProductId());
+        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_WINNER, currentHighestBid.getBidder().getUserId(),
+            product.getProductId());
+        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_SELLER, product.getSeller().getUserId(),
+            product.getProductId());
 
         return updatedBid;
       }
@@ -154,8 +158,10 @@ public class BidService implements IBidService {
             + currentHighestBid.getBidder().getFullName() + " with bid of "
             + newBid.getBidPrice();
 
-        emailProducer.sendBidSuccess(currentHighestBid.getBidder().getUserId(), product.getProductId());
-        emailProducer.sendBidSuccess(product.getSeller().getUserId(), product.getProductId());
+        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_WINNER, currentHighestBid.getBidder().getUserId(),
+            product.getProductId());
+        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_SELLER, product.getSeller().getUserId(),
+            product.getProductId());
         // Người đặt giá hiện tại vượt qua người giữ giá cao nhất
       } else {
         previousHighestBidder = currentHighestBid.getBidder();
@@ -168,9 +174,11 @@ public class BidService implements IBidService {
         message = bidder.getFullName() + " is now the highest bidder with bid of "
             + newBid.getBidPrice();
 
-        emailProducer.sendBidSuccess(previousHighestBidder.getUserId(), product.getProductId());
-        emailProducer.sendBidSuccess(bidder.getUserId(), product.getProductId());
-        emailProducer.sendBidSuccess(product.getSeller().getUserId(), product.getProductId());
+        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_PREVIOUS_BIDDER, previousHighestBidder.getUserId(),
+            product.getProductId());
+        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_WINNER, bidder.getUserId(), product.getProductId());
+        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_SELLER, product.getSeller().getUserId(),
+            product.getProductId());
       }
     }
 

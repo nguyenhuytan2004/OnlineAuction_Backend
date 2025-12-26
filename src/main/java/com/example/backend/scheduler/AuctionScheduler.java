@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.entity.Product;
+import com.example.backend.model.Email.EmailNotificationRequest.EmailType;
 import com.example.backend.producer.EmailProducer;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.service.IAuctionService;
@@ -43,14 +44,14 @@ public class AuctionScheduler {
           _auctionService.broadcastAuctionEnd(product, "Phiên đấu giá đã kết thúc.");
 
           if (product.getHighestBidder() != null) {
-            emailProducer.sendAuctionEndedHasWinner(
+            emailProducer.sendProductEmail(EmailType.AUCTION_ENDED_WINNER,
                 product.getHighestBidder().getUserId(),
                 product.getProductId());
-            emailProducer.sendAuctionEndedHasWinner(
+            emailProducer.sendProductEmail(EmailType.AUCTION_ENDED_SELLER,
                 product.getSeller().getUserId(),
                 product.getProductId());
           } else {
-            emailProducer.sendAuctionEndedNoWinner(
+            emailProducer.sendProductEmail(EmailType.AUCTION_ENDED_NO_WINNER_SELLER,
                 product.getSeller().getUserId(),
                 product.getProductId());
           }

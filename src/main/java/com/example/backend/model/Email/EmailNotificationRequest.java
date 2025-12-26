@@ -17,7 +17,7 @@ public class EmailNotificationRequest {
     BID_SUCCESS_WINNER,
     BID_SUCCESS_PREVIOUS_BIDDER,
     BID_SUCCESS_SELLER,
-    BID_REJECTED,
+    BID_BLOCKED,
 
     // Auction end
     AUCTION_ENDED_WINNER,

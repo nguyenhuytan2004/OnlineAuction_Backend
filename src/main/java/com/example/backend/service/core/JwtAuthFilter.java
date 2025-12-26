@@ -98,6 +98,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             || path.startsWith("/api/categories/"));
 
     boolean isAlwaysPublic = path.equals("/api/auth/register")
+        || path.equals("/api/auth/resend-verify-email-otp")
         || path.equals("/api/auth/login")
         || path.equals("/api/auth/verify-email")
         || path.equals("/api/auth/forgot-password")

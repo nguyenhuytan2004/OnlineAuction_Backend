@@ -21,6 +21,7 @@ import com.example.backend.entity.Product;
 import com.example.backend.entity.ProductImage;
 import com.example.backend.entity.User;
 import com.example.backend.helper.HtmlSanitizerHelper;
+import com.example.backend.model.Email.EmailNotificationRequest.EmailType;
 import com.example.backend.model.Product.CreateProductRequest;
 import com.example.backend.model.Product.UpdateProductRequest;
 import com.example.backend.producer.EmailProducer;
@@ -59,6 +60,7 @@ public class ProductService implements IProductService {
   private IBidService _bidService;
 
   @Autowired
+  @Lazy
   private EmailProducer emailProducer;
 
   @Autowired
@@ -392,7 +394,7 @@ public class ProductService implements IProductService {
 
     _auctionService.broadcastBidderBlocked(blockedId, reason);
 
-    emailProducer.sendBidBlocked(blockerId, productId);
+    emailProducer.sendProductEmail(EmailType.BID_BLOCKED, blockerId, productId);
 
     return _blockedBidderRepository.save(blockedBidder);
   }

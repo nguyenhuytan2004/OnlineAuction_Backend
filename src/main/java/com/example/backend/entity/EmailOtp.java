@@ -1,12 +1,20 @@
 package com.example.backend.entity;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "email_otp")
@@ -15,28 +23,28 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class EmailOtp {
 
-    public enum OtpType {
-        VERIFY_EMAIL,
-        RESET_PASSWORD
-    }
+  public enum OtpType {
+    VERIFY_EMAIL,
+    RESET_PASSWORD
+  }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String email;
+  @Column(nullable = false)
+  private String email;
 
-    @Column(nullable = false)
-    private String otp;
+  @Column(nullable = false)
+  private String otp;
 
-    @Column(nullable = false)
-    private LocalDateTime expiredAt;
+  @Column(nullable = false)
+  private LocalDateTime expiredAt;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+  @CreationTimestamp
+  private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private OtpType type;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private OtpType type;
 }

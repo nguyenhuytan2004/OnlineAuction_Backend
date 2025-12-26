@@ -47,10 +47,10 @@ public class EmailService implements IEmailService {
 
   private String buildSubject(EmailNotificationRequest r) {
     return switch (r.getEmailType()) {
-      case BID_SUCCESS_WINNER -> "Bạn đã ra giá thành công ";
+      case BID_SUCCESS_WINNER -> "Ra giá thành công ";
       case BID_SUCCESS_PREVIOUS_BIDDER -> "Giá của bạn đã bị vượt";
       case BID_SUCCESS_SELLER -> "Sản phẩm của bạn có lượt ra giá mới";
-      case BID_REJECTED -> "Ra giá không thành công";
+      case BID_BLOCKED -> "Bị từ chối ra giá cho sản phẩm";
       case AUCTION_ENDED_WINNER -> "Chúc mừng! Bạn đã thắng đấu giá";
       case AUCTION_ENDED_SELLER -> "Sản phẩm của bạn đã được bán";
       case AUCTION_ENDED_NO_WINNER_SELLER -> "Đấu giá kết thúc – chưa có người mua";
@@ -80,6 +80,7 @@ public class EmailService implements IEmailService {
           r.getRecipientName(),
           r.getProductName(),
           r.getDeepLinkPath());
+
       case BID_SUCCESS_PREVIOUS_BIDDER -> """
           Xin chào %s,
 

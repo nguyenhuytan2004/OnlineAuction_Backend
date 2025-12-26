@@ -14,14 +14,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateBidRequest {
 
-    @NotNull(message = "Product ID is not null")
-    private Integer productId;
+  @NotNull(message = "Product ID is not null")
+  private Integer productId;
 
-    @NotNull(message = "Bidder ID is not null")
-        private Integer bidderId;
+  @NotNull(message = "Bidder ID is not null")
+  private Integer bidderId;
 
-    @NotNull(message = "Bid price is not null")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Max auto price must be greater than 0")
-    @Digits(integer = 16, fraction = 2, message = "Invalid max auto price")
-    private BigDecimal maxAutoPrice;
+  @NotNull(message = "Bid price is not null")
+  @DecimalMin(value = "0.0", inclusive = false, message = "Max auto price must be greater than 0")
+  @Digits(integer = 16, fraction = 2, message = "Invalid max auto price")
+  private BigDecimal maxAutoPrice;
 }

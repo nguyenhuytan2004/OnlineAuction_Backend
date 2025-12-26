@@ -63,6 +63,7 @@ public class SecurityConfig {
 
             .requestMatchers(
                 "/api/auth/register",
+                "/api/auth/resend-verify-email-otp",
                 "/api/auth/login",
                 "/api/auth/verify-email",
                 "/api/auth/forgot-password",
