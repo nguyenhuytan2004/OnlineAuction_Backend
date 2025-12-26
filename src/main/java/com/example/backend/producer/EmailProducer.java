@@ -99,45 +99,10 @@ public class EmailProducer {
     publish(request);
   }
 
-  public void sendQuestionAsked(Integer recipientUserId, Integer productId) {
-    publish(buildRequest(
-        EmailNotificationRequest.EmailType.QUESTION_ASKED,
-        recipientUserId,
-        productId));
-  }
-
-  public void sendQuestionAnswered(Integer recipientUserId, Integer productId) {
-    publish(buildRequest(
-        EmailNotificationRequest.EmailType.QUESTION_ANSWERED,
-        recipientUserId,
-        productId));
-  }
-
-  public void sendBidSuccess(Integer recipientUserId, Integer productId) {
-    publish(buildRequest(
-        EmailNotificationRequest.EmailType.BID_SUCCESS,
-        recipientUserId,
-        productId));
-  }
-
-  public void sendBidBlocked(Integer recipientUserId, Integer productId) {
-    publish(buildRequest(
-        EmailNotificationRequest.EmailType.BID_BLOCKED,
-        recipientUserId,
-        productId));
-  }
-
-  public void sendAuctionEndedNoWinner(Integer recipientUserId, Integer productId) {
-    publish(buildRequest(
-        EmailNotificationRequest.EmailType.AUCTION_ENDED_NO_WINNER,
-        recipientUserId,
-        productId));
-  }
-
-  public void sendAuctionEndedHasWinner(Integer recipientUserId, Integer productId) {
-    publish(buildRequest(
-        EmailNotificationRequest.EmailType.AUCTION_ENDED_HAS_WINNER,
-        recipientUserId,
-        productId));
+  public void sendProductEmail(
+      EmailNotificationRequest.EmailType emailType,
+      Integer recipientUserId,
+      Integer productId) {
+    publish(buildRequest(emailType, recipientUserId, productId));
   }
 }

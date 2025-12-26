@@ -47,12 +47,15 @@ public class EmailService implements IEmailService {
 
   private String buildSubject(EmailNotificationRequest r) {
     return switch (r.getEmailType()) {
-      case BID_SUCCESS -> "Ra giá thành công";
-      case BID_BLOCKED -> "Bị từ chối ra giá";
-      case AUCTION_ENDED_HAS_WINNER -> "Đấu giá kết thúc – Có người thắng";
-      case AUCTION_ENDED_NO_WINNER -> "Đấu giá kết thúc – Không có người mua";
+      case BID_SUCCESS_WINNER -> "Bạn đã ra giá thành công ";
+      case BID_SUCCESS_PREVIOUS_BIDDER -> "Giá của bạn đã bị vượt";
+      case BID_SUCCESS_SELLER -> "Sản phẩm của bạn có lượt ra giá mới";
+      case BID_REJECTED -> "Ra giá không thành công";
+      case AUCTION_ENDED_WINNER -> "Chúc mừng! Bạn đã thắng đấu giá";
+      case AUCTION_ENDED_SELLER -> "Sản phẩm của bạn đã được bán";
+      case AUCTION_ENDED_NO_WINNER_SELLER -> "Đấu giá kết thúc – chưa có người mua";
       case QUESTION_ASKED -> "Có câu hỏi mới về sản phẩm";
-      case QUESTION_ANSWERED -> "Câu hỏi về sản phẩm đã được trả lời";
+      case QUESTION_ANSWERED -> "Câu hỏi của bạn đã được trả lời";
       case EMAIL_OTP_VERIFY -> "Xác nhận email tài khoản Auction Online";
       case EMAIL_OTP_RESET_PASSWORD -> "Đặt lại mật khẩu tài khoản Auction Online";
     };
@@ -64,13 +67,39 @@ public class EmailService implements IEmailService {
 
     return switch (r.getEmailType()) {
 
-      case BID_SUCCESS -> """
+      case BID_SUCCESS_WINNER -> """
           Xin chào %s,
 
-          Bạn đã ra giá thành công cho sản phẩm "%s".
-          Giá hiện tại của sản phẩm đã được cập nhật.
+          Chúc mừng bạn đã ra giá CAO NHẤT cho sản phẩm "%s".
 
-          Hãy theo dõi để không bỏ lỡ diễn biến tiếp theo.
+          Hiện tại bạn đang dẫn đầu cuộc đấu giá.
+          Hãy theo dõi để không bỏ lỡ kết quả cuối cùng.
+
+          Xem chi tiết: %s
+          """.formatted(
+          r.getRecipientName(),
+          r.getProductName(),
+          r.getDeepLinkPath());
+      case BID_SUCCESS_PREVIOUS_BIDDER -> """
+          Xin chào %s,
+
+          Giá bạn đặt cho sản phẩm "%s" vừa bị vượt.
+
+          Bạn vẫn còn cơ hội ra giá cao hơn nếu đấu giá chưa kết thúc.
+
+          Xem chi tiết: %s
+          """.formatted(
+          r.getRecipientName(),
+          r.getProductName(),
+          r.getDeepLinkPath());
+
+      case BID_SUCCESS_SELLER -> """
+          Xin chào %s,
+
+          Sản phẩm "%s" của bạn vừa có lượt ra giá mới.
+
+          Giá hiện tại đã được cập nhật.
+          Hãy theo dõi diễn biến đấu giá.
 
           Xem chi tiết: %s
           """.formatted(
@@ -91,13 +120,12 @@ public class EmailService implements IEmailService {
           r.getProductName(),
           r.getDeepLinkPath());
 
-      case AUCTION_ENDED_HAS_WINNER -> """
+      case AUCTION_ENDED_WINNER -> """
           Xin chào %s,
 
-          Đấu giá cho sản phẩm "%s" đã kết thúc thành công.
-          Người thắng đấu giá sẽ sớm liên hệ để tiến hành giao dịch.
+          Chúc mừng bạn đã chiến thắng đấu giá sản phẩm "%s".
 
-          Cảm ơn bạn đã sử dụng hệ thống.
+          Người bán sẽ sớm liên hệ để tiến hành giao dịch.
 
           Xem chi tiết: %s
           """.formatted(
@@ -105,7 +133,20 @@ public class EmailService implements IEmailService {
           r.getProductName(),
           r.getDeepLinkPath());
 
-      case AUCTION_ENDED_NO_WINNER -> """
+      case AUCTION_ENDED_SELLER -> """
+          Xin chào %s,
+
+          Sản phẩm "%s" của bạn đã được đấu giá thành công.
+
+          Vui lòng liên hệ người mua để tiến hành giao dịch.
+
+          Xem chi tiết: %s
+          """.formatted(
+          r.getRecipientName(),
+          r.getProductName(),
+          r.getDeepLinkPath());
+
+      case AUCTION_ENDED_NO_WINNER_SELLER -> """
           Xin chào %s,
 
           Đấu giá cho sản phẩm "%s" đã kết thúc nhưng chưa có người mua.

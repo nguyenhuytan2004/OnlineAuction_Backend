@@ -12,12 +12,23 @@ import lombok.NoArgsConstructor;
 public class EmailNotificationRequest {
 
   public enum EmailType {
-    BID_SUCCESS,
-    BID_BLOCKED,
-    AUCTION_ENDED_NO_WINNER,
-    AUCTION_ENDED_HAS_WINNER,
+
+    // Bid
+    BID_SUCCESS_WINNER,
+    BID_SUCCESS_PREVIOUS_BIDDER,
+    BID_SUCCESS_SELLER,
+    BID_REJECTED,
+
+    // Auction end
+    AUCTION_ENDED_WINNER,
+    AUCTION_ENDED_SELLER,
+    AUCTION_ENDED_NO_WINNER_SELLER,
+
+    // Question
     QUESTION_ASKED,
     QUESTION_ANSWERED,
+
+    // OTP
     EMAIL_OTP_VERIFY,
     EMAIL_OTP_RESET_PASSWORD
   }
