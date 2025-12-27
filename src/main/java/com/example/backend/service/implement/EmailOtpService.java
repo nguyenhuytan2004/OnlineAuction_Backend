@@ -60,7 +60,6 @@ public class EmailOtpService implements IEmailOtpService {
     if (emailOtp.getExpiredAt().isBefore(LocalDateTime.now())) {
       throw new RuntimeException("OTP đã hết hạn");
     }
-
     return emailOtp;
   }
 }

@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.model.EmailOtp.VerifyResetPasswordOtpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -146,6 +147,29 @@ public class AuthController {
           .body("Đã xảy ra lỗi hệ thống");
     }
   }
+
+  @PostMapping("/verify-reset-password-otp")
+  public ResponseEntity<?> verifyResetPasswordOtp(
+          @RequestBody VerifyResetPasswordOtpRequest req) {
+
+    log.info("[AUTH][VERIFY_RESET_OTP][START] email={}", req.getEmail());
+
+    try {
+      authService.verifyResetPasswordOtp(req);
+
+      log.info("[AUTH][VERIFY_RESET_OTP][SUCCESS] email={}", req.getEmail());
+      return ResponseEntity.ok("OTP hợp lệ");
+
+    } catch (RuntimeException e) {
+      log.warn("[AUTH][VERIFY_RESET_OTP][FAIL] email={} reason={}",
+              req.getEmail(), e.getMessage());
+
+      return ResponseEntity
+              .status(HttpStatus.BAD_REQUEST)
+              .body(e.getMessage());
+    }
+  }
+
 
   @PostMapping("/reset-password")
   public ResponseEntity<?> resetPassword(

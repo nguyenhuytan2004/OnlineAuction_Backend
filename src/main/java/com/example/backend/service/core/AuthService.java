@@ -1,5 +1,6 @@
 package com.example.backend.service.core;
 
+import com.example.backend.model.EmailOtp.VerifyResetPasswordOtpRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -125,18 +126,23 @@ public class AuthService {
   }
 
   public void forgotPassword(ForgotPasswordRequest req) {
-    emailOtpService.sendOtp(
+    EmailOtp newEmailOtp = emailOtpService.sendOtp(
         req.getEmail(),
         EmailOtp.OtpType.RESET_PASSWORD);
+
+    _emailOtpRepository.save(newEmailOtp);
+  }
+
+  public void verifyResetPasswordOtp(VerifyResetPasswordOtpRequest req) {
+    emailOtpService.validateOtp(
+            req.getEmail(),
+            req.getOtp(),
+            EmailOtp.OtpType.RESET_PASSWORD
+    );
   }
 
   @Transactional
   public void resetPassword(ResetPasswordRequest req) {
-
-    emailOtpService.validateOtp(
-        req.getEmail(),
-        req.getOtp(),
-        EmailOtp.OtpType.RESET_PASSWORD);
 
     User user = userRepo.findByEmail(req.getEmail())
         .orElseThrow(() -> new RuntimeException("User not found"));
@@ -150,5 +156,4 @@ public class AuthService {
         req.getEmail(),
         EmailOtp.OtpType.RESET_PASSWORD);
   }
-
 }
