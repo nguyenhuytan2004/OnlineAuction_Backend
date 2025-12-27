@@ -1,69 +1,73 @@
 package com.example.backend.entity;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
-@Table(
-        name = "auction_order",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = "product_id")
-        }
-)
+@Table(name = "auction_order", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "product_id")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class AuctionOrder {
 
-    public enum OrderStatus {
-        WAIT_PAYMENT,
-        PAID,
-        ON_DELIVERING,
-        COMPLETED,
-        CANCELLED
-    }
+  public enum OrderStatus {
+    WAIT_PAYMENT,
+    PAID,
+    ON_DELIVERING,
+    COMPLETED,
+    CANCELLED
+  }
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "order_id")
+  private Integer orderId;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "order_id")
-    private Integer orderId;
+  @ManyToOne
+  @JoinColumn(name = "product_id", nullable = false)
+  private Product product;
 
-    @Column(name = "product_id", nullable = false)
-    private Integer productId;
+  @ManyToOne
+  @JoinColumn(name = "seller_id", nullable = false)
+  private User seller;
 
-    @Column(name = "seller_id", nullable = false)
-    private Integer sellerId;
+  @ManyToOne
+  @JoinColumn(name = "buyer_id", nullable = false)
+  private User buyer;
 
-    @Column(name = "buyer_id", nullable = false)
-    private Integer buyerId;
+  @Column(name = "final_price", nullable = false, precision = 15, scale = 2)
+  private BigDecimal finalPrice;
 
-    @Column(name = "final_price", nullable = false, precision = 15, scale = 2)
-    private BigDecimal finalPrice;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private OrderStatus status = OrderStatus.WAIT_PAYMENT;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private OrderStatus status = OrderStatus.WAIT_PAYMENT;
+  @Column(name = "paid_at")
+  private Instant paidAt;
 
-    /* Payment */
-    @Column(name = "paid_at")
-    private Instant paidAt;
+  @Column(name = "shipping_address", columnDefinition = "TEXT")
+  private String shippingAddress;
 
-    /* Shipping */
-    @Column(name = "shipping_address", columnDefinition = "TEXT")
-    private String shippingAddress;
+  @Column(name = "cancelled_reason", columnDefinition = "TEXT")
+  private String cancelledReason;
 
-    /* Cancel */
-    @Column(name = "cancelled_reason", columnDefinition = "TEXT")
-    private String cancelledReason;
-
-    @Column(name = "created_at", updatable = false)
-    private Instant createdAt = Instant.now();
+  @Column(name = "created_at", updatable = false)
+  private Instant createdAt = Instant.now();
 }

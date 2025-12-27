@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.backend.entity.AuctionOrder;
 import com.example.backend.entity.AuctionResult;
 import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
@@ -28,6 +29,7 @@ import com.example.backend.model.Product.UpdateProductRequest;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.IBidService;
 import com.example.backend.service.IBlockedBidderService;
+import com.example.backend.service.IOrderService;
 import com.example.backend.service.IProductService;
 
 import jakarta.validation.Valid;
@@ -42,6 +44,8 @@ public class ProductController {
   private IBidService _bidService;
   @Autowired
   private IBlockedBidderService _blockedBidderService;
+  @Autowired
+  private IOrderService _orderService;
 
   private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
       .getLogger(ProductController.class);
@@ -313,6 +317,20 @@ public class ProductController {
       LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{} - Error occurred: {}", productId,
           e.getMessage(), e);
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GetMapping("/{product_id}/auction-order")
+  public ResponseEntity<?> getAuctionOrderByProductId(@PathVariable("product_id") Integer productId) {
+    try {
+      AuctionOrder auctionOrder = _orderService.getAuctionOrderByProductId(productId);
+
+      return new ResponseEntity<>(auctionOrder, HttpStatus.OK);
+    } catch (Exception e) {
+      LOGGER.error("[CONTROLLER][GET][ERROR] /api/products/{}/auction-order - Internal server error: {}", productId,
+          e.getMessage(), e);
+
+      return new ResponseEntity<>("Internal server error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

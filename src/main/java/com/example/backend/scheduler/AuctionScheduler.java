@@ -16,6 +16,7 @@ import com.example.backend.producer.EmailProducer;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.service.IAuctionService;
+import com.example.backend.service.IOrderService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +32,9 @@ public class AuctionScheduler {
 
   @Autowired
   private IAuctionService _auctionService;
+  @Autowired
+  private IOrderService _orderService;
+
   @Autowired
   private EmailProducer emailProducer;
 
@@ -48,6 +52,7 @@ public class AuctionScheduler {
         try {
           _auctionService.updateAuctionResult(product);
           _auctionService.broadcastAuctionEnd(product, "Phiên đấu giá đã kết thúc.");
+          _orderService.createAuctionOrder(product);
 
           if (product.getHighestBidder() != null) {
             emailProducer.sendProductEmail(EmailType.AUCTION_ENDED_WINNER,

@@ -25,24 +25,24 @@ public class EmailService implements IEmailService {
   @Override
   public void sendEmail(EmailNotificationRequest r) {
 
-    try {
-      String subject = buildSubject(r);
-      String content = buildContent(r);
+    // try {
+    // String subject = buildSubject(r);
+    // String content = buildContent(r);
 
-      SimpleMailMessage message = new SimpleMailMessage();
-      message.setFrom(fromEmail);
-      message.setTo(r.getRecipientEmail());
-      message.setSubject(subject);
-      message.setText(content);
+    // SimpleMailMessage message = new SimpleMailMessage();
+    // message.setFrom(fromEmail);
+    // message.setTo(r.getRecipientEmail());
+    // message.setSubject(subject);
+    // message.setText(content);
 
-      mailSender.send(message);
+    // mailSender.send(message);
 
-      log.info("[EMAIL][{}] Sent to {}", r.getEmailType(), r.getRecipientEmail());
+    // log.info("[EMAIL][{}] Sent to {}", r.getEmailType(), r.getRecipientEmail());
 
-    } catch (MailException e) {
-      log.error("[EMAIL][ERROR] Failed to send email", e);
-      throw new RuntimeException("Send email failed", e);
-    }
+    // } catch (MailException e) {
+    // log.error("[EMAIL][ERROR] Failed to send email", e);
+    // throw new RuntimeException("Send email failed", e);
+    // }
   }
 
   private String buildSubject(EmailNotificationRequest r) {

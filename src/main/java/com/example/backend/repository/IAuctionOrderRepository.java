@@ -8,13 +8,13 @@ import java.util.Optional;
 
 public interface IAuctionOrderRepository extends JpaRepository<AuctionOrder, Integer> {
 
-    Optional<AuctionOrder> findByProductId(Integer productId);
+  Optional<AuctionOrder> findByProductProductId(Integer productId);
 
-    @Query("""
-        SELECT
-        (SUM(CASE WHEN o.status = 'PAID' THEN 1 ELSE 0 END) * 100)
-        / COUNT(o)
-        FROM AuctionOrder o
-    """)
-    Integer paymentSuccessRate();
+  @Query("""
+          SELECT
+          (SUM(CASE WHEN o.status = 'PAID' THEN 1 ELSE 0 END) * 100)
+          / COUNT(o)
+          FROM AuctionOrder o
+      """)
+  Integer paymentSuccessRate();
 }

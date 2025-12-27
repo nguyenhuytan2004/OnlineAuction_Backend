@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.backend.entity.AuctionOrder;
 import com.example.backend.entity.AuctionOrder.OrderStatus;
+import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
 import com.example.backend.model.AuctionOrder.CancelOrderRequest;
 import com.example.backend.model.AuctionOrder.OrderStatusResponse;
@@ -14,6 +15,7 @@ import com.example.backend.model.AuctionOrder.PayOrderRequest;
 import com.example.backend.model.AuctionOrder.PayOrderResponse;
 import com.example.backend.model.AuctionOrder.SetShippingAddressRequest;
 import com.example.backend.repository.IAuctionOrderRepository;
+import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.service.IOrderService;
 
@@ -26,6 +28,36 @@ public class OrderService implements IOrderService {
 
   private final IAuctionOrderRepository orderRepo;
   private final IProductRepository productRepo;
+  private final IBidRepository _bidRepository;
+
+  @Override
+  public AuctionOrder getAuctionOrderByProductId(Integer productId) {
+    return orderRepo.findByProductProductId(productId)
+        .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại cho sản phẩm này"));
+  }
+
+  @Override
+  public void createAuctionOrder(Product product) {
+    AuctionOrder existing = orderRepo.findByProductProductId(product.getProductId()).orElse(null);
+    if (existing != null) {
+      return;
+    }
+
+    Bid highestBid = _bidRepository.findTopByProductProductIdOrderByBidPriceDesc(product.getProductId());
+    if (highestBid != null) {
+      AuctionOrder order = new AuctionOrder();
+      order.setProduct(product);
+      order.setSeller(product.getSeller());
+      order.setBuyer(highestBid.getBidder());
+      order.setFinalPrice(product.getCurrentPrice());
+      order.setStatus(OrderStatus.WAIT_PAYMENT);
+      orderRepo.save(order);
+    }
+
+    // Đã thực hiện trong AuctionService.updateAuctionResult
+    // product.setIsActive(false);
+    // _productRepository.save(product);
+  }
 
   @Override
   @Transactional
@@ -43,7 +75,7 @@ public class OrderService implements IOrderService {
       throw new RuntimeException("Số tiền thanh toán không khớp với giá cuối cùng");
     }
 
-    AuctionOrder existing = orderRepo.findByProductId(product.getProductId()).orElse(null);
+    AuctionOrder existing = orderRepo.findByProductProductId(product.getProductId()).orElse(null);
 
     if (existing != null) {
 
@@ -61,9 +93,9 @@ public class OrderService implements IOrderService {
           existing.getStatus());
     }
     AuctionOrder order = new AuctionOrder();
-    order.setProductId(product.getProductId());
-    order.setSellerId(product.getSeller().getUserId());
-    order.setBuyerId(product.getHighestBidder().getUserId());
+    order.setProduct(product);
+    order.setSeller(product.getSeller());
+    order.setBuyer(product.getHighestBidder());
     order.setFinalPrice(finalPrice);
     order.setPaidAt(Instant.now());
     order.setStatus(OrderStatus.PAID);
