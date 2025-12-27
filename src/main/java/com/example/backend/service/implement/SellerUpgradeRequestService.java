@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,36 @@ public class SellerUpgradeRequestService
 
     private final ISellerUpgradeRequestRepository _sellerUpgradeRequestRepository;
     private final IUserRepository userRepository;
+
+    @Override
+    @Transactional
+    public SellerUpgradeRequest createRequest(Integer userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (user.getRole() != User.Role.BIDDER) {
+            throw new IllegalStateException("Only bidder can request upgrade");
+        }
+
+        boolean existsPending =
+                _sellerUpgradeRequestRepository
+                        .existsByUserUserIdAndStatus(
+                                userId,
+                                SellerUpgradeRequest.Status.PENDING
+                        );
+
+        if (existsPending) {
+            throw new IllegalStateException("Upgrade request already pending");
+        }
+
+        SellerUpgradeRequest req = new SellerUpgradeRequest();
+        req.setUser(user);
+        req.setStatus(SellerUpgradeRequest.Status.PENDING);
+
+        return _sellerUpgradeRequestRepository.save(req);
+    }
+
 
     @Override
     public List<SellerUpgradeRequest> getPendingRequests() {
@@ -52,5 +83,11 @@ public class SellerUpgradeRequestService
         }
 
         return _sellerUpgradeRequestRepository.save(req);
+    }
+
+    @Override
+    public Optional<SellerUpgradeRequest> getLatestRequestByUser(Integer userId) {
+        return _sellerUpgradeRequestRepository
+                .findTopByUser_UserIdOrderByRequestAtDesc(userId);
     }
 }

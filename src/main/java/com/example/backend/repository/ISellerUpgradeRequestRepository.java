@@ -5,14 +5,19 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ISellerUpgradeRequestRepository extends JpaRepository<SellerUpgradeRequest, Integer> {
 
     List<SellerUpgradeRequest> findByStatus(SellerUpgradeRequest.Status status);
 
-    boolean existsByUser_UserIdAndStatus(
+    boolean existsByUserUserIdAndStatus(
             Integer userId,
-            SellerUpgradeRequest.Status status);
+            SellerUpgradeRequest.Status status
+    );
+
+    Optional<SellerUpgradeRequest>
+    findTopByUser_UserIdOrderByRequestAtDesc(Integer userId);
 
 
     @Query("""

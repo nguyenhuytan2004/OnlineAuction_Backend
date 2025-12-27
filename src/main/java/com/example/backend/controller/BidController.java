@@ -1,22 +1,22 @@
 package com.example.backend.controller;
 
+import com.example.backend.entity.Bid;
+import com.example.backend.entity.SellerUpgradeRequest;
+import com.example.backend.entity.User;
+import com.example.backend.model.Bid.CreateBidRequest;
+import com.example.backend.security.CustomUserDetails;
+import com.example.backend.service.IBidService;
+import com.example.backend.service.ISellerUpgradeRequestService;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
-import com.example.backend.entity.Bid;
-import com.example.backend.entity.User;
-import com.example.backend.model.Bid.CreateBidRequest;
-import com.example.backend.service.IBidService;
-
-import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -25,6 +25,10 @@ public class BidController {
 
     @Autowired
     private IBidService _bidService;
+
+    @Autowired
+    private ISellerUpgradeRequestService sellerUpgradeRequestService;
+
 
     @GetMapping("/product/{product_id}/highest-bidder")
     public ResponseEntity<?> getHighestBidderByProductId(@PathVariable("product_id") Integer productId) {
@@ -74,4 +78,58 @@ public class BidController {
             return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/seller-upgrade-request")
+    public ResponseEntity<?> createSellerUpgradeRequest(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        try {
+            Integer userId = userDetails.getUser().getUserId();
+            SellerUpgradeRequest request =
+                    sellerUpgradeRequestService.createRequest(userId);
+
+            return new ResponseEntity<>(request, HttpStatus.CREATED);
+
+        } catch (IllegalStateException ise) {
+            log.warn("[SELLER_UPGRADE][WARN] {}", ise.getMessage());
+            return new ResponseEntity<>(ise.getMessage(), HttpStatus.BAD_REQUEST);
+
+        } catch (IllegalArgumentException iae) {
+            log.warn("[SELLER_UPGRADE][WARN] {}", iae.getMessage());
+            return new ResponseEntity<>(iae.getMessage(), HttpStatus.NOT_FOUND);
+
+        } catch (Exception e) {
+            log.error("[SELLER_UPGRADE][ERROR]", e);
+            return new ResponseEntity<>(
+                    "Failed to create seller upgrade request",
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @GetMapping("/seller-upgrade-request/status")
+    public ResponseEntity<?> getSellerUpgradeRequestStatus(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Integer userId = userDetails.getUser().getUserId();
+
+        return sellerUpgradeRequestService
+                .getLatestRequestByUser(userId)
+                .map(req -> {
+                    Map<String, Object> body = new HashMap<>();
+                    body.put("hasRequest", true);
+                    body.put("status", req.getStatus());
+                    body.put("createdAt", req.getRequestAt());
+                    body.put("reviewedAt", req.getReviewedAt());
+                    body.put("comments", req.getComments());
+                    return ResponseEntity.ok(body);
+                })
+                .orElseGet(() -> ResponseEntity.ok(
+                        Map.of(
+                                "hasRequest", false,
+                                "status", "NONE"
+                        )
+                ));
+    }
+
 }
