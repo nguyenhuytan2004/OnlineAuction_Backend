@@ -61,54 +61,37 @@ public class SecurityConfig {
         .authenticationProvider(authProvider())
         .authorizeHttpRequests(auth -> auth
 
-            .requestMatchers(
-                "/api/auth/register",
-                "/api/auth/resend-verify-email-otp",
-                "/api/auth/login",
-                "/api/auth/verify-email",
-                "/api/auth/forgot-password",
-                "/api/auth/reset-password",
-                "/v3/api-docs/**",
-                "/swagger-ui/**",
-                "/swagger-ui.html",
-                "/swagger-resources/**",
-                "/webjars/**",
-                "/ws/**")
+            // 1. Công khai hoàn toàn (Auth, Swagger, Websocket)
+            .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/ws/**")
             .permitAll()
 
-            .requestMatchers(HttpMethod.GET,
-                "/api/products",
-                "/api/products/{product_id}",
-                "/api/products/{product_id}/bids",
-                "/api/products/top-5-ending-soon",
-                "/api/products/top-5-most-auctioned",
-                "/api/products/top-5-highest-priced",
-                "/api/products/{product_id}/top-5-related",
-                "/api/products/full-text-search",
-                "/api/products/category/{category_id}",
-                "/api/products/category/{category_id}/full-text-search",
-                "/api/products/{product_id}/questions",
-                "/api/categories",
-                "/api/categories/**")
-            .permitAll()
+            // 2. Quyền ADMIN (Quản lý hệ thống - Phải đặt lên trước các quyền chung)
+            .requestMatchers("/api/users/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.POST, "/api/categories/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.PATCH, "/api/categories/**").hasRole("ADMIN")
+            // ADMIN có quyền PATCH/DELETE mọi product
+            .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
 
-            .requestMatchers(HttpMethod.POST,
-                "/api/products/{product_id}/questions")
-            .hasAnyRole("SELLER", "BIDDER")
-            .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("SELLER", "BIDDER")
-
+            // 3. Quyền SELLER (Hành động đặc thù của người bán)
             .requestMatchers(
                 "/api/user-profile/active-products",
                 "/api/user-profile/sold-products",
                 "/api/ratings/buyer",
                 "/api/auction-results/product/*/cancel",
-                "/api/products/*/append-description", "/api/products")
+                "/api/orders/*/confirm-payment")
             .hasRole("SELLER")
+            .requestMatchers(HttpMethod.POST, "/api/products").hasRole("SELLER")
+            .requestMatchers(HttpMethod.PATCH, "/api/products/*/append-description").hasRole("SELLER")
 
-            .requestMatchers("/api/categories/**").hasRole("ADMIN")
-            .requestMatchers("/api/products/**").hasRole("ADMIN")
-            .requestMatchers("/api/users/**").hasRole("ADMIN")
+            // 4. Quyền chung (Yêu cầu đăng nhập)
+            .requestMatchers(HttpMethod.POST, "/api/products/*/questions").hasAnyRole("SELLER", "BIDDER", "ADMIN")
 
+            // 5. Công khai cho khách xem (READ-ONLY)
+            .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
+
+            // 6. Tất cả các request còn lại phải đăng nhập
             .anyRequest().authenticated())
 
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
