@@ -56,10 +56,11 @@ public class ProductController {
       Page<Product> products = _productService.getProducts(status, pageable);
       return new ResponseEntity<>(products, HttpStatus.OK);
     } catch (IllegalArgumentException iae) {
-      LOGGER.error("[CONTROLLER][GET][ERROR] /api/products?status={} - Illegal argument: {}", status, iae.getMessage());
+      LOGGER.error("[CONTROLLER][GET][PRODUCT] /api/products?status={} - Illegal argument: {}", status,
+          iae.getMessage());
       return new ResponseEntity<>(iae.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
-      LOGGER.error("[CONTROLLER][GET][ERROR] /api/products?status={} - Exception: {}", status, e.getMessage());
+      LOGGER.error("[CONTROLLER][GET][PRODUCT] /api/products?status={} - Exception: {}", status, e.getMessage());
       return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -141,7 +142,7 @@ public class ProductController {
 
       return new ResponseEntity<>(productPage, HttpStatus.OK);
     } catch (Exception e) {
-      LOGGER.error("[CONTROLLER][GET][ERROR] /api/products/full-text-search - Error occurred: {}", e.getMessage(),
+      LOGGER.error("[CONTROLLER][GET][PRODUCT] /api/products/full-text-search - Error occurred: {}", e.getMessage(),
           e);
       return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -167,8 +168,11 @@ public class ProductController {
       Product createdProduct = _productService.createProduct(request,
           userDetails.getUser().getUserId());
       return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+    } catch (IllegalArgumentException iae) {
+      LOGGER.error("[CONTROLLER][POST][PRODUCT] /api/products - Illegal argument: {}", iae.getMessage());
+      return new ResponseEntity<>(iae.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
-      LOGGER.error("[CONTROLLER][POST][ERROR] /api/products - Error occurred: {}", e.getMessage(), e);
+      LOGGER.error("[CONTROLLER][POST][PRODUCT] /api/products - Error occurred: {}", e.getMessage(), e);
       return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -180,12 +184,12 @@ public class ProductController {
       AuctionResult auctionResult = _productService.buyNowProduct(productId, userDetails.getUser().getUserId());
       return new ResponseEntity<>(auctionResult, HttpStatus.OK);
     } catch (IllegalArgumentException iae) {
-      LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{} - Illegal argument: {}", productId,
+      LOGGER.error("[CONTROLLER][PATCH][PRODUCT] /api/products/{} - Illegal argument: {}", productId,
           iae.getMessage());
-      return new ResponseEntity<>("Illegal argument: " + iae.getMessage(), HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(iae.getMessage(), HttpStatus.BAD_REQUEST);
 
     } catch (Exception e) {
-      LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{} - Error occurred: {}", productId, e.getMessage(),
+      LOGGER.error("[CONTROLLER][PATCH][PRODUCT] /api/products/{} - Error occurred: {}", productId, e.getMessage(),
           e);
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -200,7 +204,7 @@ public class ProductController {
           request.getAdditionalDescription());
       return new ResponseEntity<>(updatedDescription, HttpStatus.OK);
     } catch (Exception e) {
-      LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{}/append-description - Error occurred: {}",
+      LOGGER.error("[CONTROLLER][PATCH][PRODUCT] /api/products/{}/append-description - Error occurred: {}",
           productId,
           e.getMessage(), e);
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -216,7 +220,7 @@ public class ProductController {
       return new ResponseEntity<>(isEligible, HttpStatus.OK);
     } catch (Exception e) {
       LOGGER.error(
-          "[CONTROLLER][GET][ERROR] /api/products/{}/bidding-eligibility - Error occurred: {}",
+          "[CONTROLLER][GET][PRODUCT] /api/products/{}/bidding-eligibility - Error occurred: {}",
           productId, e.getMessage(), e);
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -228,7 +232,7 @@ public class ProductController {
       List<Bid> bids = _bidService.getTop5BidsByProductId(productId);
       return new ResponseEntity<>(bids, HttpStatus.OK);
     } catch (Exception e) {
-      LOGGER.error("[CONTROLLER][GET][ERROR] /api/products/{}/bids - Error occurred: {}", productId,
+      LOGGER.error("[CONTROLLER][GET][PRODUCT] /api/products/{}/bids - Error occurred: {}", productId,
           e.getMessage(), e);
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -246,12 +250,12 @@ public class ProductController {
       return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
     } catch (IllegalArgumentException iae) {
-      LOGGER.error("[CONTROLLER][DELETE][ERROR] /api/products/{} - Illegal argument: {}", productId,
+      LOGGER.error("[CONTROLLER][DELETE][PRODUCT] /api/products/{} - Illegal argument: {}", productId,
           iae.getMessage());
-      return new ResponseEntity<>("Illegal argument: " + iae.getMessage(), HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(iae.getMessage(), HttpStatus.BAD_REQUEST);
 
     } catch (Exception e) {
-      LOGGER.error("[CONTROLLER][DELETE][ERROR] /api/products/{} - Error occurred: {}", productId,
+      LOGGER.error("[CONTROLLER][DELETE][PRODUCT] /api/products/{} - Error occurred: {}", productId,
           e.getMessage(), e);
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -269,7 +273,7 @@ public class ProductController {
       return new ResponseEntity<>(isBlocked, HttpStatus.OK);
 
     } catch (Exception e) {
-      LOGGER.error("[CONTROLLER][GET][ERROR] /api/products/{}/bid-blocking-inspection - Error occurred: {}",
+      LOGGER.error("[CONTROLLER][GET][PRODUCT] /api/products/{}/bid-blocking-inspection - Error occurred: {}",
           productId, e.getMessage(), e);
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -289,12 +293,12 @@ public class ProductController {
       return new ResponseEntity<>(HttpStatus.CREATED);
 
     } catch (IllegalArgumentException iae) {
-      LOGGER.error("[CONTROLLER][POST][ERROR] /api/products/{}/block-bidder - Illegal argument: {}",
+      LOGGER.error("[CONTROLLER][POST][PRODUCT] /api/products/{}/block-bidder - Illegal argument: {}",
           productId, iae.getMessage());
       return new ResponseEntity<>(iae.getMessage(), HttpStatus.BAD_REQUEST);
 
     } catch (Exception e) {
-      LOGGER.error("[CONTROLLER][POST][ERROR] /api/products/{}/block-bidder - Error occurred: {}",
+      LOGGER.error("[CONTROLLER][POST][PRODUCT] /api/products/{}/block-bidder - Error occurred: {}",
           productId, e.getMessage(), e);
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -309,12 +313,12 @@ public class ProductController {
       return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
 
     } catch (IllegalArgumentException iae) {
-      LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{} - Illegal argument: {}", productId,
+      LOGGER.error("[CONTROLLER][PATCH][PRODUCT] /api/products/{} - Illegal argument: {}", productId,
           iae.getMessage());
-      return new ResponseEntity<>("Illegal argument: " + iae.getMessage(), HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(iae.getMessage(), HttpStatus.BAD_REQUEST);
 
     } catch (Exception e) {
-      LOGGER.error("[CONTROLLER][PATCH][ERROR] /api/products/{} - Error occurred: {}", productId,
+      LOGGER.error("[CONTROLLER][PATCH][PRODUCT] /api/products/{} - Error occurred: {}", productId,
           e.getMessage(), e);
       return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -327,7 +331,7 @@ public class ProductController {
 
       return new ResponseEntity<>(auctionOrder, HttpStatus.OK);
     } catch (Exception e) {
-      LOGGER.error("[CONTROLLER][GET][ERROR] /api/products/{}/auction-order - Internal server error: {}", productId,
+      LOGGER.error("[CONTROLLER][GET][PRODUCT] /api/products/{}/auction-order - Internal server error: {}", productId,
           e.getMessage(), e);
 
       return new ResponseEntity<>("Internal server error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

@@ -214,16 +214,19 @@ public class ProductService implements IProductService {
             result.total().hitCount());
   }
 
-  @SuppressWarnings("null")
   @Override
   @Transactional
   public Product createProduct(CreateProductRequest request, Integer sellerId) {
+    User seller = _userRepository.findById(sellerId).orElse(null);
+    // Kiểm tra thời điểm hiện tại đã vượt qua sellerExpiresAt chưa
+    if (seller.getSellerExpiresAt().isBefore(LocalDateTime.now())) {
+      throw new IllegalArgumentException(
+          "Quyền bán hàng của bạn đã hết hạn. Vui lòng nâng cấp lên Seller để tiếp tục đăng sản phẩm.");
+    }
+
     Product newProduct = new Product();
-
     newProduct.setSeller(_userRepository.findById(sellerId).orElse(null));
-
     newProduct.setCategory(_categoryRepository.findById(request.getCategoryId()).orElse(null));
-
     newProduct.setMainImageUrl(request.getMainImageUrl());
 
     List<ProductImage> productImages = request.getAuxiliaryImageUrls().stream().map(url -> {
@@ -232,8 +235,8 @@ public class ProductService implements IProductService {
       img.setImageUrl(url);
       return img;
     }).toList();
-    newProduct.setAuxiliaryImages(productImages);
 
+    newProduct.setAuxiliaryImages(productImages);
     newProduct.setProductName(request.getProductName());
     newProduct.setCurrentPrice(request.getStartPrice());
 

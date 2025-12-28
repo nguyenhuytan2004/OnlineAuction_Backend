@@ -23,6 +23,7 @@ import com.example.backend.repository.IConversationRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.service.IAuctionService;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -97,6 +98,7 @@ public class AuctionService implements IAuctionService {
   }
 
   @Override
+  @Transactional
   public void updateAuctionResult(Product product) {
     AuctionResult existingResult = _auctionResultRepository
         .findByProductProductId(product.getProductId());

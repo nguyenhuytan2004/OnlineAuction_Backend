@@ -4,17 +4,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.backend.model.User.UpdateUserAdminRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.backend.entity.AuctionOrder;
+import com.example.backend.entity.Product;
 import com.example.backend.entity.User;
+import com.example.backend.entity.AuctionOrder.OrderStatus;
 import com.example.backend.entity.User.Role;
 import com.example.backend.model.User.CreateUserRequest;
 import com.example.backend.model.User.UpdateUserRequest;
 import com.example.backend.model.User.UserResponse;
+import com.example.backend.repository.IAuctionOrderRepository;
+import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.service.IUserService;
 
@@ -28,6 +34,10 @@ public class UserService implements IUserService {
 
   @Autowired
   private IUserRepository _userRepository;
+  @Autowired
+  private IProductRepository _productRepository;
+  @Autowired
+  private IAuctionOrderRepository _auctionOrderRepository;
 
   private final PasswordEncoder passwordEncoder;
 
@@ -60,7 +70,7 @@ public class UserService implements IUserService {
   public User updateUser(Integer userId, UpdateUserRequest updateUserRequest) {
 
     User user = _userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+        .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
     if (!user.getEmail().equals(updateUserRequest.getEmail())) {
       if (_userRepository.findByEmail(updateUserRequest.getEmail()).isPresent()) {
@@ -113,7 +123,7 @@ public class UserService implements IUserService {
   @Override
   public void deleteUser(Integer userId) {
     User user = _userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
     _userRepository.delete(user);
   }
@@ -122,7 +132,7 @@ public class UserService implements IUserService {
   public User updateUserByAdmin(Integer userId, UpdateUserAdminRequest request) {
 
     User user = _userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
     if (!user.getEmail().equals(request.getEmail())) {
       if (_userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -140,4 +150,25 @@ public class UserService implements IUserService {
     return _userRepository.save(user);
   }
 
+  @Override
+  public void downgradeSeller(User seller) {
+    // Kiểm tra xem seller còn sản phẩm đang đấu giá không
+    List<Product> activeProducts = _productRepository.findBySeller_UserIdAndIsActiveTrue(seller.getUserId());
+    if (!activeProducts.isEmpty()) {
+      return;
+    }
+
+    // Kiểm tra xem seller còn sản phẩm đang trong quá trình thanh toán không
+    List<AuctionOrder> pendingOrders = _auctionOrderRepository.findBySeller_UserIdAndStatusNotIn(seller.getUserId(),
+        List.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED));
+    if (!pendingOrders.isEmpty()) {
+      return;
+    }
+
+    // Thực hiện hạ cấp seller xuống bidder
+    seller.setRole(Role.BIDDER);
+    seller.setSellerExpiresAt(null);
+    _userRepository.save(seller);
+    log.info("[SERVICE][USER] - Seller ID {} đã được hạ cấp xuống BIDDER.", seller.getUserId());
+  }
 }

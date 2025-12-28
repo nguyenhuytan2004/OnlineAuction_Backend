@@ -26,4 +26,5 @@ public interface IUserService {
 
   User updateUserByAdmin(Integer userId, UpdateUserAdminRequest request);
 
+  void downgradeSeller(User seller);
 }

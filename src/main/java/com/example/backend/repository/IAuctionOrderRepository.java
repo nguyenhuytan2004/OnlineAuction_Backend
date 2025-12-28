@@ -1,9 +1,12 @@
 package com.example.backend.repository;
 
 import com.example.backend.entity.AuctionOrder;
+import com.example.backend.entity.AuctionOrder.OrderStatus;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface IAuctionOrderRepository extends JpaRepository<AuctionOrder, Integer> {
@@ -17,4 +20,6 @@ public interface IAuctionOrderRepository extends JpaRepository<AuctionOrder, Int
           FROM AuctionOrder o
       """)
   Integer paymentSuccessRate();
+
+  List<AuctionOrder> findBySeller_UserIdAndStatusNotIn(Integer sellerId, List<OrderStatus> status);
 }
