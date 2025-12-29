@@ -17,6 +17,7 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "auction_order", uniqueConstraints = {
@@ -25,6 +26,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {
+        "product",
+        "seller",
+        "buyer"
+})
 public class AuctionOrder {
 
   public enum OrderStatus {

@@ -1,13 +1,5 @@
 package com.example.backend.service.implement;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
 import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
 import com.example.backend.entity.User;
@@ -21,9 +13,15 @@ import com.example.backend.repository.IUserRepository;
 import com.example.backend.service.IAuctionService;
 import com.example.backend.service.IBidService;
 import com.example.backend.service.IProductService;
-
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -35,194 +33,381 @@ public class BidService implements IBidService {
   private IProductRepository _productRepository;
   @Autowired
   private IUserRepository _userRepository;
-
   @Autowired
   @Lazy
   private IProductService _productService;
-
   @Autowired
   private IAuctionService _auctionService;
-
   @Autowired
   private EmailProducer emailProducer;
 
   @Override
   public User getHighestBidderByProductId(Integer productId) {
-    Bid highestBid = _bidRepository.findTopByProductProductIdOrderByBidPriceDesc(productId);
+    log.info(
+            "[SERVICE][GET][HIGHEST_BIDDER] Input productId={}",
+            productId
+    );
 
-    if (highestBid == null) {
-      return null;
+    try {
+      Bid highestBid =
+              _bidRepository.findTopByProductProductIdOrderByBidPriceDesc(productId);
+
+      User bidder = highestBid != null ? highestBid.getBidder() : null;
+
+      log.info(
+              "[SERVICE][GET][HIGHEST_BIDDER] Output bidder={}",
+              bidder
+      );
+      return bidder;
+
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][GET][HIGHEST_BIDDER] Error occurred (productId={}): {}",
+              productId,
+              e.getMessage(),
+              e
+      );
+      throw e;
     }
-
-    Bid bid = highestBid;
-    User bidder = bid.getBidder();
-
-    return bidder;
   }
 
   @Override
   public Bid placeBid(CreateBidRequest createBidRequest) throws Exception {
-    Product product = _productRepository.findById(createBidRequest.getProductId())
-        .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+    log.info(
+            "[SERVICE][POST][PLACE_BID] Input request={}",
+            createBidRequest
+    );
 
-    User bidder = _userRepository.findById(createBidRequest.getBidderId())
-        .orElseThrow(() -> new IllegalArgumentException("Bidder not found"));
+    try {
+      Product product = _productRepository.findById(createBidRequest.getProductId())
+              .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-    if (LocalDateTime.now().isAfter(product.getEndTime())) {
-      throw new IllegalArgumentException("Auction has already ended");
+      User bidder = _userRepository.findById(createBidRequest.getBidderId())
+              .orElseThrow(() -> new IllegalArgumentException("Bidder not found"));
+
+      if (LocalDateTime.now().isAfter(product.getEndTime())) {
+        throw new IllegalArgumentException("Auction has already ended");
+      }
+
+      if (!product.getIsActive()) {
+        throw new IllegalArgumentException("Product is not active");
+      }
+
+      Boolean isEligible = _productService.checkBiddingEligibility(
+              product.getProductId(),
+              bidder.getUserId()
+      );
+      if (!isEligible) {
+        throw new IllegalArgumentException(
+                "Bidder is not eligible to place a bid on this product");
+      }
+
+      if (bidder.getUserId().equals(product.getSeller().getUserId())) {
+        throw new IllegalArgumentException("Seller cannot bid on their own product");
+      }
+
+      BigDecimal minRequiredMaxBid =
+              product.getCurrentPrice().add(product.getPriceStep());
+
+      if (createBidRequest.getMaxAutoPrice().compareTo(minRequiredMaxBid) < 0) {
+        throw new IllegalArgumentException(
+                "Max bid must be at least " + minRequiredMaxBid);
+      }
+
+      Bid savedBid = processAutoBid(product, bidder, createBidRequest);
+      _auctionService.checkAndRenewAuction(product);
+
+      log.info(
+              "[SERVICE][POST][PLACE_BID] Success bid={}",
+              savedBid
+      );
+      return savedBid;
+
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][POST][PLACE_BID] Error occurred (request={}): {}",
+              createBidRequest,
+              e.getMessage(),
+              e
+      );
+      throw e;
     }
-
-    if (!product.getIsActive()) {
-      throw new IllegalArgumentException("Product is not active");
-    }
-
-    Boolean isEligible = _productService.checkBiddingEligibility(product.getProductId(), bidder.getUserId());
-    if (!isEligible) {
-      throw new IllegalArgumentException("Bidder is not eligible to place a bid on this product");
-    }
-
-    if (bidder.getUserId().equals(product.getSeller().getUserId())) {
-      throw new IllegalArgumentException("Seller cannot bid on their own product");
-    }
-
-    BigDecimal minRequiredMaxBid = product.getCurrentPrice().add(product.getPriceStep());
-    if (createBidRequest.getMaxAutoPrice().compareTo(minRequiredMaxBid) < 0) {
-      throw new IllegalArgumentException("Max bid must be at least " + minRequiredMaxBid);
-    }
-
-    Bid savedBid = processAutoBid(product, bidder, createBidRequest);
-    _auctionService.checkAndRenewAuction(product);
-
-    return savedBid;
   }
 
   // Extra method to process auto-bid logic
   @Transactional
   private Bid processAutoBid(Product product, User bidder, CreateBidRequest request) {
-    log.info("[AUTO-BID] Processing bid for product {} by user {} with maxPrice {}",
-        product.getProductId(), bidder.getUserId(), request.getMaxAutoPrice());
 
-    BigDecimal previousPrice = product.getCurrentPrice();
-    User previousHighestBidder;
+    log.info(
+            "[SERVICE][AUTO_BID][PROCESS] Input productId={}, bidderId={}, maxAutoPrice={}",
+            product.getProductId(),
+            bidder.getUserId(),
+            request.getMaxAutoPrice()
+    );
 
-    // Lấy bid có bidPrice cao nhất
-    Bid currentHighestBid = _bidRepository
-        .findTopByProductProductIdOrderByBidPriceDesc(product.getProductId());
+    try {
+      BigDecimal previousPrice = product.getCurrentPrice();
+      User previousHighestBidder;
 
-    MessageType messageType;
-    String message;
-    Bid newBid = new Bid();
+      Bid currentHighestBid = _bidRepository
+              .findTopByProductProductIdOrderByBidPriceDesc(product.getProductId());
 
-    // Chưa có ai đặt giá
-    if (currentHighestBid == null) {
-      newBid.setBidder(bidder);
-      newBid.setProduct(product);
-      newBid.setBidPrice(product.getCurrentPrice());
-      newBid.setMaxAutoPrice(request.getMaxAutoPrice());
+      MessageType messageType;
+      String message;
+      Bid newBid = new Bid();
 
-      messageType = MessageType.NEWBID;
-      message = bidder.getFullName() + " placed the first bid of "
-          + newBid.getBidPrice();
+      if (currentHighestBid == null) {
+        newBid.setBidder(bidder);
+        newBid.setProduct(product);
+        newBid.setBidPrice(product.getCurrentPrice());
+        newBid.setMaxAutoPrice(request.getMaxAutoPrice());
 
-      emailProducer.sendProductEmail(EmailType.BID_SUCCESS_WINNER, bidder.getUserId(), product.getProductId());
-      emailProducer.sendProductEmail(EmailType.BID_SUCCESS_SELLER, product.getSeller().getUserId(),
-          product.getProductId());
-    } else {
-      // Người đặt giá cao nhất là người hiện tại, cập nhật lại maxAutoPrice
-      if (currentHighestBid.getBidder().getUserId().equals(bidder.getUserId())) {
+        messageType = MessageType.NEWBID;
+        message = bidder.getFullName()
+                + " placed the first bid of "
+                + newBid.getBidPrice();
+
+        emailProducer.sendProductEmail(
+                EmailType.BID_SUCCESS_WINNER,
+                bidder.getUserId(),
+                product.getProductId()
+        );
+        emailProducer.sendProductEmail(
+                EmailType.BID_SUCCESS_SELLER,
+                product.getSeller().getUserId(),
+                product.getProductId()
+        );
+
+      } else if (currentHighestBid.getBidder().getUserId().equals(bidder.getUserId())) {
+
         currentHighestBid.setMaxAutoPrice(request.getMaxAutoPrice());
         Bid updatedBid = _bidRepository.save(currentHighestBid);
 
-        log.info("[AUTO-BID] Updated existing highest bid for same bidder: new maxAutoPrice={}",
-            request.getMaxAutoPrice());
+        log.info(
+                "[SERVICE][AUTO_BID][UPDATE_MAX] productId={}, bidderId={}, newMaxAutoPrice={}",
+                product.getProductId(),
+                bidder.getUserId(),
+                request.getMaxAutoPrice()
+        );
 
-        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_WINNER, currentHighestBid.getBidder().getUserId(),
-            product.getProductId());
-        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_SELLER, product.getSeller().getUserId(),
-            product.getProductId());
+        emailProducer.sendProductEmail(
+                EmailType.BID_SUCCESS_WINNER,
+                currentHighestBid.getBidder().getUserId(),
+                product.getProductId()
+        );
+        emailProducer.sendProductEmail(
+                EmailType.BID_SUCCESS_SELLER,
+                product.getSeller().getUserId(),
+                product.getProductId()
+        );
 
+        log.info(
+                "[SERVICE][AUTO_BID][PROCESS] Output bid={}",
+                updatedBid
+        );
         return updatedBid;
-      }
 
-      BigDecimal competitorMaxPrice = currentHighestBid.getMaxAutoPrice();
-      BigDecimal bidderMaxPrice = request.getMaxAutoPrice();
-      // Người đặt giá hiện tại không vuot qua được người giữ giá cao nhất
-      if (bidderMaxPrice.compareTo(competitorMaxPrice) <= 0) {
-        newBid.setBidder(currentHighestBid.getBidder());
-        newBid.setProduct(product);
-        newBid.setBidPrice(bidderMaxPrice);
-        newBid.setMaxAutoPrice(competitorMaxPrice);
-
-        messageType = MessageType.OUTBID;
-        message = bidder.getFullName() + "was outbid by "
-            + currentHighestBid.getBidder().getFullName() + " with bid of "
-            + newBid.getBidPrice();
-
-        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_WINNER, currentHighestBid.getBidder().getUserId(),
-            product.getProductId());
-        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_SELLER, product.getSeller().getUserId(),
-            product.getProductId());
-        // Người đặt giá hiện tại vượt qua người giữ giá cao nhất
       } else {
-        previousHighestBidder = currentHighestBid.getBidder();
-        newBid.setBidder(bidder);
-        newBid.setProduct(product);
-        newBid.setBidPrice(competitorMaxPrice.add(product.getPriceStep()));
-        newBid.setMaxAutoPrice(bidderMaxPrice);
 
-        messageType = MessageType.LEADING;
-        message = bidder.getFullName() + " is now the highest bidder with bid of "
-            + newBid.getBidPrice();
+        BigDecimal competitorMaxPrice = currentHighestBid.getMaxAutoPrice();
+        BigDecimal bidderMaxPrice = request.getMaxAutoPrice();
 
-        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_PREVIOUS_BIDDER, previousHighestBidder.getUserId(),
-            product.getProductId());
-        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_WINNER, bidder.getUserId(), product.getProductId());
-        emailProducer.sendProductEmail(EmailType.BID_SUCCESS_SELLER, product.getSeller().getUserId(),
-            product.getProductId());
+        if (bidderMaxPrice.compareTo(competitorMaxPrice) <= 0) {
+
+          newBid.setBidder(currentHighestBid.getBidder());
+          newBid.setProduct(product);
+          newBid.setBidPrice(bidderMaxPrice);
+          newBid.setMaxAutoPrice(competitorMaxPrice);
+
+          messageType = MessageType.OUTBID;
+          message = bidder.getFullName()
+                  + " was outbid by "
+                  + currentHighestBid.getBidder().getFullName()
+                  + " with bid of "
+                  + newBid.getBidPrice();
+
+          emailProducer.sendProductEmail(
+                  EmailType.BID_SUCCESS_WINNER,
+                  currentHighestBid.getBidder().getUserId(),
+                  product.getProductId()
+          );
+          emailProducer.sendProductEmail(
+                  EmailType.BID_SUCCESS_SELLER,
+                  product.getSeller().getUserId(),
+                  product.getProductId()
+          );
+
+        } else {
+
+          previousHighestBidder = currentHighestBid.getBidder();
+
+          newBid.setBidder(bidder);
+          newBid.setProduct(product);
+          newBid.setBidPrice(
+                  competitorMaxPrice.add(product.getPriceStep())
+          );
+          newBid.setMaxAutoPrice(bidderMaxPrice);
+
+          messageType = MessageType.LEADING;
+          message = bidder.getFullName()
+                  + " is now the highest bidder with bid of "
+                  + newBid.getBidPrice();
+
+          emailProducer.sendProductEmail(
+                  EmailType.BID_SUCCESS_PREVIOUS_BIDDER,
+                  previousHighestBidder.getUserId(),
+                  product.getProductId()
+          );
+          emailProducer.sendProductEmail(
+                  EmailType.BID_SUCCESS_WINNER,
+                  bidder.getUserId(),
+                  product.getProductId()
+          );
+          emailProducer.sendProductEmail(
+                  EmailType.BID_SUCCESS_SELLER,
+                  product.getSeller().getUserId(),
+                  product.getProductId()
+          );
+        }
       }
+
+      Bid savedBid = _bidRepository.save(newBid);
+
+      product.setCurrentPrice(savedBid.getBidPrice());
+      product.setHighestBidder(savedBid.getBidder());
+      product.setBidCount(product.getBidCount() + 1);
+      _productRepository.save(product);
+
+      _auctionService.broadcastAuctionUpdate(
+              product,
+              savedBid,
+              previousPrice,
+              messageType,
+              message
+      );
+
+      log.info(
+              "[SERVICE][AUTO_BID][PROCESS] Success productId={}, bidId={}, currentPrice={}",
+              product.getProductId(),
+              savedBid.getBidId(),
+              savedBid.getBidPrice()
+      );
+
+      return savedBid;
+
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][AUTO_BID][PROCESS] Error occurred (productId={}, bidderId={}): {}",
+              product.getProductId(),
+              bidder.getUserId(),
+              e.getMessage(),
+              e
+      );
+      throw e;
     }
-
-    // 3. Lưu bid mới
-    Bid savedBid = _bidRepository.save(newBid);
-
-    // 4. Cập nhật product
-    product.setCurrentPrice(savedBid.getBidPrice());
-    product.setHighestBidder(savedBid.getBidder());
-    product.setBidCount(product.getBidCount() + 1);
-    _productRepository.save(product);
-
-    // 5. Broadcast update qua WebSocket
-    _auctionService.broadcastAuctionUpdate(product, savedBid, previousPrice, messageType, message);
-
-    log.info("[AUTO-BID] Completed: currentPrice={}, winner={}",
-        savedBid.getBidPrice(), savedBid.getBidder().getFullName());
-
-    return savedBid;
   }
+
 
   @Override
   public List<Bid> getTop5BidsByProductId(Integer productId) {
-    return _bidRepository.findTop5ByProductProductIdOrderByBidPriceDescBidAtAsc(productId);
+    log.info(
+            "[SERVICE][GET][TOP5_BIDS] Input productId={}",
+            productId
+    );
+
+    try {
+      List<Bid> bids =
+              _bidRepository.findTop5ByProductProductIdOrderByBidPriceDescBidAtAsc(productId);
+
+      log.info(
+              "[SERVICE][GET][TOP5_BIDS] Output bids={}",
+              bids
+      );
+      return bids;
+
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][GET][TOP5_BIDS] Error occurred (productId={}): {}",
+              productId,
+              e.getMessage(),
+              e
+      );
+      throw e;
+    }
   }
 
   @Override
   public Bid getBid(Integer bidId) {
-    return _bidRepository.findById(bidId)
-        .orElseThrow(() -> new IllegalArgumentException("Bid not found"));
+    log.info(
+            "[SERVICE][GET][BID] Input bidId={}",
+            bidId
+    );
+
+    try {
+      Bid bid = _bidRepository.findById(bidId)
+              .orElseThrow(() -> new IllegalArgumentException("Bid not found"));
+
+      log.info(
+              "[SERVICE][GET][BID] Output bid={}",
+              bid
+      );
+      return bid;
+
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][GET][BID] Error occurred (bidId={}): {}",
+              bidId,
+              e.getMessage(),
+              e
+      );
+      throw e;
+    }
   }
 
   @Override
   @Transactional
   public void removeBidsByProductIdAndBidderId(Integer productId, Integer bidderId) {
-    _bidRepository.deleteByProductProductIdAndBidderUserId(productId, bidderId);
+    log.info(
+            "[SERVICE][DELETE][BIDS_BY_BIDDER] Input productId={}, bidderId={}",
+            productId,
+            bidderId
+    );
 
-    Bid highestBid = _bidRepository.findTopByProductProductIdOrderByBidPriceDesc(productId);
+    try {
+      _bidRepository.deleteByProductProductIdAndBidderUserId(productId, bidderId);
 
-    if (highestBid != null) {
-      Product product = highestBid.getProduct();
-      product.setHighestBidder(highestBid.getBidder());
-      product.setCurrentPrice(highestBid.getBidPrice());
-      _productRepository.save(product);
+      Bid highestBid =
+              _bidRepository.findTopByProductProductIdOrderByBidPriceDesc(productId);
+
+      if (highestBid != null) {
+        Product product = highestBid.getProduct();
+        product.setHighestBidder(highestBid.getBidder());
+        product.setCurrentPrice(highestBid.getBidPrice());
+        _productRepository.save(product);
+
+        log.info(
+                "[SERVICE][DELETE][BIDS_BY_BIDDER] Updated productId={}, highestBidderId={}, currentPrice={}",
+                productId,
+                highestBid.getBidder().getUserId(),
+                highestBid.getBidPrice()
+        );
+      }
+
+      log.info(
+              "[SERVICE][DELETE][BIDS_BY_BIDDER] Success productId={}, bidderId={}",
+              productId,
+              bidderId
+      );
+
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][DELETE][BIDS_BY_BIDDER] Error occurred (productId={}, bidderId={}): {}",
+              productId,
+              bidderId,
+              e.getMessage(),
+              e
+      );
+      throw e;
     }
   }
 }

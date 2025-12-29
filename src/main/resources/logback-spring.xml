@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <!-- ========== PROPERTIES ========== -->
+    <property name="APP_NAME" value="online-auction-backend"/>
+    <property name="LOG_PATH" value="logs"/>
+    <property name="LOG_FILE" value="${LOG_PATH}/${APP_NAME}.log"/>
+
+    <!-- ========== CONSOLE APPENDER ========== -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>
+                {"app":"${APP_NAME}","env":"local"}
+            </customFields>
+        </encoder>
+    </appender>
+
+    <!-- ========== FILE APPENDER (JSON) ========== -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rotate mỗi ngày -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- giữ 30 ngày -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>
+                {"app":"${APP_NAME}","env":"local"}
+            </customFields>
+        </encoder>
+    </appender>
+
+    <!-- ========== LOG LEVEL ========== -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

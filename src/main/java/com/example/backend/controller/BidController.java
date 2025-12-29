@@ -23,113 +23,142 @@ import java.util.Map;
 @RequestMapping("api/bids")
 public class BidController {
 
-    @Autowired
-    private IBidService _bidService;
+  @Autowired
+  private IBidService _bidService;
 
-    @Autowired
-    private ISellerUpgradeRequestService sellerUpgradeRequestService;
+  @Autowired
+  private ISellerUpgradeRequestService sellerUpgradeRequestService;
 
+  @GetMapping("/product/{product_id}/highest-bidder")
+  public ResponseEntity<?> getHighestBidderByProductId(@PathVariable("product_id") Integer productId) {
+    try {
+      User bidder = _bidService.getHighestBidderByProductId(productId);
 
-    @GetMapping("/product/{product_id}/highest-bidder")
-    public ResponseEntity<?> getHighestBidderByProductId(@PathVariable("product_id") Integer productId) {
-        try {
-            User bidder = _bidService.getHighestBidderByProductId(productId);
+      if (bidder == null) {
+        log.warn(
+                "[CONTROLLER][GET][WARN] /api/bids/product/{}/highest-bidder - No bids found for product ID: {}",
+                productId, productId);
+        return new ResponseEntity<>("No bids found for product ID: " + productId, HttpStatus.NOT_FOUND);
+      }
 
-            if (bidder == null) {
-                log.warn(
-                        "[CONTROLLER][GET][WARN] /api/bids/product/{}/highest-bidder - No bids found for product ID: {}",
-                        productId, productId);
-                return new ResponseEntity<>("No bids found for product ID: " + productId, HttpStatus.NOT_FOUND);
-            }
-
-            return new ResponseEntity<>(bidder, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("[CONTROLLER][GET][ERROR] /api/bids/product/{}/highest-bidder - An error occurred: {}",
-                    productId, e.getMessage());
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+      return new ResponseEntity<>(bidder, HttpStatus.OK);
+    } catch (Exception e) {
+      log.error("[CONTROLLER][GET][ERROR] /api/bids/product/{}/highest-bidder - An error occurred: {}",
+              productId, e.getMessage());
+      return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
 
-    @PostMapping("")
-    public ResponseEntity<?> placeBid(@Valid @RequestBody CreateBidRequest createBidRequest) {
-        try {
-            Bid newBid = _bidService.placeBid(createBidRequest);
+  @PostMapping("")
+  public ResponseEntity<?> placeBid(@Valid @RequestBody CreateBidRequest createBidRequest) {
+    try {
+      Bid newBid = _bidService.placeBid(createBidRequest);
 
-            return new ResponseEntity<>(newBid, HttpStatus.CREATED);
-        } catch (IllegalArgumentException iae) {
-            log.warn("[CONTROLLER][POST][WARN] /api/bids - Illegal argument: {}", iae.getMessage());
+      return new ResponseEntity<>(newBid, HttpStatus.CREATED);
+    } catch (IllegalArgumentException iae) {
+      log.warn("[CONTROLLER][POST][WARN] /api/bids - Illegal argument: {}", iae.getMessage());
 
-            return new ResponseEntity<>(iae.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            log.error("[CONTROLLER][POST][ERROR] /api/bids - Error occurred: {}", e.getMessage(), e);
+      return new ResponseEntity<>(iae.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      log.error("[CONTROLLER][POST][ERROR] /api/bids - Error occurred: {}", e.getMessage(), e);
 
-            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+      return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
 
-    @GetMapping("{bid_id}")
-    public ResponseEntity<?> getBid(@PathVariable("bid_id") Integer bidId) {
-        try {
-            Bid bid = _bidService.getBid(bidId);
+  @GetMapping("{bid_id}")
+  public ResponseEntity<?> getBid(@PathVariable("bid_id") Integer bidId) {
+    try {
+      Bid bid = _bidService.getBid(bidId);
 
-            return new ResponseEntity<>(bid, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("[CONTROLLER][GET][ERROR] /api/bids/{} - An error occurred: {}", bidId, e.getMessage());
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+      return new ResponseEntity<>(bid, HttpStatus.OK);
+    } catch (Exception e) {
+      log.error("[CONTROLLER][GET][ERROR] /api/bids/{} - An error occurred: {}", bidId, e.getMessage());
+      return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
 
-    @PostMapping("/seller-upgrade-request")
-    public ResponseEntity<?> createSellerUpgradeRequest(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+  @PostMapping("/seller-upgrade-request")
+  public ResponseEntity<?> createSellerUpgradeRequest(
+          @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        try {
-            Integer userId = userDetails.getUser().getUserId();
-            SellerUpgradeRequest request =
-                    sellerUpgradeRequestService.createRequest(userId);
+    try {
+      Integer userId = userDetails.getUser().getUserId();
 
-            return new ResponseEntity<>(request, HttpStatus.CREATED);
+      SellerUpgradeRequest request =
+              sellerUpgradeRequestService.createRequest(userId);
 
-        } catch (IllegalStateException ise) {
-            log.warn("[SELLER_UPGRADE][WARN] {}", ise.getMessage());
-            return new ResponseEntity<>(ise.getMessage(), HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(request, HttpStatus.CREATED);
 
-        } catch (IllegalArgumentException iae) {
-            log.warn("[SELLER_UPGRADE][WARN] {}", iae.getMessage());
-            return new ResponseEntity<>(iae.getMessage(), HttpStatus.NOT_FOUND);
+    } catch (IllegalStateException ise) {
+      log.warn(
+              "[CONTROLLER][POST][SELLER_UPGRADE] /api/seller-upgrade-request - Invalid state (userId={}): {}",
+              userDetails.getUser().getUserId(),
+              ise.getMessage()
+      );
+      return new ResponseEntity<>(ise.getMessage(), HttpStatus.BAD_REQUEST);
 
-        } catch (Exception e) {
-            log.error("[SELLER_UPGRADE][ERROR]", e);
-            return new ResponseEntity<>(
-                    "Failed to create seller upgrade request",
-                    HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
+    } catch (IllegalArgumentException iae) {
+      log.warn(
+              "[CONTROLLER][POST][SELLER_UPGRADE] /api/seller-upgrade-request - Invalid argument (userId={}): {}",
+              userDetails.getUser().getUserId(),
+              iae.getMessage()
+      );
+      return new ResponseEntity<>(iae.getMessage(), HttpStatus.NOT_FOUND);
+
+    } catch (Exception e) {
+      log.error(
+              "[CONTROLLER][POST][SELLER_UPGRADE] /api/seller-upgrade-request - Error occurred (userId={}): {}",
+              userDetails.getUser().getUserId(),
+              e.getMessage(),
+              e
+      );
+      return new ResponseEntity<>(
+              "Failed to create seller upgrade request",
+              HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
+  }
 
-    @GetMapping("/seller-upgrade-request/status")
-    public ResponseEntity<?> getSellerUpgradeRequestStatus(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        Integer userId = userDetails.getUser().getUserId();
+  @GetMapping("/seller-upgrade-request/status")
+  public ResponseEntity<?> getSellerUpgradeRequestStatus(
+          @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        return sellerUpgradeRequestService
-                .getLatestRequestByUser(userId)
-                .map(req -> {
-                    Map<String, Object> body = new HashMap<>();
-                    body.put("hasRequest", true);
-                    body.put("status", req.getStatus());
-                    body.put("createdAt", req.getRequestAt());
-                    body.put("reviewedAt", req.getReviewedAt());
-                    body.put("comments", req.getComments());
-                    return ResponseEntity.ok(body);
-                })
-                .orElseGet(() -> ResponseEntity.ok(
-                        Map.of(
-                                "hasRequest", false,
-                                "status", "NONE"
-                        )
-                ));
+    Integer userId = userDetails.getUser().getUserId();
+
+    try {
+      return sellerUpgradeRequestService
+              .getLatestRequestByUser(userId)
+              .map(req -> {
+                Map<String, Object> body = new HashMap<>();
+                body.put("hasRequest", true);
+                body.put("status", req.getStatus());
+                body.put("createdAt", req.getRequestAt());
+                body.put("reviewedAt", req.getReviewedAt());
+                body.put("comments", req.getComments());
+
+                return ResponseEntity.ok(body);
+              })
+              .orElseGet(() -> {
+                Map<String, Object> body = new HashMap<>();
+                body.put("hasRequest", false);
+                body.put("status", "NONE");
+                return ResponseEntity.ok(body);
+              });
+
+    } catch (Exception e) {
+      log.error(
+              "[CONTROLLER][GET][SELLER_UPGRADE] /api/seller-upgrade-request/status - Error occurred (userId={}): {}",
+              userId,
+              e.getMessage(),
+              e
+      );
+      return new ResponseEntity<>(
+              "Internal server error: " + e.getMessage(),
+              HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
+  }
 
 }

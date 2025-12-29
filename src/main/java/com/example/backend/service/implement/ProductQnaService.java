@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ProductQnaService implements IProductQnaService {
+
   @Autowired
   private IProductQuestionRepository _productQuestionRepository;
   @Autowired
@@ -34,71 +35,153 @@ public class ProductQnaService implements IProductQnaService {
   private IUserRepository _userRepository;
   @Autowired
   private IProductRepository _productRepository;
-
   @Autowired
   private IAuctionService _auctionService;
-
   @Autowired
   private EmailProducer emailProducer;
 
   @Override
   public List<ProductQuestion> getProductQuestions(Integer productId) {
-    return _productQuestionRepository.findByProductProductIdOrderByQuestionAtDesc(productId);
+    log.info(
+            "[SERVICE][GET][PRODUCT_QUESTIONS] Input productId={}",
+            productId
+    );
+
+    try {
+      List<ProductQuestion> questions =
+              _productQuestionRepository
+                      .findByProductProductIdOrderByQuestionAtDesc(productId);
+
+      log.info(
+              "[SERVICE][GET][PRODUCT_QUESTIONS] Output questions={}",
+              questions
+      );
+      return questions;
+
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][GET][PRODUCT_QUESTIONS] Error occurred (productId={}): {}",
+              productId,
+              e.getMessage(),
+              e
+      );
+      throw e;
+    }
   }
 
   @Override
   public ProductQuestion createProductQuestion(CreateProductQuestionRequest request) {
-    // Thực hiện kiểm tra các điều kiện trước khi save
-    User buyer = _userRepository.findById(request.getUserId())
-        .orElseThrow(() -> new RuntimeException("Buyer not found"));
+    log.info(
+            "[SERVICE][POST][CREATE_PRODUCT_QUESTION] Input request={}",
+            request
+    );
 
-    Product product = _productRepository.findById(request.getProductId())
-        .orElseThrow(() -> new RuntimeException("Product not found"));
+    try {
+      User buyer = _userRepository.findById(request.getUserId())
+              .orElseThrow(() -> new RuntimeException("Buyer not found"));
 
-    if (product.getSeller().getUserId().equals(request.getUserId())) {
-      throw new RuntimeException("Seller cannot ask questions on their own product");
+      Product product = _productRepository.findById(request.getProductId())
+              .orElseThrow(() -> new RuntimeException("Product not found"));
+
+      if (product.getSeller().getUserId().equals(request.getUserId())) {
+        throw new RuntimeException(
+                "Seller cannot ask questions on their own product");
+      }
+
+      ProductQuestion question = new ProductQuestion();
+      question.setProduct(product);
+      question.setQuestionUser(buyer);
+      question.setQuestionText(
+              HtmlSanitizerHelper.sanitize(request.getQuestionText())
+      );
+
+      ProductQuestion savedQuestion =
+              _productQuestionRepository.save(question);
+
+      _auctionService.broadcastQuestionAsked(savedQuestion);
+
+      emailProducer.sendProductEmail(
+              EmailNotificationRequest.EmailType.QUESTION_ANSWERED,
+              product.getSeller().getUserId(),
+              product.getProductId()
+      );
+
+      log.info(
+              "[SERVICE][POST][CREATE_PRODUCT_QUESTION] Success question={}",
+              savedQuestion
+      );
+
+      return savedQuestion;
+
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][POST][CREATE_PRODUCT_QUESTION] Error occurred (request={}): {}",
+              request,
+              e.getMessage(),
+              e
+      );
+      throw e;
     }
-
-    ProductQuestion question = new ProductQuestion();
-    question.setProduct(product);
-    question.setQuestionUser(buyer);
-    question.setQuestionText(HtmlSanitizerHelper.sanitize(request.getQuestionText()));
-    ProductQuestion savedQuestion = _productQuestionRepository.save(question);
-
-    _auctionService.broadcastQuestionAsked(savedQuestion);
-
-    emailProducer.sendProductEmail(EmailNotificationRequest.EmailType.QUESTION_ANSWERED,
-        product.getSeller().getUserId(),
-        product.getProductId());
-
-    return savedQuestion;
   }
 
   @Override
   public ProductAnswer createProductAnswer(CreateProductAnswerRequest request) {
-    // Thực hiện kiểm tra các điều kiện trước khi save
-    User seller = _userRepository.findById(request.getUserId())
-        .orElseThrow(() -> new RuntimeException("Seller not found"));
+    log.info(
+            "[SERVICE][POST][CREATE_PRODUCT_ANSWER] Input request={}",
+            request
+    );
 
-    ProductQuestion question = _productQuestionRepository.findById(request.getQuestionId())
-        .orElseThrow(() -> new RuntimeException("Question not found"));
+    try {
+      User seller = _userRepository.findById(request.getUserId())
+              .orElseThrow(() -> new RuntimeException("Seller not found"));
 
-    Product product = question.getProduct();
-    if (!product.getSeller().getUserId().equals(request.getUserId())) {
-      throw new RuntimeException("Only the seller of this product can answer questions");
+      ProductQuestion question = _productQuestionRepository.findById(
+                      request.getQuestionId()
+              )
+              .orElseThrow(() -> new RuntimeException("Question not found"));
+
+      Product product = question.getProduct();
+      if (!product.getSeller().getUserId().equals(request.getUserId())) {
+        throw new RuntimeException(
+                "Only the seller of this product can answer questions");
+      }
+
+      ProductAnswer answer = new ProductAnswer();
+      answer.setQuestion(question);
+      answer.setAnswerUser(seller);
+      answer.setAnswerText(
+              HtmlSanitizerHelper.sanitize(request.getAnswerText())
+      );
+
+      ProductAnswer savedAnswer =
+              _productAnswerRepository.save(answer);
+
+      _auctionService.broadcastAnswerPosted(
+              savedAnswer,
+              product.getProductId()
+      );
+
+      emailProducer.sendProductEmail(
+              EmailNotificationRequest.EmailType.QUESTION_ANSWERED,
+              question.getQuestionUser().getUserId(),
+              product.getProductId()
+      );
+
+      log.info(
+              "[SERVICE][POST][CREATE_PRODUCT_ANSWER] Success answer={}",
+              savedAnswer
+      );
+
+      return savedAnswer;
+
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][POST][CREATE_PRODUCT_ANSWER] Error occurred (request={}): {}",
+              request,
+              e.getMessage(),
+              e
+      );
+      throw e;
     }
-
-    ProductAnswer answer = new ProductAnswer();
-    answer.setQuestion(question);
-    answer.setAnswerUser(seller);
-    answer.setAnswerText(HtmlSanitizerHelper.sanitize(request.getAnswerText()));
-    ProductAnswer savedAnswer = _productAnswerRepository.save(answer);
-
-    _auctionService.broadcastAnswerPosted(savedAnswer, product.getProductId());
-
-    emailProducer.sendProductEmail(EmailNotificationRequest.EmailType.QUESTION_ANSWERED,
-        question.getQuestionUser().getUserId(), product.getProductId());
-
-    return savedAnswer;
   }
 }

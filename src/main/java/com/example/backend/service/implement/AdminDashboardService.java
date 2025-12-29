@@ -3,6 +3,7 @@ package com.example.backend.service.implement;
 import com.example.backend.model.Admin.AdminDashboardResponse;
 import com.example.backend.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -14,83 +15,144 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdminDashboardService {
 
-    private final IProductRepository productRepo;
-    private final IUserRepository userRepo;
-    private final IAuctionResultRepository auctionResultRepo;
-    private final ISellerUpgradeRequestRepository upgradeRepo;
-    private final IWatchListRepository watchListRepo;
-    private final IAuctionOrderRepository orderRepo;
+  private final IProductRepository productRepo;
+  private final IUserRepository userRepo;
+  private final IAuctionResultRepository auctionResultRepo;
+  private final ISellerUpgradeRequestRepository upgradeRepo;
+  private final IWatchListRepository watchListRepo;
+  private final IAuctionOrderRepository orderRepo;
 
-    public AdminDashboardResponse getDashboard() {
+  public AdminDashboardResponse getDashboard() {
+    log.info("[SERVICE][GET][ADMIN_DASHBOARD] Start");
 
-        AdminDashboardResponse res = new AdminDashboardResponse();
+    try {
+      AdminDashboardResponse res = new AdminDashboardResponse();
 
-        // OVERVIEW
-        AdminDashboardResponse.Overview ov = new AdminDashboardResponse.Overview();
-        ov.setTotalAuctions(productRepo.countAll());
-        ov.setTotalUsers(userRepo.countActiveUsers());
-        ov.setTotalRevenue(auctionResultRepo.sumRevenue());
-        ov.setNewAuctionsThisMonth(productRepo.countThisMonth());
-        ov.setNewSellersThisMonth(userRepo.countNewSellersThisMonth());
-        ov.setSuccessRate(
-                Optional.ofNullable(auctionResultRepo.successRate()).orElse(0.0)
-        );
-        ov.setTopProduct(
-                watchListRepo.findTopProduct().stream().findFirst().orElse("N/A")
-        );
-        ov.setPaymentSuccessRate(
-                Optional.ofNullable(orderRepo.paymentSuccessRate()).orElse(0)
-        );
+      AdminDashboardResponse.Overview ov = new AdminDashboardResponse.Overview();
+      ov.setTotalAuctions(productRepo.countAll());
+      ov.setTotalUsers(userRepo.countActiveUsers());
+      ov.setTotalRevenue(auctionResultRepo.sumRevenue());
+      ov.setNewAuctionsThisMonth(productRepo.countThisMonth());
+      ov.setNewSellersThisMonth(userRepo.countNewSellersThisMonth());
+      ov.setSuccessRate(
+              Optional.ofNullable(auctionResultRepo.successRate()).orElse(0.0)
+      );
+      ov.setTopProduct(
+              watchListRepo.findTopProduct().stream().findFirst().orElse("N/A")
+      );
+      ov.setPaymentSuccessRate(
+              Optional.ofNullable(orderRepo.paymentSuccessRate()).orElse(0)
+      );
 
-        // CHARTS
-        AdminDashboardResponse.Charts charts = new AdminDashboardResponse.Charts();
+      AdminDashboardResponse.Charts charts = new AdminDashboardResponse.Charts();
+      charts.setAuctionsTrend(
+              mapMonthCount(productRepo.countProductsByMonth())
+      );
+      charts.setUsersTrend(
+              mapMonthCount(userRepo.countUsersByMonth())
+      );
+      charts.setUpgradesTrend(
+              mapMonthCount(upgradeRepo.countUpgradeRequestsByMonth())
+      );
+      charts.setRevenueTrend(
+              mapMonthAmount(auctionResultRepo.revenueByMonth())
+      );
 
-        charts.setAuctionsTrend(mapMonthCount(productRepo.countProductsByMonth()));
-        charts.setUsersTrend(mapMonthCount(userRepo.countUsersByMonth()));
-        charts.setUpgradesTrend(mapMonthCount(upgradeRepo.countUpgradeRequestsByMonth()));
-        charts.setRevenueTrend(mapMonthAmount(auctionResultRepo.revenueByMonth()));
+      res.setOverview(ov);
+      res.setCharts(charts);
 
-        res.setOverview(ov);
-        res.setCharts(charts);
+      log.info(
+              "[SERVICE][GET][ADMIN_DASHBOARD] Success (overview={}, charts={})",
+              ov, charts
+      );
+      return res;
 
-        return res;
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][GET][ADMIN_DASHBOARD] Error occurred: {}",
+              e.getMessage(),
+              e
+      );
+      throw e;
     }
+  }
 
-    private List<AdminDashboardResponse.MonthCount> mapMonthCount(List<Object[]> rows) {
-        return rows.stream()
-                .limit(6)
-                .map(r -> {
-                    int year = ((Number) r[0]).intValue();
-                    int month = ((Number) r[1]).intValue();
-                    long count = ((Number) r[2]).longValue();
+  private List<AdminDashboardResponse.MonthCount> mapMonthCount(List<Object[]> rows) {
+    log.info(
+            "[SERVICE][MAP][MONTH_COUNT] Input rows={}",
+            rows != null ? rows.size() : 0
+    );
 
-                    String label = YearMonth.of(year, month)
-                            .getMonth()
-                            .getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+    try {
+      List<AdminDashboardResponse.MonthCount> result = rows.stream()
+              .limit(6)
+              .map(r -> {
+                int year = ((Number) r[0]).intValue();
+                int month = ((Number) r[1]).intValue();
+                long count = ((Number) r[2]).longValue();
 
-                    return new AdminDashboardResponse.MonthCount(label, count);
-                })
-                .toList();
+                String label = YearMonth.of(year, month)
+                        .getMonth()
+                        .getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+
+                return new AdminDashboardResponse.MonthCount(label, count);
+              })
+              .toList();
+
+      log.info(
+              "[SERVICE][MAP][MONTH_COUNT] Output size={}",
+              result.size()
+      );
+      return result;
+
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][MAP][MONTH_COUNT] Error occurred: {}",
+              e.getMessage(),
+              e
+      );
+      throw e;
     }
+  }
 
+  private List<AdminDashboardResponse.MonthAmount> mapMonthAmount(List<Object[]> rows) {
+    log.info(
+            "[SERVICE][MAP][MONTH_AMOUNT] Input rows={}",
+            rows != null ? rows.size() : 0
+    );
 
-    private List<AdminDashboardResponse.MonthAmount> mapMonthAmount(List<Object[]> rows) {
-        return rows.stream()
-                .limit(6)
-                .map(r -> {
-                    int year = ((Number) r[0]).intValue();
-                    int month = ((Number) r[1]).intValue();
-                    BigDecimal revenue = (BigDecimal) r[2];
+    try {
+      List<AdminDashboardResponse.MonthAmount> result = rows.stream()
+              .limit(6)
+              .map(r -> {
+                int year = ((Number) r[0]).intValue();
+                int month = ((Number) r[1]).intValue();
+                BigDecimal revenue = (BigDecimal) r[2];
 
-                    String label = YearMonth.of(year, month)
-                            .getMonth()
-                            .getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+                String label = YearMonth.of(year, month)
+                        .getMonth()
+                        .getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
 
-                    return new AdminDashboardResponse.MonthAmount(label, revenue);
-                })
-                .toList();
+                return new AdminDashboardResponse.MonthAmount(label, revenue);
+              })
+              .toList();
+
+      log.info(
+              "[SERVICE][MAP][MONTH_AMOUNT] Output size={}",
+              result.size()
+      );
+      return result;
+
+    } catch (Exception e) {
+      log.error(
+              "[SERVICE][MAP][MONTH_AMOUNT] Error occurred: {}",
+              e.getMessage(),
+              e
+      );
+      throw e;
     }
-
+  }
 }

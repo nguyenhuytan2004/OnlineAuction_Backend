@@ -15,7 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class VnpayPaymentController {
 
-    private final IPaymentService vnPayPaymentService;
+/*    private final IPaymentService vnPayPaymentService;
 
     @PostMapping("/create")
     public ResponseEntity<?> createPayment(
@@ -40,5 +40,5 @@ public class VnpayPaymentController {
         return ResponseEntity.ok(
                 vnPayPaymentService.handleIpn(params)
         );
-    }
+    }*/
 }

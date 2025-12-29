@@ -2,6 +2,7 @@ package com.example.backend.entity;
 
 import java.time.LocalDateTime;
 
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.example.backend.validator.RatingValue;
@@ -27,6 +28,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {
+        "product",
+        "reviewer",
+        "reviewee"
+})
 public class Rating {
 
     @Id
