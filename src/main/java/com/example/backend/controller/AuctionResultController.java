@@ -41,10 +41,10 @@ public class AuctionResultController {
   public ResponseEntity<?> cancelAuction(@PathVariable("product_id") Integer productId,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     try {
-      AuctionResult cancelledAuction = _auctionResultService.cancelAuction(productId,
+      AuctionResult canceledAuction = _auctionResultService.cancelAuction(productId,
           userDetails.getUser().getUserId());
 
-      return new ResponseEntity<>(cancelledAuction, HttpStatus.OK);
+      return new ResponseEntity<>(canceledAuction, HttpStatus.OK);
     } catch (IllegalArgumentException e) {
       log.info("[CONTROLLER][PATCH][WARN] /api/auction-results/product/{}/cancel - Illegal argument: {}",
           productId, e.getMessage());

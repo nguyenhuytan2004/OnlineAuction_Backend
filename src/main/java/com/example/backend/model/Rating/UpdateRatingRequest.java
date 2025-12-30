@@ -12,16 +12,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateRatingRequest {
-    @NotNull(message = "Product ID cannot be null")
-    private Integer productId;
+  @NotNull(message = "Product ID cannot be null")
+  private Integer productId;
 
-    @NotNull(message = "Reviewee ID cannot be null")
-    private Integer revieweeId;
+  @NotNull(message = "Reviewee ID cannot be null")
+  private Integer revieweeId;
 
-    @RatingValue
-    @NotNull(message = "Rating value cannot be null")
-    private Integer ratingValue;
+  @RatingValue
+  @NotNull(message = "Rating value cannot be null")
+  private Integer ratingValue;
 
-    @Size(max = 1000, message = "Comment cannot exceed 1000 characters")
-    private String comment;
+  @Size(max = 1000, message = "Comment cannot exceed 1000 characters")
+  private String comment;
 }

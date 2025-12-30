@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateRatingRequest {
-    @NotNull(message = "Product ID is not null")
-    private Integer productId;
+  @NotNull(message = "Product ID is not null")
+  private Integer productId;
 
-    @NotNull(message = "Rating value is not null")
-    @RatingValue
-    private Integer ratingValue;
+  @NotNull(message = "Rating value is not null")
+  @RatingValue
+  private Integer ratingValue;
 
-    @Size(max = 1000, message = "Comment must not exceed 1000 characters")
-    private String comment;
+  @Size(max = 1000, message = "Comment must not exceed 1000 characters")
+  private String comment;
 }

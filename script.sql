@@ -211,7 +211,7 @@ CREATE TABLE auction_order (
         'PAID',
         'ON_DELIVERING',
         'COMPLETED',
-        'CANCELLED'
+        'CANCELED'
         ) NOT NULL DEFAULT 'WAIT_PAYMENT',
 
 -- Payment
@@ -221,7 +221,7 @@ CREATE TABLE auction_order (
    shipping_address TEXT,
 
 -- Cancel
-   cancelled_reason TEXT,
+   canceled_reason TEXT,
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
    FOREIGN KEY (product_id) REFERENCES product(product_id),
@@ -418,33 +418,33 @@ INSERT INTO seller_upgrade_request
 --     (2, 8, 2750000.00, 'PENDING'),
 --     (3, 8, 980000.00, 'CANCELED');
 
-INSERT INTO auction_order (
-    product_id,
-    seller_id,
-    buyer_id,
-    final_price,
-    status,
-    paid_at,
-    shipping_address,
-    cancelled_reason
-) VALUES
--- 1. Đơn vừa trúng đấu giá, chờ thanh toán
-(1, 3, 8, 1500000.00, 'WAIT_PAYMENT', NULL,
- '12 Nguyễn Trãi, Quận 1, TP.HCM', NULL),
+-- INSERT INTO auction_order (
+--     product_id,
+--     seller_id,
+--     buyer_id,
+--     final_price,
+--     status,
+--     paid_at,
+--     shipping_address,
+--     canceled_reason
+-- ) VALUES
+-- -- 1. Đơn vừa trúng đấu giá, chờ thanh toán
+-- (1, 3, 8, 1500000.00, 'WAIT_PAYMENT', NULL,
+--  '12 Nguyễn Trãi, Quận 1, TP.HCM', NULL),
 
--- 2. Đơn đã thanh toán, chuẩn bị giao hàng
-(2, 3, 6, 2750000.00, 'PAID', NOW(),
- '45 Lê Lợi, Quận Hải Châu, Đà Nẵng', NULL),
+-- -- 2. Đơn đã thanh toán, chuẩn bị giao hàng
+-- (2, 3, 6, 2750000.00, 'PAID', NOW(),
+--  '45 Lê Lợi, Quận Hải Châu, Đà Nẵng', NULL),
 
--- 3. Đơn đang giao hàng
-(3, 4, 7, 3200000.00, 'ON_DELIVERING', NOW(),
- '89 Trần Phú, Nha Trang, Khánh Hòa', NULL),
+-- -- 3. Đơn đang giao hàng
+-- (3, 4, 7, 3200000.00, 'ON_DELIVERING', NOW(),
+--  '89 Trần Phú, Nha Trang, Khánh Hòa', NULL),
 
--- 4. Đơn đã hoàn tất
-(4, 5, 8, 9800000.00, 'COMPLETED', NOW(),
- '120 Phạm Văn Đồng, Cầu Giấy, Hà Nội', NULL),
+-- -- 4. Đơn đã hoàn tất
+-- (4, 5, 8, 9800000.00, 'COMPLETED', NOW(),
+--  '120 Phạm Văn Đồng, Cầu Giấy, Hà Nội', NULL),
 
--- 5. Đơn bị hủy (không thanh toán)
-(5, 6, 8, 4500000.00, 'CANCELLED', NULL,
- '77 Nguyễn Huệ, Quận 1, TP.HCM',
- 'Buyer did not complete payment within allowed time')
+-- -- 5. Đơn bị hủy (không thanh toán)
+-- (5, 6, 8, 4500000.00, 'CANCELED', NULL,
+--  '77 Nguyễn Huệ, Quận 1, TP.HCM',
+--  'Buyer did not complete payment within allowed time')

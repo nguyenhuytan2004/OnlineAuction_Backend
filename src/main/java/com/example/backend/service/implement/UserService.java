@@ -3,8 +3,6 @@ package com.example.backend.service.implement;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.backend.model.User.UpdateUserAdminRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,11 +10,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.backend.entity.AuctionOrder;
+import com.example.backend.entity.AuctionOrder.OrderStatus;
 import com.example.backend.entity.Product;
 import com.example.backend.entity.User;
-import com.example.backend.entity.AuctionOrder.OrderStatus;
 import com.example.backend.entity.User.Role;
 import com.example.backend.model.User.CreateUserRequest;
+import com.example.backend.model.User.UpdateUserAdminRequest;
 import com.example.backend.model.User.UpdateUserRequest;
 import com.example.backend.model.User.UserResponse;
 import com.example.backend.repository.IAuctionOrderRepository;
@@ -160,7 +159,7 @@ public class UserService implements IUserService {
 
     // Kiểm tra xem seller còn sản phẩm đang trong quá trình thanh toán không
     List<AuctionOrder> pendingOrders = _auctionOrderRepository.findBySeller_UserIdAndStatusNotIn(seller.getUserId(),
-        List.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED));
+        List.of(OrderStatus.COMPLETED, OrderStatus.CANCELED));
     if (!pendingOrders.isEmpty()) {
       return;
     }

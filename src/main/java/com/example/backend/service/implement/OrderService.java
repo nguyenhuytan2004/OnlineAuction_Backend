@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.backend.entity.AuctionOrder;
 import com.example.backend.entity.AuctionOrder.OrderStatus;
+import com.example.backend.entity.AuctionResult;
 import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
 import com.example.backend.model.AuctionOrder.CancelOrderRequest;
@@ -15,6 +16,7 @@ import com.example.backend.model.AuctionOrder.PayOrderRequest;
 import com.example.backend.model.AuctionOrder.PayOrderResponse;
 import com.example.backend.model.AuctionOrder.SetShippingAddressRequest;
 import com.example.backend.repository.IAuctionOrderRepository;
+import com.example.backend.repository.IAuctionResultRepository;
 import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.service.IOrderService;
@@ -29,6 +31,7 @@ public class OrderService implements IOrderService {
   private final IAuctionOrderRepository orderRepo;
   private final IProductRepository productRepo;
   private final IBidRepository _bidRepository;
+  private final IAuctionResultRepository _auctionResultRepository;
 
   @Override
   public AuctionOrder getAuctionOrderByProductId(Integer productId) {
@@ -102,6 +105,12 @@ public class OrderService implements IOrderService {
 
     orderRepo.save(order);
 
+    AuctionResult auctionResult = _auctionResultRepository
+        .findByProductProductId(product.getProductId());
+    auctionResult.setPaymentStatus(AuctionResult.PaymentStatus.PAID);
+
+    _auctionResultRepository.save(auctionResult);
+
     return new PayOrderResponse(order.getOrderId(), order.getStatus());
   }
 
@@ -160,14 +169,15 @@ public class OrderService implements IOrderService {
   @Override
   @Transactional
   public void cancel(Integer orderId, CancelOrderRequest req) {
-    var order = orderRepo.findById(orderId)
-        .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
+    var orderOption = orderRepo.findById(orderId);
+
+    AuctionOrder order = orderOption.get();
 
     if (order.getStatus() == OrderStatus.COMPLETED ||
-        order.getStatus() == OrderStatus.CANCELLED)
+        order.getStatus() == OrderStatus.CANCELED)
       throw new RuntimeException("Không thể hủy đơn hàng đã hoàn thành hoặc đã hủy");
 
-    order.setStatus(OrderStatus.CANCELLED);
-    order.setCancelledReason(req.getReason());
+    order.setStatus(OrderStatus.CANCELED);
+    order.setCanceledReason(req.getReason());
   }
 }

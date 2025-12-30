@@ -32,7 +32,7 @@ public class AuctionOrder {
     PAID,
     ON_DELIVERING,
     COMPLETED,
-    CANCELLED
+    CANCELED
   }
 
   @Id
@@ -65,8 +65,8 @@ public class AuctionOrder {
   @Column(name = "shipping_address", columnDefinition = "TEXT")
   private String shippingAddress;
 
-  @Column(name = "cancelled_reason", columnDefinition = "TEXT")
-  private String cancelledReason;
+  @Column(name = "canceled_reason", columnDefinition = "TEXT")
+  private String canceledReason;
 
   @Column(name = "created_at", updatable = false)
   private Instant createdAt = Instant.now();
