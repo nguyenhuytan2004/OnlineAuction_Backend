@@ -1,23 +1,29 @@
 package com.example.backend.service.implement;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+
+import org.springframework.stereotype.Service;
+
 import com.example.backend.entity.AuctionOrder;
 import com.example.backend.entity.AuctionOrder.OrderStatus;
 import com.example.backend.entity.AuctionResult;
 import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
-import com.example.backend.model.AuctionOrder.*;
+import com.example.backend.model.AuctionOrder.CancelOrderRequest;
+import com.example.backend.model.AuctionOrder.OrderStatusResponse;
+import com.example.backend.model.AuctionOrder.PayOrderRequest;
+import com.example.backend.model.AuctionOrder.PayOrderResponse;
+import com.example.backend.model.AuctionOrder.SetShippingAddressRequest;
 import com.example.backend.repository.IAuctionOrderRepository;
 import com.example.backend.repository.IAuctionResultRepository;
 import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IProductRepository;
 import com.example.backend.service.IOrderService;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.time.Instant;
 
 @Service
 @Slf4j
@@ -313,15 +319,15 @@ public class OrderService implements IOrderService {
         req);
 
     try {
-      var order = orderRepo.findById(orderId)
+      AuctionOrder order = orderRepo.findById(orderId)
           .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
 
       if (order.getStatus() == OrderStatus.COMPLETED ||
-          order.getStatus() == OrderStatus.CANCELLED)
+          order.getStatus() == OrderStatus.CANCELED)
         throw new RuntimeException("Không thể hủy đơn hàng đã hoàn thành hoặc đã hủy");
 
-      order.setStatus(OrderStatus.CANCELLED);
-      order.setCancelledReason(req.getReason());
+      order.setStatus(OrderStatus.CANCELED);
+      order.setCanceledReason(req.getReason());
 
       log.info(
           "[SERVICE][POST][CANCEL_ORDER] Success orderId={}, reason={}",

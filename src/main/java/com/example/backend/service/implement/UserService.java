@@ -316,7 +316,7 @@ public class UserService implements IUserService {
               seller.getUserId(),
               List.of(
                   OrderStatus.COMPLETED,
-                  OrderStatus.CANCELLED));
+                  OrderStatus.CANCELED));
       if (!pendingOrders.isEmpty()) {
         log.info(
             "[SERVICE][POST][DOWNGRADE_SELLER] Skip - pending orders exist sellerId={}",
