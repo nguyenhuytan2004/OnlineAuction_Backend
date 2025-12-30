@@ -1,5 +1,6 @@
 package com.example.backend.entity;
 
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
@@ -10,10 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -21,6 +18,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "conversation")
+@ToString(exclude = {
+        "product",
+        "seller",
+        "buyer"
+})
 public class Conversation {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

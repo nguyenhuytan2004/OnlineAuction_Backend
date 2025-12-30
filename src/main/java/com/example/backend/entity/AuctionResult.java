@@ -3,6 +3,7 @@ package com.example.backend.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
@@ -26,6 +27,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {
+        "product",
+        "winner"
+})
 public class AuctionResult {
 
   public enum PaymentStatus {

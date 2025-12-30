@@ -2,6 +2,7 @@ package com.example.backend.entity;
 
 import java.time.LocalDateTime;
 
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
@@ -33,6 +34,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Indexed
+@ToString(exclude = {
+        "parent"
+})
 public class Category {
 
   @Id

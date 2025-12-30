@@ -2,6 +2,7 @@ package com.example.backend.entity;
 
 import java.time.LocalDateTime;
 
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
@@ -22,6 +23,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {
+        "product",
+        "blocker",
+        "blocked"
+})
 public class BlockedBidder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

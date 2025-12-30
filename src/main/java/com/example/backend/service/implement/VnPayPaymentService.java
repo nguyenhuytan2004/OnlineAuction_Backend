@@ -19,7 +19,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class VnPayPaymentService implements IPaymentService {
-
+/*
   private final VnPayConfig vnpayConfig;
   private final IAuctionOrderRepository orderRepo;
 
@@ -138,5 +138,5 @@ public class VnPayPaymentService implements IPaymentService {
     }
 
     return Map.of("RspCode", "00", "Message", "Confirm Success");
-  }
+  }*/
 }

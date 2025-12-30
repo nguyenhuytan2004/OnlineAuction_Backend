@@ -30,33 +30,74 @@ public class SellerUpgradeRequestService
   @Transactional
   public SellerUpgradeRequest createRequest(Integer userId) {
 
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    log.info(
+        "[SERVICE][POST][SELLER_UPGRADE_REQUEST] Input userId={}",
+        userId);
 
-    if (user.getRole() == User.Role.SELLER && user.getSellerExpiresAt() != null
-        && user.getSellerExpiresAt().isAfter(LocalDateTime.now())) {
-      throw new IllegalStateException("Only bidder can request upgrade");
+    try {
+      User user = userRepository.findById(userId)
+          .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+      if (user.getRole() == User.Role.SELLER && user.getSellerExpiresAt() != null
+          && user.getSellerExpiresAt().isAfter(LocalDateTime.now())) {
+        throw new IllegalStateException("Only bidder can request upgrade");
+      }
+
+      boolean existsPending = _sellerUpgradeRequestRepository
+          .existsByUserUserIdAndStatus(
+              userId,
+              SellerUpgradeRequest.Status.PENDING);
+
+      if (existsPending) {
+        throw new IllegalStateException("Upgrade request already pending");
+      }
+
+      SellerUpgradeRequest req = new SellerUpgradeRequest();
+      req.setUser(user);
+      req.setStatus(SellerUpgradeRequest.Status.PENDING);
+
+      SellerUpgradeRequest saved = _sellerUpgradeRequestRepository.save(req);
+
+      log.info(
+          "[SERVICE][POST][SELLER_UPGRADE_REQUEST] Success requestId={}, userId={}",
+          saved.getRequestId(),
+          userId);
+
+      return saved;
+
+    } catch (Exception e) {
+      log.error(
+          "[SERVICE][POST][SELLER_UPGRADE_REQUEST] Error occurred (userId={}): {}",
+          userId,
+          e.getMessage(),
+          e);
+      throw e;
     }
-
-    boolean existsPending = _sellerUpgradeRequestRepository
-        .existsByUserUserIdAndStatus(
-            userId,
-            SellerUpgradeRequest.Status.PENDING);
-
-    if (existsPending) {
-      throw new IllegalStateException("Upgrade request already pending");
-    }
-
-    SellerUpgradeRequest req = new SellerUpgradeRequest();
-    req.setUser(user);
-    req.setStatus(SellerUpgradeRequest.Status.PENDING);
-
-    return _sellerUpgradeRequestRepository.save(req);
   }
 
   @Override
   public List<SellerUpgradeRequest> getPendingRequests() {
-    return _sellerUpgradeRequestRepository.findByStatus(SellerUpgradeRequest.Status.PENDING);
+
+    log.info(
+        "[SERVICE][GET][SELLER_UPGRADE_REQUESTS_PENDING] Input");
+
+    try {
+      List<SellerUpgradeRequest> requests = _sellerUpgradeRequestRepository
+          .findByStatus(SellerUpgradeRequest.Status.PENDING);
+
+      log.info(
+          "[SERVICE][GET][SELLER_UPGRADE_REQUESTS_PENDING] Output requests={}",
+          requests);
+
+      return requests;
+
+    } catch (Exception e) {
+      log.error(
+          "[SERVICE][GET][SELLER_UPGRADE_REQUESTS_PENDING] Error occurred: {}",
+          e.getMessage(),
+          e);
+      throw e;
+    }
   }
 
   @Override
@@ -65,29 +106,72 @@ public class SellerUpgradeRequestService
       Integer requestId,
       ReviewSellerUpgradeRequest review) {
 
-    SellerUpgradeRequest req = _sellerUpgradeRequestRepository.findById(requestId)
-        .orElseThrow(() -> new IllegalArgumentException("Request not found"));
+    log.info(
+        "[SERVICE][POST][REVIEW_SELLER_UPGRADE_REQUEST] Input requestId={}, review={}",
+        requestId,
+        review);
 
-    if (req.getStatus() != SellerUpgradeRequest.Status.PENDING) {
-      throw new IllegalStateException("Request already reviewed");
+    try {
+      SellerUpgradeRequest req = _sellerUpgradeRequestRepository.findById(requestId)
+          .orElseThrow(() -> new IllegalArgumentException("Request not found"));
+
+      if (req.getStatus() != SellerUpgradeRequest.Status.PENDING) {
+        throw new IllegalStateException("Request already reviewed");
+      }
+
+      req.setStatus(review.getStatus());
+      req.setReviewedAt(LocalDateTime.now());
+      req.setComments(review.getComments());
+
+      if (review.getStatus() == SellerUpgradeRequest.Status.APPROVED) {
+        User user = req.getUser();
+        user.setRole(User.Role.SELLER);
+        userRepository.save(user);
+      }
+
+      SellerUpgradeRequest saved = _sellerUpgradeRequestRepository.save(req);
+
+      log.info(
+          "[SERVICE][POST][REVIEW_SELLER_UPGRADE_REQUEST] Success requestId={}, status={}",
+          requestId,
+          saved.getStatus());
+
+      return saved;
+
+    } catch (Exception e) {
+      log.error(
+          "[SERVICE][POST][REVIEW_SELLER_UPGRADE_REQUEST] Error occurred (requestId={}): {}",
+          requestId,
+          e.getMessage(),
+          e);
+      throw e;
     }
-
-    req.setStatus(review.getStatus());
-    req.setReviewedAt(LocalDateTime.now());
-    req.setComments(review.getComments());
-
-    if (review.getStatus() == SellerUpgradeRequest.Status.APPROVED) {
-      User user = req.getUser();
-      user.setRole(User.Role.SELLER);
-      userRepository.save(user);
-    }
-
-    return _sellerUpgradeRequestRepository.save(req);
   }
 
   @Override
   public Optional<SellerUpgradeRequest> getLatestRequestByUser(Integer userId) {
-    return _sellerUpgradeRequestRepository
-        .findTopByUser_UserIdOrderByRequestAtDesc(userId);
+
+    log.info(
+        "[SERVICE][GET][LATEST_SELLER_UPGRADE_REQUEST] Input userId={}",
+        userId);
+
+    try {
+      Optional<SellerUpgradeRequest> result = _sellerUpgradeRequestRepository
+          .findTopByUser_UserIdOrderByRequestAtDesc(userId);
+
+      log.info(
+          "[SERVICE][GET][LATEST_SELLER_UPGRADE_REQUEST] Output request={}",
+          result.orElse(null));
+
+      return result;
+
+    } catch (Exception e) {
+      log.error(
+          "[SERVICE][GET][LATEST_SELLER_UPGRADE_REQUEST] Error occurred (userId={}): {}",
+          userId,
+          e.getMessage(),
+          e);
+      throw e;
+    }
   }
 }

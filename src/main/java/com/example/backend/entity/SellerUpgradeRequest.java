@@ -18,12 +18,16 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "seller_upgrade_request")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {
+    "user"
+})
 public class SellerUpgradeRequest {
 
   public enum Status {

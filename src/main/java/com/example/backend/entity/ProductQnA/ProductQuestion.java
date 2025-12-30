@@ -3,6 +3,7 @@ package com.example.backend.entity.ProductQnA;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.example.backend.entity.Product;
@@ -33,6 +34,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {
+        "product",
+        "questionUser",
+        "answers"
+})
 public class ProductQuestion {
 
     @Id
