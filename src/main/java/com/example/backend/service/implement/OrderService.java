@@ -15,11 +15,15 @@ import com.example.backend.model.AuctionOrder.OrderStatusResponse;
 import com.example.backend.model.AuctionOrder.PayOrderRequest;
 import com.example.backend.model.AuctionOrder.PayOrderResponse;
 import com.example.backend.model.AuctionOrder.SetShippingAddressRequest;
+import com.example.backend.model.Rating.CreateRatingRequest;
+import com.example.backend.model.Rating.UpdateRatingRequest;
 import com.example.backend.repository.IAuctionOrderRepository;
 import com.example.backend.repository.IAuctionResultRepository;
 import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IProductRepository;
+import com.example.backend.repository.IRatingRepository;
 import com.example.backend.service.IOrderService;
+import com.example.backend.service.IRatingService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +38,9 @@ public class OrderService implements IOrderService {
   private final IProductRepository productRepo;
   private final IBidRepository _bidRepository;
   private final IAuctionResultRepository _auctionResultRepository;
+  private final IRatingRepository _ratingRepository;
+
+  private final IRatingService _ratingService;
 
   @Override
   public AuctionOrder getAuctionOrderByProductId(Integer productId) {
@@ -328,6 +335,28 @@ public class OrderService implements IOrderService {
 
       order.setStatus(OrderStatus.CANCELED);
       order.setCanceledReason(req.getReason());
+
+      AuctionResult auctionResult = _auctionResultRepository
+          .findByProductProductId(order.getProduct().getProductId());
+      auctionResult.setPaymentStatus(AuctionResult.PaymentStatus.CANCELED);
+
+      Integer reviewerId = order.getSeller().getUserId();
+      Integer productId = order.getProduct().getProductId();
+      Integer revieweeId = order.getBuyer().getUserId();
+      if (_ratingRepository.existsByReviewerAndRevieweeAndProduct(reviewerId, revieweeId, productId)) {
+        UpdateRatingRequest updateRatingRequest = new UpdateRatingRequest();
+        updateRatingRequest.setProductId(productId);
+        updateRatingRequest.setRevieweeId(revieweeId);
+        updateRatingRequest.setRatingValue(-1);
+        updateRatingRequest.setComment(req.getReason());
+        _ratingService.updateRating(updateRatingRequest, reviewerId);
+      } else {
+        CreateRatingRequest createRatingRequest = new CreateRatingRequest();
+        createRatingRequest.setProductId(productId);
+        createRatingRequest.setRatingValue(-1);
+        createRatingRequest.setComment(req.getReason());
+        _ratingService.rateBuyer(createRatingRequest, reviewerId);
+      }
 
       log.info(
           "[SERVICE][POST][CANCEL_ORDER] Success orderId={}, reason={}",

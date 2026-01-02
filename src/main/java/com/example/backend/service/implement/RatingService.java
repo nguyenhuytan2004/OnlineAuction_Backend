@@ -3,7 +3,6 @@ package com.example.backend.service.implement;
 import java.util.List;
 import java.util.Objects;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +18,8 @@ import com.example.backend.repository.IProductRepository;
 import com.example.backend.repository.IRatingRepository;
 import com.example.backend.repository.IUserRepository;
 import com.example.backend.service.IRatingService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -39,36 +40,32 @@ public class RatingService implements IRatingService {
   public Boolean checkIfRated(Integer productId, Integer reviewerId, Integer revieweeId) {
 
     log.info(
-            "[SERVICE][GET][CHECK_IF_RATED] Input productId={}, reviewerId={}, revieweeId={}",
-            productId,
-            reviewerId,
-            revieweeId
-    );
+        "[SERVICE][GET][CHECK_IF_RATED] Input productId={}, reviewerId={}, revieweeId={}",
+        productId,
+        reviewerId,
+        revieweeId);
 
     try {
       Boolean rated = _ratingRepository
-              .existsByReviewerAndRevieweeAndProduct(
-                      reviewerId,
-                      revieweeId,
-                      productId
-              );
+          .existsByReviewerAndRevieweeAndProduct(
+              reviewerId,
+              revieweeId,
+              productId);
 
       log.info(
-              "[SERVICE][GET][CHECK_IF_RATED] Output rated={}",
-              rated
-      );
+          "[SERVICE][GET][CHECK_IF_RATED] Output rated={}",
+          rated);
 
       return rated;
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][GET][CHECK_IF_RATED] Error occurred (productId={}, reviewerId={}, revieweeId={}): {}",
-              productId,
-              reviewerId,
-              revieweeId,
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][GET][CHECK_IF_RATED] Error occurred (productId={}, reviewerId={}, revieweeId={}): {}",
+          productId,
+          reviewerId,
+          revieweeId,
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -77,37 +74,32 @@ public class RatingService implements IRatingService {
   public Rating getRating(Integer productId, Integer reviewerId, Integer revieweeId) {
 
     log.info(
-            "[SERVICE][GET][GET_RATING] Input productId={}, reviewerId={}, revieweeId={}",
-            productId,
-            reviewerId,
-            revieweeId
-    );
+        "[SERVICE][GET][GET_RATING] Input productId={}, reviewerId={}, revieweeId={}",
+        productId,
+        reviewerId,
+        revieweeId);
 
     try {
-      Rating rating =
-              _ratingRepository
-                      .findByProductProductIdAndReviewerUserIdAndRevieweeUserId(
-                              productId,
-                              reviewerId,
-                              revieweeId
-                      );
+      Rating rating = _ratingRepository
+          .findByProductProductIdAndReviewerUserIdAndRevieweeUserId(
+              productId,
+              reviewerId,
+              revieweeId);
 
       log.info(
-              "[SERVICE][GET][GET_RATING] Output rating={}",
-              rating
-      );
+          "[SERVICE][GET][GET_RATING] Output rating={}",
+          rating);
 
       return rating;
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][GET][GET_RATING] Error occurred (productId={}, reviewerId={}, revieweeId={}): {}",
-              productId,
-              reviewerId,
-              revieweeId,
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][GET][GET_RATING] Error occurred (productId={}, reviewerId={}, revieweeId={}): {}",
+          productId,
+          reviewerId,
+          revieweeId,
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -116,40 +108,33 @@ public class RatingService implements IRatingService {
   public List<Boolean> checkIfSellerRatedBuyer(Integer sellerId, Integer buyerId) {
 
     log.info(
-            "[SERVICE][GET][CHECK_SELLER_RATED_BUYER] Input sellerId={}, buyerId={}",
-            sellerId,
-            buyerId
-    );
+        "[SERVICE][GET][CHECK_SELLER_RATED_BUYER] Input sellerId={}, buyerId={}",
+        sellerId,
+        buyerId);
 
     try {
-      List<Product> soldProducts =
-              _auctionResultRepository.findSoldProductsBySellerUserId(sellerId);
+      List<Product> soldProducts = _auctionResultRepository.findSoldProductsBySellerUserId(sellerId);
 
       List<Boolean> result = soldProducts.stream()
-              .map(product ->
-                      _ratingRepository.existsByReviewerAndRevieweeAndProduct(
-                              sellerId,
-                              buyerId,
-                              product.getProductId()
-                      )
-              )
-              .toList();
+          .map(product -> _ratingRepository.existsByReviewerAndRevieweeAndProduct(
+              sellerId,
+              buyerId,
+              product.getProductId()))
+          .toList();
 
       log.info(
-              "[SERVICE][GET][CHECK_SELLER_RATED_BUYER] Output result={}",
-              result
-      );
+          "[SERVICE][GET][CHECK_SELLER_RATED_BUYER] Output result={}",
+          result);
 
       return result;
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][GET][CHECK_SELLER_RATED_BUYER] Error occurred (sellerId={}, buyerId={}): {}",
-              sellerId,
-              buyerId,
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][GET][CHECK_SELLER_RATED_BUYER] Error occurred (sellerId={}, buyerId={}): {}",
+          sellerId,
+          buyerId,
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -159,32 +144,29 @@ public class RatingService implements IRatingService {
   public Rating rateSeller(CreateRatingRequest createRatingRequest, Integer userId) {
 
     log.info(
-            "[SERVICE][POST][RATE_SELLER] Input request={}, userId={}",
-            createRatingRequest,
-            userId
-    );
+        "[SERVICE][POST][RATE_SELLER] Input request={}, userId={}",
+        createRatingRequest,
+        userId);
 
     try {
       Product product = _productRepository.findById(createRatingRequest.getProductId())
-              .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+          .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-      AuctionResult auctionResult =
-              _auctionResultRepository.findByProductProductId(
-                      createRatingRequest.getProductId()
-              );
+      AuctionResult auctionResult = _auctionResultRepository.findByProductProductId(
+          createRatingRequest.getProductId());
       if (auctionResult == null) {
         throw new IllegalArgumentException(
-                "Auction result not found for this product");
+            "Auction result not found for this product");
       }
 
       Integer buyerId = auctionResult.getWinner().getUserId();
       if (!Objects.equals(buyerId, userId)) {
         throw new IllegalArgumentException(
-                "Only the winner can rate the seller.");
+            "Only the winner can rate the seller.");
       }
 
       User winner = _userRepository.findById(buyerId)
-              .orElseThrow(() -> new IllegalArgumentException("Winner not found"));
+          .orElseThrow(() -> new IllegalArgumentException("Winner not found"));
 
       User seller = product.getSeller();
       if (seller == null) {
@@ -192,11 +174,11 @@ public class RatingService implements IRatingService {
       }
 
       if (_ratingRepository.existsByReviewerAndRevieweeAndProduct(
-              buyerId,
-              seller.getUserId(),
-              auctionResult.getProduct().getProductId())) {
+          buyerId,
+          seller.getUserId(),
+          auctionResult.getProduct().getProductId())) {
         throw new IllegalArgumentException(
-                "Per winner only rate seller once for a product");
+            "Per winner only rate seller once for a product");
       }
 
       Rating newRating = new Rating();
@@ -210,28 +192,25 @@ public class RatingService implements IRatingService {
 
       // Update seller' rating score
       seller.setRatingScore(
-              seller.getRatingScore() + createRatingRequest.getRatingValue()
-      );
+          seller.getRatingScore() + createRatingRequest.getRatingValue());
       seller.setRatingCount(seller.getRatingCount() + 1);
       _userRepository.save(seller);
 
       log.info(
-              "[SERVICE][POST][RATE_SELLER] Success productId={}, sellerId={}, ratingValue={}",
-              product.getProductId(),
-              seller.getUserId(),
-              createRatingRequest.getRatingValue()
-      );
+          "[SERVICE][POST][RATE_SELLER] Success productId={}, sellerId={}, ratingValue={}",
+          product.getProductId(),
+          seller.getUserId(),
+          createRatingRequest.getRatingValue());
 
       return savedRating;
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][POST][RATE_SELLER] Error occurred (request={}, userId={}): {}",
-              createRatingRequest,
-              userId,
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][POST][RATE_SELLER] Error occurred (request={}, userId={}): {}",
+          createRatingRequest,
+          userId,
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -241,32 +220,29 @@ public class RatingService implements IRatingService {
   public Rating rateBuyer(CreateRatingRequest createRatingRequest, Integer userId) {
 
     log.info(
-            "[SERVICE][POST][RATE_BUYER] Input request={}, userId={}",
-            createRatingRequest,
-            userId
-    );
+        "[SERVICE][POST][RATE_BUYER] Input request={}, userId={}",
+        createRatingRequest,
+        userId);
 
     try {
       Product product = _productRepository.findById(createRatingRequest.getProductId())
-              .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+          .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-      AuctionResult auctionResult =
-              _auctionResultRepository.findByProductProductId(
-                      createRatingRequest.getProductId()
-              );
+      AuctionResult auctionResult = _auctionResultRepository.findByProductProductId(
+          createRatingRequest.getProductId());
       if (auctionResult == null) {
         throw new IllegalArgumentException(
-                "Auction result not found for this product");
+            "Auction result not found for this product");
       }
 
       Integer sellerId = product.getSeller().getUserId();
       if (!Objects.equals(sellerId, userId)) {
         throw new IllegalArgumentException(
-                "Only the seller can rate the buyer.");
+            "Only the seller can rate the buyer.");
       }
 
       User seller = _userRepository.findById(sellerId)
-              .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
+          .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
 
       User buyer = auctionResult.getWinner();
       if (buyer == null) {
@@ -274,11 +250,11 @@ public class RatingService implements IRatingService {
       }
 
       if (_ratingRepository.existsByReviewerAndRevieweeAndProduct(
-              sellerId,
-              buyer.getUserId(),
-              auctionResult.getProduct().getProductId())) {
+          sellerId,
+          buyer.getUserId(),
+          auctionResult.getProduct().getProductId())) {
         throw new IllegalArgumentException(
-                "Per seller only rate buyer once for a product");
+            "Per seller only rate buyer once for a product");
       }
 
       Rating newRating = new Rating();
@@ -292,28 +268,25 @@ public class RatingService implements IRatingService {
 
       // Update buyer' rating score
       buyer.setRatingScore(
-              buyer.getRatingScore() + createRatingRequest.getRatingValue()
-      );
+          buyer.getRatingScore() + createRatingRequest.getRatingValue());
       buyer.setRatingCount(buyer.getRatingCount() + 1);
       _userRepository.save(buyer);
 
       log.info(
-              "[SERVICE][POST][RATE_BUYER] Success productId={}, buyerId={}, ratingValue={}",
-              product.getProductId(),
-              buyer.getUserId(),
-              createRatingRequest.getRatingValue()
-      );
+          "[SERVICE][POST][RATE_BUYER] Success productId={}, buyerId={}, ratingValue={}",
+          product.getProductId(),
+          buyer.getUserId(),
+          createRatingRequest.getRatingValue());
 
       return savedRating;
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][POST][RATE_BUYER] Error occurred (request={}, userId={}): {}",
-              createRatingRequest,
-              userId,
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][POST][RATE_BUYER] Error occurred (request={}, userId={}): {}",
+          createRatingRequest,
+          userId,
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -323,23 +296,20 @@ public class RatingService implements IRatingService {
   public Rating updateRating(UpdateRatingRequest updateRatingRequest, Integer reviewerId) {
 
     log.info(
-            "[SERVICE][PUT][UPDATE_RATING] Input request={}, reviewerId={}",
-            updateRatingRequest,
-            reviewerId
-    );
+        "[SERVICE][PUT][UPDATE_RATING] Input request={}, reviewerId={}",
+        updateRatingRequest,
+        reviewerId);
 
     try {
-      Rating existingRating =
-              _ratingRepository
-                      .findByProductProductIdAndReviewerUserIdAndRevieweeUserId(
-                              updateRatingRequest.getProductId(),
-                              reviewerId,
-                              updateRatingRequest.getRevieweeId()
-                      );
+      Rating existingRating = _ratingRepository
+          .findByProductProductIdAndReviewerUserIdAndRevieweeUserId(
+              updateRatingRequest.getProductId(),
+              reviewerId,
+              updateRatingRequest.getRevieweeId());
 
       if (existingRating == null) {
         throw new IllegalArgumentException(
-                "Rating not found for the given product and users");
+            "Rating not found for the given product and users");
       }
 
       Integer oldRatingValue = existingRating.getRatingValue();
@@ -352,30 +322,27 @@ public class RatingService implements IRatingService {
       // Update reviewee's rating score
       User reviewee = existingRating.getReviewee();
       reviewee.setRatingScore(
-              reviewee.getRatingScore()
-                      - oldRatingValue
-                      + updateRatingRequest.getRatingValue()
-      );
+          reviewee.getRatingScore()
+              - oldRatingValue
+              + updateRatingRequest.getRatingValue());
       _userRepository.save(reviewee);
 
       log.info(
-              "[SERVICE][PUT][UPDATE_RATING] Success productId={}, revieweeId={}, oldValue={}, newValue={}",
-              updateRatingRequest.getProductId(),
-              updateRatingRequest.getRevieweeId(),
-              oldRatingValue,
-              updateRatingRequest.getRatingValue()
-      );
+          "[SERVICE][PUT][UPDATE_RATING] Success productId={}, revieweeId={}, oldValue={}, newValue={}",
+          updateRatingRequest.getProductId(),
+          updateRatingRequest.getRevieweeId(),
+          oldRatingValue,
+          updateRatingRequest.getRatingValue());
 
       return updatedRating;
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][PUT][UPDATE_RATING] Error occurred (request={}, reviewerId={}): {}",
-              updateRatingRequest,
-              reviewerId,
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][PUT][UPDATE_RATING] Error occurred (request={}, reviewerId={}): {}",
+          updateRatingRequest,
+          reviewerId,
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -384,28 +351,24 @@ public class RatingService implements IRatingService {
   public List<Rating> geRatingsByRevieweeId(Integer revieweeId) {
 
     log.info(
-            "[SERVICE][GET][GET_RATINGS_BY_REVIEWEE] Input revieweeId={}",
-            revieweeId
-    );
+        "[SERVICE][GET][GET_RATINGS_BY_REVIEWEE] Input revieweeId={}",
+        revieweeId);
 
     try {
-      List<Rating> ratings =
-              _ratingRepository.findByRevieweeUserId(revieweeId);
+      List<Rating> ratings = _ratingRepository.findByRevieweeUserId(revieweeId);
 
       log.info(
-              "[SERVICE][GET][GET_RATINGS_BY_REVIEWEE] Output ratings={}",
-              ratings
-      );
+          "[SERVICE][GET][GET_RATINGS_BY_REVIEWEE] Output ratings={}",
+          ratings);
 
       return ratings;
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][GET][GET_RATINGS_BY_REVIEWEE] Error occurred (revieweeId={}): {}",
-              revieweeId,
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][GET][GET_RATINGS_BY_REVIEWEE] Error occurred (revieweeId={}): {}",
+          revieweeId,
+          e.getMessage(),
+          e);
       throw e;
     }
   }

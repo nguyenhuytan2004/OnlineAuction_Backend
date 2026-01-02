@@ -126,7 +126,7 @@ public class SellerUpgradeRequestService
       if (review.getStatus() == SellerUpgradeRequest.Status.APPROVED) {
         User user = req.getUser();
         user.setRole(User.Role.SELLER);
-        userRepository.save(user);
+        user.setSellerExpiresAt(LocalDateTime.now().plusDays(7));
       }
 
       SellerUpgradeRequest saved = _sellerUpgradeRequestRepository.save(req);
