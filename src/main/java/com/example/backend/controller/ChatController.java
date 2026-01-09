@@ -17,6 +17,12 @@ import com.example.backend.entity.Message;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.IChatService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -26,6 +32,11 @@ public class ChatController {
   @Autowired
   private IChatService _chatService;
 
+  @Operation(summary = "Get all conversations", description = "Retrieve all conversations for the authenticated user. Requires authentication.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved conversations", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Conversation.class)))),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @GetMapping("/conversations")
   public ResponseEntity<?> getAllConversations(@AuthenticationPrincipal CustomUserDetails userDetails) {
     try {
@@ -39,6 +50,11 @@ public class ChatController {
     }
   }
 
+  @Operation(summary = "Get messages from a conversation", description = "Retrieve messages from a specific conversation with pagination support.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved messages", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Message.class)))),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @GetMapping("/conversations/{conversation_id}/messages")
   public ResponseEntity<?> getMessages(
       @PathVariable("conversation_id") Integer conversationId,

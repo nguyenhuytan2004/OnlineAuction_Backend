@@ -1,6 +1,7 @@
 package com.example.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,25 +17,29 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@Schema(description = "Product image entity for storing auxiliary product images")
 @Entity
 @Table(name = "PRODUCT_IMAGE")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {
-        "product"
+    "product"
 })
 public class ProductImage {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long imageId;
+  @Schema(description = "Unique image identifier", example = "1", required = true)
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long imageId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", nullable = false)
-    @JsonBackReference("product-images")
-    private Product product;
+  @Schema(description = "The product this image belongs to")
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "product_id", nullable = false)
+  @JsonBackReference("product-images")
+  private Product product;
 
-    @Column(name = "image_url", nullable = false)
-    private String imageUrl;
+  @Schema(description = "URL of the product image", example = "https://example.com/product-image.jpg", required = true)
+  @Column(name = "image_url", nullable = false)
+  private String imageUrl;
 }

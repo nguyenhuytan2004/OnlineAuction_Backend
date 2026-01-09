@@ -261,45 +261,45 @@ INSERT INTO `user` (full_name, email, encrypted_password, rating_score, rating_c
 -- INSERT PRODUCT
 INSERT INTO `product` 
 (seller_id, category_id, main_image_url, product_name, current_price, highest_bidder_id, buy_now_price, start_price, price_step, description, end_time, is_auto_renew, bid_count, allow_unrated_bidder) VALUES
-(3, 6, "https://pos.nvncdn.com/a135ac-81120/ps/20231121_zPEcyW8KB6.jpeg?v=1700557390", 'iPhone 14 Pro Max', 21100000.00, NULL, 25000000.00, 18000000.00, 100000.00, 'Chip A16 Bionic, camera 48MP mạnh mẽ. Tình trạng như mới.', DATE_ADD(NOW(), INTERVAL 5 DAY), 1, 6, 1),
+(3, 6, "https://pos.nvncdn.com/a135ac-81120/ps/20231121_zPEcyW8KB6.jpeg?v=1700557390", 'iPhone 14 Pro Max', 21100000.00, 1, 25000000.00, 18000000.00, 100000.00, 'Chip A16 Bionic, camera 48MP mạnh mẽ. Tình trạng như mới.', DATE_ADD(NOW(), INTERVAL 5 DAY), 1, 6, 1),
 
-(5, 7, "https://didongmango.com/images/products/2022/11/07/large/2_1667844618.png", 'MacBook Pro M2', 16100000.00, NULL, NULL, 10000000.00, 100000.00, 'Laptop MacBook Pro 14 inch M2, RAM 16GB, SSD 512GB.', DATE_ADD(NOW(), INTERVAL 1 DAY), 0, 6, 1),
+(5, 7, "https://didongmango.com/images/products/2022/11/07/large/2_1667844618.png", 'MacBook Pro M2', 16100000.00, 2, NULL, 10000000.00, 100000.00, 'Laptop MacBook Pro 14 inch M2, RAM 16GB, SSD 512GB.', DATE_ADD(NOW(), INTERVAL 1 DAY), 0, 6, 1),
 
-(3, 9, "https://product.hstatic.net/1000388227/product/ga-010-1a1_67845d1d7c2c4bc4b63a44878c278939_master.png", 'Đồng hồ Casio G-Shock', 2000000.00, NULL, 2000000.00, 1000000.00, 50000.00, 'Đồng hồ Casio G-Shock chống sốc, chống nước.', DATE_ADD(NOW(), INTERVAL 7 DAY), 0, 6, 1),
+(3, 9, "https://product.hstatic.net/1000388227/product/ga-010-1a1_67845d1d7c2c4bc4b63a44878c278939_master.png", 'Đồng hồ Casio G-Shock', 2000000.00, 6, 2000000.00, 1000000.00, 50000.00, 'Đồng hồ Casio G-Shock chống sốc, chống nước.', DATE_ADD(NOW(), INTERVAL 7 DAY), 0, 6, 1),
 
-(3, 8, "https://titaniummobile.net/cdn/shop/files/S9TABULTRA.png?v=1690249145", 'Samsung Galaxy Tab S9', 13050000.00, NULL, NULL, 10000000.00, 50000.00, 'Máy tính bảng Samsung Galaxy Tab S9 11 inch, AMOLED.', DATE_ADD(NOW(), INTERVAL 3 DAY), 1, 5, 1),
+(3, 8, "https://titaniummobile.net/cdn/shop/files/S9TABULTRA.png?v=1690249145", 'Samsung Galaxy Tab S9', 13050000.00, 8, NULL, 10000000.00, 50000.00, 'Máy tính bảng Samsung Galaxy Tab S9 11 inch, AMOLED.', DATE_ADD(NOW(), INTERVAL 3 DAY), 1, 5, 1),
 
-(3, 8, "https://cdn2.cellphones.com.vn/x/media/catalog/product/m/a/may-doc-sach-kindle-paperwhite-5-16gb.png", 'Kindle Paperwhite 5', 3720000.00, NULL, 4000000.00, 3000000.00, 20000.00, 'Máy đọc sách Kindle Paperwhite Gen 11th, màn hình 6.8 inch.', DATE_ADD(NOW(), INTERVAL 2 DAY), 1, 5, 1),
+(3, 8, "https://cdn2.cellphones.com.vn/x/media/catalog/product/m/a/may-doc-sach-kindle-paperwhite-5-16gb.png", 'Kindle Paperwhite 5', 3720000.00, 7, 4000000.00, 3000000.00, 20000.00, 'Máy đọc sách Kindle Paperwhite Gen 11th, màn hình 6.8 inch.', DATE_ADD(NOW(), INTERVAL 2 DAY), 1, 5, 1),
 
-(3, 3, "https://file.hstatic.net/200000122283/file/sach-harry-potter-hay_101245eb626b436c96dfc452a362c653_1024x1024.jpg", 'Bộ truyện Harry Potter', 960000.00, NULL, 1000000.00, 600000.00, 10000.00, 'Trọn bộ 7 cuốn truyện Harry Potter bản dịch Việt Nam.', DATE_ADD(NOW(), INTERVAL 10 DAY), 1, 5, 1),
+(3, 3, "https://file.hstatic.net/200000122283/file/sach-harry-potter-hay_101245eb626b436c96dfc452a362c653_1024x1024.jpg", 'Bộ truyện Harry Potter', 960000.00, 1, 1000000.00, 600000.00, 10000.00, 'Trọn bộ 7 cuốn truyện Harry Potter bản dịch Việt Nam.', DATE_ADD(NOW(), INTERVAL 10 DAY), 1, 5, 1),
 
-(3, 5, "https://media.shoptretho.com.vn/upload/image/product/20170213/lego-city-60127-canh-sat-bien-khoi-bo-khoi-dau-1.png?mode=max&width=900&height=900", 'LEGO City - Đồn cảnh sát', 2250000.00, NULL, 2500000.00, 1800000.00, 50000.00, 'Bộ LEGO City Police Station, hơn 1200 mảnh ghép.', DATE_ADD(NOW(), INTERVAL 6 DAY), 0, 5, 1),
+(3, 5, "https://media.shoptretho.com.vn/upload/image/product/20170213/lego-city-60127-canh-sat-bien-khoi-bo-khoi-dau-1.png?mode=max&width=900&height=900", 'LEGO City - Đồn cảnh sát', 2250000.00, 1, 2500000.00, 1800000.00, 50000.00, 'Bộ LEGO City Police Station, hơn 1200 mảnh ghép.', DATE_ADD(NOW(), INTERVAL 6 DAY), 0, 5, 1),
 
-(3, 10, "https://cdn.vuahanghieu.com/unsafe/0x900/left/top/smart/filters:quality(90)/https://admin.vuahanghieu.com/upload/product/2023/04/giay-the-thao-nu-nike-air-max-90-gs-pink-foam-white-pink-rise-cv9648-600-mau-hong-size-37-5-642e93a29d3e8-06042023164050.jpg", 'Giày Nike Air Max 90', 2850000.00, NULL, 3000000.00, 2000000.00, 50000.00, 'Giày Nike Air Max 90 chính hãng, màu trắng-đen, size 42.', DATE_ADD(NOW(), INTERVAL 4 DAY), 0, 5, 1),
+(3, 10, "https://cdn.vuahanghieu.com/unsafe/0x900/left/top/smart/filters:quality(90)/https://admin.vuahanghieu.com/upload/product/2023/04/giay-the-thao-nu-nike-air-max-90-gs-pink-foam-white-pink-rise-cv9648-600-mau-hong-size-37-5-642e93a29d3e8-06042023164050.jpg", 'Giày Nike Air Max 90', 2850000.00, 2, 3000000.00, 2000000.00, 50000.00, 'Giày Nike Air Max 90 chính hãng, màu trắng-đen, size 42.', DATE_ADD(NOW(), INTERVAL 4 DAY), 0, 5, 1),
 
-(3, 9, "https://frodos.com.vn/wp-content/uploads/2021/03/Capture-86.png.webp", 'Đồng hồ Rolex Submariner', 141000000.00, NULL, NULL, 100000000.00, 1000000.00, 'Đồng hồ Rolex Submariner chính hãng, chống nước 300m.', DATE_ADD(NOW(), INTERVAL 15 DAY), 1, 5, 0),
+(3, 9, "https://frodos.com.vn/wp-content/uploads/2021/03/Capture-86.png.webp", 'Đồng hồ Rolex Submariner', 141000000.00, 7, NULL, 100000000.00, 1000000.00, 'Đồng hồ Rolex Submariner chính hãng, chống nước 300m.', DATE_ADD(NOW(), INTERVAL 15 DAY), 1, 5, 0),
 
-(4, 6, "https://entel.cdn.modyo.com/uploads/6d1f6b25-500d-4aa4-9d2f-557741432ca5/original/smsung-S23-ultra-black-1.png", 'Samsung Galaxy S23 Ultra', 24150000.00, NULL, 26000000.00, 20000000.00, 150000.00, 'Điện thoại Samsung Galaxy S23 Ultra, camera 200MP, Snap 8 Gen 2.', DATE_ADD(NOW(), INTERVAL 8 DAY), 0, 5, 0),
+(4, 6, "https://entel.cdn.modyo.com/uploads/6d1f6b25-500d-4aa4-9d2f-557741432ca5/original/smsung-S23-ultra-black-1.png", 'Samsung Galaxy S23 Ultra', 24150000.00, 1, 26000000.00, 20000000.00, 150000.00, 'Điện thoại Samsung Galaxy S23 Ultra, camera 200MP, Snap 8 Gen 2.', DATE_ADD(NOW(), INTERVAL 8 DAY), 0, 5, 0),
 
-(4, 7, "https://mayxaugiacao.com/wp-content/uploads/2022/09/dell-xps-13-9315-new-mayxaugiacao.jpg", 'Dell XPS 13 9315', 20100000.00, NULL, NULL, 16000000.00, 100000.00, 'Laptop Dell XPS 13, Intel Core i7, RAM 16GB, SSD 512GB.', DATE_ADD(NOW(), INTERVAL 6 DAY), 0, 5, 1),
+(4, 7, "https://mayxaugiacao.com/wp-content/uploads/2022/09/dell-xps-13-9315-new-mayxaugiacao.jpg", 'Dell XPS 13 9315', 20100000.00, 8, NULL, 16000000.00, 100000.00, 'Laptop Dell XPS 13, Intel Core i7, RAM 16GB, SSD 512GB.', DATE_ADD(NOW(), INTERVAL 6 DAY), 0, 5, 1),
 
-(4, 9, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_7AaNNNMdVtNXMCCRxQZ0f8vVlD9JJtjT3g&s", 'Apple Watch Series 9', 9550000.00, NULL, 10000000.00, 7000000.00, 50000.00, 'Đồng hồ thông minh Apple Watch Series 9 mới nhất.', DATE_ADD(NOW(), INTERVAL 5 DAY), 0, 6, 1),
+(4, 9, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_7AaNNNMdVtNXMCCRxQZ0f8vVlD9JJtjT3g&s", 'Apple Watch Series 9', 9550000.00, 8, 10000000.00, 7000000.00, 50000.00, 'Đồng hồ thông minh Apple Watch Series 9 mới nhất.', DATE_ADD(NOW(), INTERVAL 5 DAY), 0, 6, 1),
 
-(4, 10, "https://i5.walmartimages.com/asr/38f5961e-35a8-47e3-90b4-f3ba970ff48a.c05dc8966f3ea968b7a9519e7916dad3.webp?odnHeight=2000&odnWidth=2000&odnBg=FFFFFF", 'Giày Adidas Ultraboost 22', 4100000.00, NULL, 4200000.00, 3000000.00, 100000.00, 'Giày chạy bộ Adidas Ultraboost chính hãng.', DATE_ADD(NOW(), INTERVAL 7 DAY), 0, 5, 1),
+(4, 10, "https://i5.walmartimages.com/asr/38f5961e-35a8-47e3-90b4-f3ba970ff48a.c05dc8966f3ea968b7a9519e7916dad3.webp?odnHeight=2000&odnWidth=2000&odnBg=FFFFFF", 'Giày Adidas Ultraboost 22', 4100000.00, 2, 4200000.00, 3000000.00, 100000.00, 'Giày chạy bộ Adidas Ultraboost chính hãng.', DATE_ADD(NOW(), INTERVAL 7 DAY), 0, 5, 1),
 
-(4, 3, "https://pbp.vn/wp-content/uploads/2024/12/z6102548207591_9e6ff6ce0114bcca62ebdd022f48ea16.jpg", 'Tiểu thuyết "Búp sen xanh"', 325000.00, NULL, 350000.00, 200000.00, 5000.00, 'Tác phẩm nổi tiếng về Bác Hồ của nhà văn Sơn Tùng.', DATE_ADD(NOW(), INTERVAL 9 DAY), 1, 5, 1),
+(4, 3, "https://pbp.vn/wp-content/uploads/2024/12/z6102548207591_9e6ff6ce0114bcca62ebdd022f48ea16.jpg", 'Tiểu thuyết "Búp sen xanh"', 325000.00, 7, 350000.00, 200000.00, 5000.00, 'Tác phẩm nổi tiếng về Bác Hồ của nhà văn Sơn Tùng.', DATE_ADD(NOW(), INTERVAL 9 DAY), 1, 5, 1),
 
-(4, 5, "https://preview.redd.it/my-small-hot-wheels-collection-so-far-what-do-you-guys-v0-gy4gq71x1cic1.jpeg?width=1080&crop=smart&auto=webp&s=fdb0e6b1676d693ca4b9841a0ad409dbd01a0423", 'Hot Wheels Collection', 1730000.00, NULL, 1800000.00, 1200000.00, 30000.00, 'Bộ sưu tập 50 chiếc xe Hot Wheels đa dạng.', DATE_ADD(NOW(), INTERVAL 8 DAY), 1, 5, 1),
+(4, 5, "https://preview.redd.it/my-small-hot-wheels-collection-so-far-what-do-you-guys-v0-gy4gq71x1cic1.jpeg?width=1080&crop=smart&auto=webp&s=fdb0e6b1676d693ca4b9841a0ad409dbd01a0423", 'Hot Wheels Collection', 1730000.00, 4, 1800000.00, 1200000.00, 30000.00, 'Bộ sưu tập 50 chiếc xe Hot Wheels đa dạng.', DATE_ADD(NOW(), INTERVAL 8 DAY), 1, 5, 1),
 
-(5, 8, "https://bachlongstore.vn/vnt_upload/product/11_2023/43543.jpg", 'iPad Air 5 M1', 16600000.00, NULL, 18000000.00, 13000000.00, 100000.00, 'Máy tính bảng iPad Air 5, chip M1, hỗ trợ Apple Pencil.', DATE_ADD(NOW(), INTERVAL 4 DAY), 0, 5, 1),
+(5, 8, "https://bachlongstore.vn/vnt_upload/product/11_2023/43543.jpg", 'iPad Air 5 M1', 16600000.00, 1, 18000000.00, 13000000.00, 100000.00, 'Máy tính bảng iPad Air 5, chip M1, hỗ trợ Apple Pencil.', DATE_ADD(NOW(), INTERVAL 4 DAY), 0, 5, 1),
 
-(5, 6, "https://hanhtech.com/wp-content/uploads/2025/02/google-pixel-8-pro-5g-128gb-cu-99-dep-nhu-moi-gia-re-hcm-image.jpg", 'Google Pixel 8 Pro', 23600000.00, NULL, 25000000.00, 19000000.00, 100000.00, 'Điện thoại Google Pixel 8 Pro, chip Tensor G3.', DATE_ADD(NOW(), INTERVAL 5 DAY), 0, 5, 1),
+(5, 6, "https://hanhtech.com/wp-content/uploads/2025/02/google-pixel-8-pro-5g-128gb-cu-99-dep-nhu-moi-gia-re-hcm-image.jpg", 'Google Pixel 8 Pro', 23600000.00, 4, 25000000.00, 19000000.00, 100000.00, 'Điện thoại Google Pixel 8 Pro, chip Tensor G3.', DATE_ADD(NOW(), INTERVAL 5 DAY), 0, 5, 1),
 
-(5, 7, "https://dlcdnwebimgs.asus.com/gain/5d3b0e30-c888-481c-8c1c-f45b65c5b560/", 'ASUS VivoBook 15', 14600000.00, NULL, 15000000.00, 10000000.00, 100000.00, 'Laptop ASUS VivoBook 15, chip AMD Ryzen 7, RAM 16GB.', DATE_ADD(NOW(), INTERVAL 6 DAY), 0, 5, 1),
+(5, 7, "https://dlcdnwebimgs.asus.com/gain/5d3b0e30-c888-481c-8c1c-f45b65c5b560/", 'ASUS VivoBook 15', 14600000.00, 4, 15000000.00, 10000000.00, 100000.00, 'Laptop ASUS VivoBook 15, chip AMD Ryzen 7, RAM 16GB.', DATE_ADD(NOW(), INTERVAL 6 DAY), 0, 5, 1),
 
-(5, 3, "https://bizweb.dktcdn.net/100/413/485/products/z2767223936862-67c037ad49da30dabe0f00ed18faedd1.jpg?v=1631783718543", 'Bộ sách Chúa tể những chiếc nhẫn', 760000.00, NULL, 800000.00, 500000.00, 10000.00, 'Trọn bộ 3 cuốn tiểu thuyết kinh điển của J.R.R. Tolkien.', DATE_ADD(NOW(), INTERVAL 12 DAY), 1, 5, 1),
+(5, 3, "https://bizweb.dktcdn.net/100/413/485/products/z2767223936862-67c037ad49da30dabe0f00ed18faedd1.jpg?v=1631783718543", 'Bộ sách Chúa tể những chiếc nhẫn', 760000.00, 2, 800000.00, 500000.00, 10000.00, 'Trọn bộ 3 cuốn tiểu thuyết kinh điển của J.R.R. Tolkien.', DATE_ADD(NOW(), INTERVAL 12 DAY), 1, 5, 1),
 
-(5, 9, "https://luxewatch.vn/wp-content/uploads/2022/11/1275bb10562b9075c93a19.jpg", 'Đồng hồ Omega Seamaster', 100500000.00, NULL, NULL, 80000000.00, 500000.00, 'Đồng hồ Omega Seamaster chính hãng, chống nước 300m.', DATE_ADD(NOW(), INTERVAL 20 DAY), 1, 5, 0);
+(5, 9, "https://luxewatch.vn/wp-content/uploads/2022/11/1275bb10562b9075c93a19.jpg", 'Đồng hồ Omega Seamaster', 100500000.00, 2, NULL, 80000000.00, 500000.00, 'Đồng hồ Omega Seamaster chính hãng, chống nước 300m.', DATE_ADD(NOW(), INTERVAL 20 DAY), 1, 5, 0);
 
 -- Product images
 INSERT INTO `product_image` (product_id, image_url) VALUES
@@ -604,7 +604,7 @@ INSERT INTO `bid` (product_id, bidder_id, bid_price, max_auto_price, bid_at) VAL
 (5, 6, 3220000, 3300000, '2026-01-02 13:05:00'),
 (5, 4, 3320000, 3500000, '2026-01-02 13:10:00'),
 (5, 1, 3520000, 3700000, '2026-01-02 13:15:00'),
-(5, 2, 3720000, 3800000, '2026-01-02 13:20:00');
+(5, 7, 3720000, 3800000, '2026-01-02 13:20:00');
 
 -- Product 6: Bộ truyện Harry Potter (Start: 600k, Step: 10k, Buy Now: 1tr)
 INSERT INTO `bid` (product_id, bidder_id, bid_price, max_auto_price, bid_at) VALUES
@@ -636,7 +636,7 @@ INSERT INTO `bid` (product_id, bidder_id, bid_price, max_auto_price, bid_at) VAL
 (9, 2, 111000000, 120000000, '2026-01-02 17:05:00'),
 (9, 4, 121000000, 130000000, '2026-01-02 17:10:00'),
 (9, 6, 131000000, 140000000, '2026-01-02 17:15:00'),
-(9, 8, 141000000, 150000000, '2026-01-02 17:20:00');
+(9, 7, 141000000, 150000000, '2026-01-02 17:20:00');
 
 -- Product 10: Samsung Galaxy S23 Ultra (Start: 20tr, Step: 150k, Buy Now: 26tr)
 INSERT INTO `bid` (product_id, bidder_id, bid_price, max_auto_price, bid_at) VALUES
@@ -677,7 +677,7 @@ INSERT INTO `bid` (product_id, bidder_id, bid_price, max_auto_price, bid_at) VAL
 (14, 5, 255000, 280000, '2026-01-02 20:35:00'),
 (14, 1, 285000, 300000, '2026-01-02 20:40:00'),
 (14, 2, 305000, 320000, '2026-01-02 20:45:00'),
-(14, 4, 325000, 350000, '2026-01-02 20:50:00');
+(14, 7, 325000, 350000, '2026-01-02 20:50:00');
 
 -- Product 15: Hot Wheels Collection (Start: 1.2tr, Step: 30k, Buy Now: 1.8tr)
 INSERT INTO `bid` (product_id, bidder_id, bid_price, max_auto_price, bid_at) VALUES

@@ -26,6 +26,11 @@ import com.example.backend.model.User.UserResponse;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.IUserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +42,11 @@ public class UserController {
   @Autowired
   private IUserService _userService;
 
+  @Operation(summary = "Get all users", description = "Retrieve paginated list of users, optionally filtered by role.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved users", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @GetMapping("")
   public ResponseEntity<?> getUsers(@RequestParam(required = false) String role, Pageable pageable) {
     try {
@@ -49,6 +59,12 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Get current user profile", description = "Retrieve the authenticated user's profile information. Requires authentication.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "User profile retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+      @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @GetMapping("/me")
   public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
     try {
@@ -67,6 +83,12 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Update user information", description = "Update user profile information.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "User updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+      @ApiResponse(responseCode = "400", description = "Bad request - invalid input", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @PatchMapping("/{user_id}")
   public ResponseEntity<?> updateUser(
       @PathVariable("user_id") Integer userId,
@@ -85,6 +107,12 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Delete a user", description = "Delete a user account.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "User deleted successfully", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "400", description = "Bad request - cannot delete user", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @DeleteMapping("/{user_id}")
   public ResponseEntity<?> deleteUser(@PathVariable("user_id") Integer userId) {
     try {
@@ -101,6 +129,12 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Create a new user", description = "Create a new user account.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+      @ApiResponse(responseCode = "400", description = "Bad request - email already exists or invalid data", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @PostMapping("")
   public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
     try {

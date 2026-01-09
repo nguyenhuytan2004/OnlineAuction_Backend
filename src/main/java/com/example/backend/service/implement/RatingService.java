@@ -348,7 +348,7 @@ public class RatingService implements IRatingService {
   }
 
   @Override
-  public List<Rating> geRatingsByRevieweeId(Integer revieweeId) {
+  public List<Rating> getRatingsByRevieweeId(Integer revieweeId) {
 
     log.info(
         "[SERVICE][GET][GET_RATINGS_BY_REVIEWEE] Input revieweeId={}",

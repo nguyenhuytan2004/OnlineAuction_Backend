@@ -19,5 +19,5 @@ public interface IRatingService {
 
   Rating updateRating(UpdateRatingRequest updateRatingRequest, Integer reviewerId);
 
-  List<Rating> geRatingsByRevieweeId(Integer revieweeId);
+  List<Rating> getRatingsByRevieweeId(Integer revieweeId);
 }

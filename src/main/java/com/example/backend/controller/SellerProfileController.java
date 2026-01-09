@@ -14,6 +14,12 @@ import com.example.backend.entity.Product;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.ISellerProfileService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,6 +29,11 @@ public class SellerProfileController {
   @Autowired
   private ISellerProfileService _sellerProfileService;
 
+  @Operation(summary = "Get seller's active products", description = "Retrieve all active auction products listed by the authenticated seller. Requires authentication.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved active products", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @GetMapping("/active-products")
   public ResponseEntity<?> getActiveProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
     try {
@@ -37,6 +48,11 @@ public class SellerProfileController {
     }
   }
 
+  @Operation(summary = "Get seller's sold products", description = "Retrieve all sold auction products from the authenticated seller. Requires authentication.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved sold products", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @GetMapping("/sold-products")
   public ResponseEntity<?> getSoldProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
     try {

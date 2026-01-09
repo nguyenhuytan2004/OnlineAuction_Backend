@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,36 +22,39 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Schema(description = "Watch list entity allowing users to track products of interest")
 @Entity
 @Table(name = "WATCH_LIST", uniqueConstraints = {
-    @UniqueConstraint(name = "unique_watchlist", columnNames = {"user_id", "product_id"})
+    @UniqueConstraint(name = "unique_watchlist", columnNames = { "user_id", "product_id" })
 })
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {
-        "user",
-        "product"
+    "user",
+    "product"
 })
 public class WatchList {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "watch_list_id")
-    private Integer watchListId;
+  @Schema(description = "Unique watch list entry identifier", example = "1", required = true)
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "watch_list_id")
+  private Integer watchListId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    // @JsonBackReference("user-watchList")
-    private User user;
+  @Schema(description = "The user who added this item to their watch list")
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", nullable = false)
-    // @JsonBackReference("product-watchlists")
-    private Product product;
+  @Schema(description = "The product being watched")
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "product_id", nullable = false)
+  private Product product;
 
-    @CreationTimestamp
-    @Column(name = "added_at", nullable = false, updatable = false)
-    private LocalDateTime addedAt;
+  @Schema(description = "Timestamp when the product was added to watch list", format = "date-time")
+  @CreationTimestamp
+  @Column(name = "added_at", nullable = false, updatable = false)
+  private LocalDateTime addedAt;
 }

@@ -17,6 +17,11 @@ import com.example.backend.model.AuctionOrder.PayOrderResponse;
 import com.example.backend.model.AuctionOrder.SetShippingAddressRequest;
 import com.example.backend.service.implement.OrderService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +34,12 @@ public class OrderController {
 
   private final OrderService orderService;
 
+  @Operation(summary = "Pay and create order", description = "Process payment and create a new auction order.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "201", description = "Order created and payment processed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PayOrderResponse.class))),
+      @ApiResponse(responseCode = "400", description = "Bad request - invalid order data", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @PostMapping("/pay")
   public ResponseEntity<?> payAndCreate(@RequestBody @Valid PayOrderRequest req) {
     try {
@@ -44,6 +55,12 @@ public class OrderController {
     }
   }
 
+  @Operation(summary = "Get order status", description = "Retrieve the current status of an auction order.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Order status retrieved", content = @Content(mediaType = "application/json", schema = @Schema(implementation = OrderStatusResponse.class))),
+      @ApiResponse(responseCode = "400", description = "Bad request - invalid order ID", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @GetMapping("/{orderId}/status")
   public ResponseEntity<?> getStatus(@PathVariable Integer orderId) {
     try {
@@ -60,6 +77,12 @@ public class OrderController {
     }
   }
 
+  @Operation(summary = "Set shipping address", description = "Update the shipping address for an order.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Shipping address updated", content = @Content),
+      @ApiResponse(responseCode = "400", description = "Bad request - invalid address", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @PatchMapping("/{orderId}/shipping-address")
   public ResponseEntity<?> setAddress(
       @PathVariable Integer orderId,
@@ -80,6 +103,12 @@ public class OrderController {
     }
   }
 
+  @Operation(summary = "Seller confirm payment", description = "Confirm payment receipt by the seller.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Payment confirmed", content = @Content),
+      @ApiResponse(responseCode = "400", description = "Bad request - invalid order", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @PatchMapping("/{orderId}/confirm-payment")
   public ResponseEntity<?> sellerConfirmPayment(@PathVariable Integer orderId) {
     try {
@@ -99,6 +128,12 @@ public class OrderController {
     }
   }
 
+  @Operation(summary = "Buyer confirm received", description = "Confirm receipt of the ordered product by the buyer.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Receipt confirmed", content = @Content),
+      @ApiResponse(responseCode = "400", description = "Bad request - invalid order", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @PatchMapping("/{orderId}/confirm-received")
   public ResponseEntity<?> buyerConfirmReceived(@PathVariable Integer orderId) {
     try {
@@ -118,6 +153,12 @@ public class OrderController {
     }
   }
 
+  @Operation(summary = "Cancel order", description = "Cancel an existing auction order.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Order cancelled", content = @Content),
+      @ApiResponse(responseCode = "400", description = "Bad request - cannot cancel order", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @PatchMapping("/{orderId}/cancel")
   public ResponseEntity<?> cancel(
       @PathVariable Integer orderId,

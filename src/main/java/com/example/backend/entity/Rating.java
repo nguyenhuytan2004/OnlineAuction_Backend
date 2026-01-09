@@ -23,55 +23,57 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Schema(description = "Rating entity representing a user's review of another user after a product transaction")
 @Entity
 @Table(name = "RATING")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {
-        "product",
-        "reviewer",
-        "reviewee"
+    "product",
+    "reviewer",
+    "reviewee"
 })
 public class Rating {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "rating_id")
-    @Schema(description = "Unique identifier for the rating", example = "1")
-    private Integer ratingId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "rating_id")
+  @Schema(description = "Unique identifier for the rating", example = "1", required = true)
+  private Integer ratingId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", nullable = false)
-    @NotNull(message = "Product is required")
-    @Schema(description = "The product associated with the rating")
-    private Product product;
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "product_id", nullable = false)
+  @NotNull(message = "Product is required")
+  @Schema(description = "The product associated with the rating")
+  private Product product;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "reviewer_id", nullable = false)
-    @NotNull(message = "Winner is required")
-    @Schema(description = "The user who gave the rating")
-    private User reviewer;
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "reviewer_id", nullable = false)
+  @NotNull(message = "Winner is required")
+  @Schema(description = "The user who gave the rating")
+  private User reviewer;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "reviewee_id", nullable = false)
-    @NotNull(message = "Seller is required")
-    @Schema(description = "The user who received the rating")
-    private User reviewee;
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "reviewee_id", nullable = false)
+  @NotNull(message = "Seller is required")
+  @Schema(description = "The user who received the rating")
+  private User reviewee;
 
-    @Column(name = "rating_value", nullable = false)
-    @NotNull(message = "Rating value is required")
-    @RatingValue
-    @Schema(description = "Rating value must be -1, 0, or 1", example = "1")
-    private Integer ratingValue;
+  @Column(name = "rating_value", nullable = false)
+  @NotNull(message = "Rating value is required")
+  @RatingValue
+  @Schema(description = "Rating value must be -1 (negative), 0 (neutral), or 1 (positive)", example = "1", allowableValues = {
+      "-1", "0", "1" })
+  private Integer ratingValue;
 
-    @Column(name = "comment", columnDefinition = "TEXT")
-    @Size(max = 1000, message = "Comment must not exceed 1000 characters")
-    @Schema(description = "Optional comment for the rating", example = "Great seller, fast shipping!")
-    private String comment;
+  @Column(name = "comment", columnDefinition = "TEXT")
+  @Size(max = 1000, message = "Comment must not exceed 1000 characters")
+  @Schema(description = "Optional comment for the rating", example = "Great seller, fast shipping!")
+  private String comment;
 
-    @CreationTimestamp
-    @Column(name = "rated_at")
-    @Schema(description = "Timestamp when the rating was created")
-    private LocalDateTime ratedAt;
+  @CreationTimestamp
+  @Column(name = "rated_at")
+  @Schema(description = "Timestamp when the rating was created", format = "date-time")
+  private LocalDateTime ratedAt;
 }

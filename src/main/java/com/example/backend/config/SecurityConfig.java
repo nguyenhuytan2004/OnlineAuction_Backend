@@ -89,7 +89,8 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/products/*/questions").hasAnyRole("SELLER", "BIDDER", "ADMIN")
 
             // 5. Công khai cho khách xem (READ-ONLY)
-            .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**", "/api/ratings/reviewee/**")
+            .permitAll()
 
             // 6. Tất cả các request còn lại phải đăng nhập
             .anyRequest().authenticated())

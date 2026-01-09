@@ -14,6 +14,11 @@ import com.example.backend.entity.AuctionResult;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.IAuctionResultService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,6 +28,11 @@ public class AuctionResultController {
   @Autowired
   private IAuctionResultService _auctionResultService;
 
+  @Operation(summary = "Get auction result", description = "Retrieve the auction result for a specific product.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Auction result retrieved", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuctionResult.class))),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @GetMapping("product/{product_id}")
   public ResponseEntity<?> getAuctionResult(@PathVariable("product_id") Integer productId) {
     try {
@@ -37,6 +47,12 @@ public class AuctionResultController {
     }
   }
 
+  @Operation(summary = "Cancel auction", description = "Cancel an auction for a product. Only the seller can cancel. Requires authentication.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Auction cancelled", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuctionResult.class))),
+      @ApiResponse(responseCode = "400", description = "Bad request - cannot cancel auction", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   @PatchMapping("/product/{product_id}/cancel")
   public ResponseEntity<?> cancelAuction(@PathVariable("product_id") Integer productId,
       @AuthenticationPrincipal CustomUserDetails userDetails) {

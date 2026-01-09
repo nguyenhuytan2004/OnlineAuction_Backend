@@ -84,6 +84,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     // Các đường dẫn công khai với method GET
     boolean isPublicGetRequest = method.equalsIgnoreCase("GET")
         && (path.equals("/api/products")
+            || path.matches("/api/ratings/reviewee/\\d+")
             || path.matches("/api/products/\\d+")
             || path.matches("/api/products/\\d+/bids")
             || path.equals("/api/products/top-5-ending-soon")
