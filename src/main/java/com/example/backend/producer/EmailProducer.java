@@ -69,7 +69,7 @@ public class EmailProducer {
 
         .subject(null)
         .messageContent(null)
-        .deepLinkPath("/products/" + product.getProductId())
+        .deepLinkPath("http://localhost:5173/products/" + product.getProductId())
         .build();
   }
 
