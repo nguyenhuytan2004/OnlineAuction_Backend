@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.service.implement.RecaptchaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -37,6 +38,8 @@ public class AuthController {
 
   private final AuthService authService;
 
+  private final RecaptchaService recaptchaService;
+
   @Operation(summary = "Register a new user", description = "Create a new user account with email verification.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Registration successful, verification email sent", content = @Content(mediaType = "application/json")),
@@ -46,6 +49,10 @@ public class AuthController {
   @PostMapping("/register")
   public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
     try {
+      if (!recaptchaService.verify(req.getCaptcha())) {
+        log.warn("[AUTH][CAPTCHA][FAIL] Invalid captcha for email={}", req.getEmail());
+        return new ResponseEntity<>("Invalid captcha", HttpStatus.BAD_REQUEST);
+      }
       authService.register(req);
 
       return new ResponseEntity<>("Đăng ký thành công. Vui lòng kiểm tra email để xác minh tài khoản.",
@@ -131,6 +138,10 @@ public class AuthController {
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest req) {
     try {
+      if (!recaptchaService.verify(req.getCaptcha())) {
+        log.warn("[AUTH][CAPTCHA][FAIL] Invalid captcha for email={}", req.getEmail());
+        return new ResponseEntity<>("Invalid captcha", HttpStatus.BAD_REQUEST);
+      }
       AuthResponse response = authService.login(req);
 
       return new ResponseEntity<>(response, HttpStatus.OK);
