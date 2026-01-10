@@ -61,20 +61,16 @@ public class SecurityConfig {
         .authenticationProvider(authProvider())
         .authorizeHttpRequests(auth -> auth
 
-            // 1. Công khai hoàn toàn (Auth, Swagger, Websocket)
+            // 1. NHÓM CÔNG KHAI (Không cần đăng nhập)
             .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/ws/**")
             .permitAll()
+            // Cho phép khách xem sản phẩm, danh mục và đánh giá (Chỉ cho phép GET)
+            .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**", "/api/ratings/reviewee/**")
+            .permitAll()
 
-            // 2. Quyền ADMIN (Quản lý hệ thống - Phải đặt lên trước các quyền chung)
-            .requestMatchers("/api/users/**").hasRole("ADMIN")
-            .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
-            .requestMatchers(HttpMethod.POST, "/api/categories/**").hasRole("ADMIN")
-            .requestMatchers(HttpMethod.PATCH, "/api/categories/**").hasRole("ADMIN")
-            // ADMIN có quyền PATCH/DELETE mọi product
-            .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasRole("ADMIN")
-            .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
-
-            // 3. Quyền SELLER (Hành động đặc thù của người bán)
+            // 2. NHÓM QUYỀN SELLER (Hành động của người bán)
+            .requestMatchers(HttpMethod.POST, "/api/products").hasRole("SELLER")
+            .requestMatchers(HttpMethod.PATCH, "/api/products/*/append-description").hasRole("SELLER")
             .requestMatchers(
                 "/api/user-profile/active-products",
                 "/api/user-profile/sold-products",
@@ -82,17 +78,17 @@ public class SecurityConfig {
                 "/api/auction-results/product/*/cancel",
                 "/api/orders/*/confirm-payment")
             .hasRole("SELLER")
-            .requestMatchers(HttpMethod.POST, "/api/products").hasRole("SELLER")
-            .requestMatchers(HttpMethod.PATCH, "/api/products/*/append-description").hasRole("SELLER")
 
-            // 4. Quyền chung (Yêu cầu đăng nhập)
-            .requestMatchers(HttpMethod.POST, "/api/products/*/questions").hasAnyRole("SELLER", "BIDDER", "ADMIN")
+            // 3. NHÓM QUYỀN CHUNG (Yêu cầu đăng nhập - Mọi role)
+            .requestMatchers(HttpMethod.POST, "/api/products/*/questions").hasAnyRole("BIDDER", "SELLER", "ADMIN")
 
-            // 5. Công khai cho khách xem (READ-ONLY)
-            .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**", "/api/ratings/reviewee/**")
-            .permitAll()
+            // 4. NHÓM QUYỀN ADMIN (Quản trị viên)
+            .requestMatchers("/api/users/**").hasRole("ADMIN")
+            .requestMatchers("/api/categories/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
 
-            // 6. Tất cả các request còn lại phải đăng nhập
+            // 5. CÁC REQUEST CÒN LẠI (Fallback)
             .anyRequest().authenticated())
 
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

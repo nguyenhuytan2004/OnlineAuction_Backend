@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.backend.entity.AuctionOrder;
 import com.example.backend.entity.AuctionOrder.OrderStatus;
 import com.example.backend.entity.AuctionResult;
+import com.example.backend.entity.AuctionResult.PaymentStatus;
 import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
 import com.example.backend.model.AuctionOrder.CancelOrderRequest;
@@ -168,7 +169,7 @@ public class OrderService implements IOrderService {
 
       AuctionResult auctionResult = _auctionResultRepository
           .findByProductProductId(product.getProductId());
-      auctionResult.setPaymentStatus(AuctionResult.PaymentStatus.PAID);
+      auctionResult.setPaymentStatus(PaymentStatus.PAID);
 
       _auctionResultRepository.save(auctionResult);
 
