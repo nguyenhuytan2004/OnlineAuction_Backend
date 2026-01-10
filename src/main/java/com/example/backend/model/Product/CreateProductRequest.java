@@ -45,4 +45,7 @@ public class CreateProductRequest {
 
   @Schema(description = "Auto-renew auction when no bids are received", example = "false", defaultValue = "false")
   private Boolean isAutoRenew = false;
+
+  @Schema(description = "Allow unrated bidders to place bids", example = "false", defaultValue = "false")
+  private Boolean allowUnratedBidder = false;
 }

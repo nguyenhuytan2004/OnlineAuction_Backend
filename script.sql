@@ -255,7 +255,8 @@ INSERT INTO `user` (full_name, email, encrypted_password, rating_score, rating_c
 ('Phạm Bảo Trân', 'tran.pham@gmail.com', '$2a$10$nfeKkytJQVKgLf1oNPuqT./jaOU8VL2sfp1MCLQOhvlMEIOwgGkX6', 14, 20, "BIDDER", NULL, 1),
 ('Hoàng Gia Bảo', 'bao.hoang@gmail.com', '$2a$10$eORh7G2q68kXUQmcsU7E1.vN5WrFHu9Yl1FHxrnq0EfPyukTdllFG', 16, 25, "BIDDER", NULL, 1),
 ('Nguyễn Thu Hà', 'ha.nguyen@gmail.com', '$2a$10$ENoPzpks2zRYu1P/j8TELOHpGoF2KE4HUil7UbBGVZERsQh4qHXmi', 9, 12, "BIDDER", NULL, 1),
-('Nguyễn Huy Tấn', 'nhtan22@clc.fitus.edu.vn', '$2a$10$ENoPzpks2zRYu1P/j8TELOHpGoF2KE4HUil7UbBGVZERsQh4qHXmi', 15, 20, "BIDDER", NULL, 1),
+('Nguyễn Huy Tấn', 'nguyenhuytan0@gmail.com', '$2a$10$ENoPzpks2zRYu1P/j8TELOHpGoF2KE4HUil7UbBGVZERsQh4qHXmi', 15, 20, "BIDDER", NULL, 1),
+('Hà Duy Kiên', 'nguyenhuytan2004@gmail.com', '$2a$10$thxPlrABTReDFmAw5ktcAetlce9rDNUZfdoiUfhO8BwfUWbCli4o.', 17, 33, "BIDDER", NULL, 1),
 ('Đăng Văn Quang', 'dvquang22@clc.fitus.edu.vn', '$2a$09$c/EAtme1ly8YmmeyaluffetqzxkivIyjRnlH9sqXJdlbwEyT7gEy.', 38, 43, "BIDDER", NULL, 1);
 
 -- INSERT PRODUCT

@@ -432,6 +432,7 @@ public class ProductService implements IProductService {
 
       newProduct.setEndTime(LocalDateTime.now().plusWeeks(1));
       newProduct.setIsAutoRenew(request.getIsAutoRenew());
+      newProduct.setAllowUnratedBidder(request.getAllowUnratedBidder());
 
       Product saved = _productRepository.save(newProduct);
 
