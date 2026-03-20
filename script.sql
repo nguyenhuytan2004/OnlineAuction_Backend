@@ -197,6 +197,7 @@ CREATE TABLE `message` (
     FOREIGN KEY (sender_id) REFERENCES `user`(user_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
+-- Bảng chứa thông tin đơn hàng sau khi đấu giá thành công
 CREATE TABLE auction_order (
    order_id INT AUTO_INCREMENT PRIMARY KEY,
 
@@ -227,6 +228,16 @@ CREATE TABLE auction_order (
    FOREIGN KEY (product_id) REFERENCES product(product_id),
    FOREIGN KEY (seller_id) REFERENCES user(user_id),
    FOREIGN KEY (buyer_id) REFERENCES user(user_id)
+);
+
+-- Bảng chứa thông tin giao dịch thanh toán
+CREATE TABLE payment_transaction (
+  order_code BIGINT UNIQUE PRIMARY KEY,
+  user_id INT NOT NULL,
+  amount INT NOT NULL,
+  type ENUM('UPGRADE_SELLER', 'PURCHASE_PRODUCT') NOT NULL,
+  status ENUM('PENDING', 'COMPLETED', 'FAILED') NOT NULL DEFAULT 'PENDING',
+  product_id INT NULL
 );
 
 -- Dữ liệu mẫu cho bảng CATEGORY

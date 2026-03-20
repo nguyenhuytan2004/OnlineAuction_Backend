@@ -109,7 +109,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         || path.equals("/swagger-ui.html")
         || path.startsWith("/swagger-resources/")
         || path.startsWith("/webjars/")
-        || path.startsWith("/ws/");
+        || path.startsWith("/ws/")
+        || path.equals("/api/payment/payos/webhook-handler");
 
     return isPublicGetRequest || isAlwaysPublic;
   }

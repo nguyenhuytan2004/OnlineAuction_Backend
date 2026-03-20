@@ -8,10 +8,13 @@
 
     <!-- ========== CONSOLE APPENDER ========== -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <!-- <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <customFields>
                 {"app":"${APP_NAME}","env":"local"}
             </customFields>
+        </encoder> -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 

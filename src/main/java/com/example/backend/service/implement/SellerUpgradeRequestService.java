@@ -44,7 +44,7 @@ public class SellerUpgradeRequestService
       }
 
       boolean existsPending = _sellerUpgradeRequestRepository
-          .existsByUserUserIdAndStatus(
+          .existsByUser_UserIdAndStatus(
               userId,
               SellerUpgradeRequest.Status.PENDING);
 

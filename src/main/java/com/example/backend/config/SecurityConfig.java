@@ -62,7 +62,8 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
 
             // 1. NHÓM CÔNG KHAI (Không cần đăng nhập)
-            .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/ws/**")
+            .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/ws/**",
+                "/api/payment/payos/webhook-handler")
             .permitAll()
             // Cho phép khách xem sản phẩm, danh mục và đánh giá (Chỉ cho phép GET)
             .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**", "/api/ratings/reviewee/**")
@@ -80,7 +81,8 @@ public class SecurityConfig {
             .hasRole("SELLER")
 
             // 3. NHÓM QUYỀN CHUNG (Yêu cầu đăng nhập - Mọi role)
-            .requestMatchers(HttpMethod.POST, "/api/products/*/questions").hasAnyRole("BIDDER", "SELLER", "ADMIN")
+            .requestMatchers(HttpMethod.POST, "/api/products/*/questions", "/api/payment/payos/create-payment-link")
+            .hasAnyRole("BIDDER", "SELLER", "ADMIN")
 
             // 4. NHÓM QUYỀN ADMIN (Quản trị viên)
             .requestMatchers("/api/users/**").hasRole("ADMIN")
