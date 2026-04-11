@@ -10,7 +10,7 @@ import com.example.backend.entity.Bid;
 import com.example.backend.entity.Product;
 
 public interface IBidRepository extends JpaRepository<Bid, Integer> {
-  Bid findTopByProductProductIdOrderByBidPriceDesc(Integer productId);
+  Bid findFirstByProductProductIdOrderByBidPriceDescBidAtAscBidIdAsc(Integer productId);
 
   @Query("SELECT b.product FROM Bid b WHERE b.bidder.userId = :userId AND b.product.isActive = true GROUP BY b.product.productId ORDER BY MAX(b.bidAt) DESC")
   List<Product> findDistinctProductsByBidderUserIdAndProductIsActiveTrue(@Param("userId") Integer userId);

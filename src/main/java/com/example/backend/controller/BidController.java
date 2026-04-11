@@ -71,6 +71,7 @@ public class BidController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "201", description = "Bid created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Bid.class))),
       @ApiResponse(responseCode = "400", description = "Bad request - bid validation failed", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "409", description = "Concurrent bid conflict - refresh and retry", content = @Content(mediaType = "application/json")),
       @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
   })
   @PostMapping("")

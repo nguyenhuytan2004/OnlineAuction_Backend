@@ -83,7 +83,7 @@ public class OrderService implements IOrderService {
         return;
       }
 
-      Bid highestBid = _bidRepository.findTopByProductProductIdOrderByBidPriceDesc(
+      Bid highestBid = _bidRepository.findFirstByProductProductIdOrderByBidPriceDescBidAtAscBidIdAsc(
           product.getProductId());
 
       if (highestBid != null) {

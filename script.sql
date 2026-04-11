@@ -48,6 +48,7 @@ CREATE TABLE `product` (
     is_active BOOLEAN DEFAULT TRUE,
     allow_unrated_bidder BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    version BIGINT NOT NULL DEFAULT 0,
 
     FOREIGN KEY (seller_id) REFERENCES `user`(user_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES `category`(category_id) ON DELETE RESTRICT,

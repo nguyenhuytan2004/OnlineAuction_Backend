@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
@@ -30,6 +29,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
@@ -39,6 +39,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Schema(description = "Product entity in the online auction system with bidding functionality")
 @Entity
@@ -160,6 +161,11 @@ public class Product {
   @Column(name = "created_at", nullable = false, updatable = false)
   @GenericField(sortable = Sortable.YES)
   private LocalDateTime createdAt;
+
+  @Schema(description = "Version field used for optimistic locking")
+  @Version
+  @Column(name = "version", nullable = false)
+  private Long version;
 
   // @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
   // // @JsonManagedReference("product-watchlists")

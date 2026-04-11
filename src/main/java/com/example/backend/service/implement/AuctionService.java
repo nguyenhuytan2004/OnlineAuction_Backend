@@ -45,63 +45,59 @@ public class AuctionService implements IAuctionService {
 
   @Override
   public void broadcastAuctionUpdate(
-          Product product,
-          Bid newBid,
-          BigDecimal previousPrice,
-          MessageType messageType,
-          String message) {
+      Product product,
+      Bid newBid,
+      BigDecimal previousPrice,
+      MessageType messageType,
+      String message) {
 
     log.info(
-            "[SERVICE][BROADCAST][AUCTION_UPDATE] Input productId={}, bidId={}, messageType={}",
-            product.getProductId(),
-            newBid.getBidId(),
-            messageType
-    );
+        "[SERVICE][BROADCAST][AUCTION_UPDATE] Input productId={}, bidId={}, messageType={}",
+        product.getProductId(),
+        newBid.getBidId(),
+        messageType);
 
     try {
       BidUpdateMessage bidUpdateMessage = BidUpdateMessage.builder()
-              .productId(product.getProductId())
-              .productName(product.getProductName())
-              .currentPrice(product.getCurrentPrice())
-              .previousPrice(previousPrice)
-              .priceStep(product.getPriceStep())
-              .highestBidderId(
-                      product.getHighestBidder() != null
-                              ? product.getHighestBidder().getUserId()
-                              : null)
-              .highestBidderName(
-                      product.getHighestBidder() != null
-                              ? product.getHighestBidder().getFullName()
-                              : null)
-              .newBidId(newBid.getBidId())
-              .newBidderId(newBid.getBidder().getUserId())
-              .newBidderName(newBid.getBidder().getFullName())
-              .newBidPrice(newBid.getBidPrice())
-              .newBidMaxPrice(newBid.getMaxAutoPrice())
-              .bidAt(newBid.getBidAt())
-              .totalBids(product.getBidCount())
-              .messageType(messageType)
-              .message(message)
-              .build();
+          .productId(product.getProductId())
+          .productName(product.getProductName())
+          .currentPrice(product.getCurrentPrice())
+          .previousPrice(previousPrice)
+          .priceStep(product.getPriceStep())
+          .highestBidderId(
+              product.getHighestBidder() != null
+                  ? product.getHighestBidder().getUserId()
+                  : null)
+          .highestBidderName(
+              product.getHighestBidder() != null
+                  ? product.getHighestBidder().getFullName()
+                  : null)
+          .newBidId(newBid.getBidId())
+          .newBidderId(newBid.getBidder().getUserId())
+          .newBidderName(newBid.getBidder().getFullName())
+          .newBidPrice(newBid.getBidPrice())
+          .newBidMaxPrice(newBid.getMaxAutoPrice())
+          .bidAt(newBid.getBidAt())
+          .totalBids(product.getBidCount())
+          .messageType(messageType)
+          .message(message)
+          .build();
 
       auctionMessagingTemplate.convertAndSend(
-              "/topic/product/" + product.getProductId() + "/place-bid",
-              bidUpdateMessage
-      );
+          "/topic/product/" + product.getProductId() + "/place-bid",
+          bidUpdateMessage);
 
       log.info(
-              "[SERVICE][BROADCAST][AUCTION_UPDATE] Success productId={}, currentPrice={}",
-              product.getProductId(),
-              product.getCurrentPrice()
-      );
+          "[SERVICE][BROADCAST][AUCTION_UPDATE] Success productId={}, currentPrice={}",
+          product.getProductId(),
+          product.getCurrentPrice());
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][BROADCAST][AUCTION_UPDATE] Error occurred (productId={}): {}",
-              product.getProductId(),
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][BROADCAST][AUCTION_UPDATE] Error occurred (productId={}): {}",
+          product.getProductId(),
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -109,10 +105,9 @@ public class AuctionService implements IAuctionService {
   @Override
   public void checkAndRenewAuction(Product product) {
     log.info(
-            "[SERVICE][CHECK][AUCTION_RENEW] Input productId={}, autoRenew={}",
-            product.getProductId(),
-            product.getIsAutoRenew()
-    );
+        "[SERVICE][CHECK][AUCTION_RENEW] Input productId={}, autoRenew={}",
+        product.getProductId(),
+        product.getIsAutoRenew());
 
     try {
       if (product.getIsAutoRenew()) {
@@ -127,24 +122,21 @@ public class AuctionService implements IAuctionService {
           _productRepository.save(product);
 
           auctionMessagingTemplate.convertAndSend(
-                  "/topic/product/" + product.getProductId() + "/auction-extend",
-                  product.getEndTime()
-          );
+              "/topic/product/" + product.getProductId() + "/auction-extend",
+              product.getEndTime());
 
           log.info(
-                  "[SERVICE][CHECK][AUCTION_RENEW] Extended productId={}, newEndTime={}",
-                  product.getProductId(),
-                  product.getEndTime()
-          );
+              "[SERVICE][CHECK][AUCTION_RENEW] Extended productId={}, newEndTime={}",
+              product.getProductId(),
+              product.getEndTime());
         }
       }
     } catch (Exception e) {
       log.error(
-              "[SERVICE][CHECK][AUCTION_RENEW] Error occurred (productId={}): {}",
-              product.getProductId(),
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][CHECK][AUCTION_RENEW] Error occurred (productId={}): {}",
+          product.getProductId(),
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -153,23 +145,20 @@ public class AuctionService implements IAuctionService {
   @Transactional
   public void updateAuctionResult(Product product) {
     log.info(
-            "[SERVICE][UPDATE][AUCTION_RESULT] Input productId={}",
-            product.getProductId()
-    );
+        "[SERVICE][UPDATE][AUCTION_RESULT] Input productId={}",
+        product.getProductId());
 
     try {
-      AuctionResult existingResult =
-              _auctionResultRepository.findByProductProductId(product.getProductId());
+      AuctionResult existingResult = _auctionResultRepository.findByProductProductId(product.getProductId());
       if (existingResult != null) {
         log.info(
-                "[SERVICE][UPDATE][AUCTION_RESULT] Skip (already exists) productId={}",
-                product.getProductId()
-        );
+            "[SERVICE][UPDATE][AUCTION_RESULT] Skip (already exists) productId={}",
+            product.getProductId());
         return;
       }
 
       Bid highestBid = _bidRepository
-              .findTopByProductProductIdOrderByBidPriceDesc(product.getProductId());
+          .findFirstByProductProductIdOrderByBidPriceDescBidAtAscBidIdAsc(product.getProductId());
 
       if (highestBid != null) {
         AuctionResult auctionResult = new AuctionResult();
@@ -180,35 +169,32 @@ public class AuctionService implements IAuctionService {
         _auctionResultRepository.save(auctionResult);
 
         Conversation conversation = Conversation.builder()
-                .product(product)
-                .seller(product.getSeller())
-                .buyer(highestBid.getBidder())
-                .isActive(true)
-                .build();
+            .product(product)
+            .seller(product.getSeller())
+            .buyer(highestBid.getBidder())
+            .isActive(true)
+            .build();
         _conversationRepository.save(conversation);
 
         log.info(
-                "[SERVICE][UPDATE][AUCTION_RESULT] Created result productId={}, winnerId={}",
-                product.getProductId(),
-                highestBid.getBidder().getUserId()
-        );
+            "[SERVICE][UPDATE][AUCTION_RESULT] Created result productId={}, winnerId={}",
+            product.getProductId(),
+            highestBid.getBidder().getUserId());
       }
 
       product.setIsActive(false);
       _productRepository.save(product);
 
       log.info(
-              "[SERVICE][UPDATE][AUCTION_RESULT] Auction closed productId={}",
-              product.getProductId()
-      );
+          "[SERVICE][UPDATE][AUCTION_RESULT] Auction closed productId={}",
+          product.getProductId());
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][UPDATE][AUCTION_RESULT] Error occurred (productId={}): {}",
-              product.getProductId(),
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][UPDATE][AUCTION_RESULT] Error occurred (productId={}): {}",
+          product.getProductId(),
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -216,29 +202,25 @@ public class AuctionService implements IAuctionService {
   @Override
   public void broadcastAuctionEnd(Product product, String reason) {
     log.info(
-            "[SERVICE][BROADCAST][AUCTION_END] Input productId={}, reason={}",
-            product.getProductId(),
-            reason
-    );
+        "[SERVICE][BROADCAST][AUCTION_END] Input productId={}, reason={}",
+        product.getProductId(),
+        reason);
 
     try {
       auctionMessagingTemplate.convertAndSend(
-              "/topic/product/" + product.getProductId() + "/auction-end",
-              reason
-      );
+          "/topic/product/" + product.getProductId() + "/auction-end",
+          reason);
 
       log.info(
-              "[SERVICE][BROADCAST][AUCTION_END] Success productId={}",
-              product.getProductId()
-      );
+          "[SERVICE][BROADCAST][AUCTION_END] Success productId={}",
+          product.getProductId());
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][BROADCAST][AUCTION_END] Error occurred (productId={}): {}",
-              product.getProductId(),
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][BROADCAST][AUCTION_END] Error occurred (productId={}): {}",
+          product.getProductId(),
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -246,32 +228,28 @@ public class AuctionService implements IAuctionService {
   @Override
   public void broadcastQuestionAsked(ProductQuestion productQuestion) {
     log.info(
-            "[SERVICE][BROADCAST][QUESTION_ASKED] Input productId={}, questionId={}",
-            productQuestion.getProduct().getProductId(),
-            productQuestion.getQuestionId()
-    );
+        "[SERVICE][BROADCAST][QUESTION_ASKED] Input productId={}, questionId={}",
+        productQuestion.getProduct().getProductId(),
+        productQuestion.getQuestionId());
 
     try {
       auctionMessagingTemplate.convertAndSend(
-              "/topic/products/"
-                      + productQuestion.getProduct().getProductId()
-                      + "/questions",
-              productQuestion
-      );
+          "/topic/products/"
+              + productQuestion.getProduct().getProductId()
+              + "/questions",
+          productQuestion);
 
       log.info(
-              "[SERVICE][BROADCAST][QUESTION_ASKED] Success productId={}, questionId={}",
-              productQuestion.getProduct().getProductId(),
-              productQuestion.getQuestionId()
-      );
+          "[SERVICE][BROADCAST][QUESTION_ASKED] Success productId={}, questionId={}",
+          productQuestion.getProduct().getProductId(),
+          productQuestion.getQuestionId());
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][BROADCAST][QUESTION_ASKED] Error occurred (productId={}): {}",
-              productQuestion.getProduct().getProductId(),
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][BROADCAST][QUESTION_ASKED] Error occurred (productId={}): {}",
+          productQuestion.getProduct().getProductId(),
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -279,34 +257,30 @@ public class AuctionService implements IAuctionService {
   @Override
   public void broadcastAnswerPosted(ProductAnswer productAnswer, Integer productId) {
     log.info(
-            "[SERVICE][BROADCAST][ANSWER_POSTED] Input productId={}, answerId={}",
-            productId,
-            productAnswer.getAnswerId()
-    );
+        "[SERVICE][BROADCAST][ANSWER_POSTED] Input productId={}, answerId={}",
+        productId,
+        productAnswer.getAnswerId());
 
     try {
       auctionMessagingTemplate.convertAndSend(
-              "/topic/products/"
-                      + productId
-                      + "/questions/"
-                      + productAnswer.getQuestion().getQuestionId()
-                      + "/answers",
-              productAnswer
-      );
+          "/topic/products/"
+              + productId
+              + "/questions/"
+              + productAnswer.getQuestion().getQuestionId()
+              + "/answers",
+          productAnswer);
 
       log.info(
-              "[SERVICE][BROADCAST][ANSWER_POSTED] Success productId={}, answerId={}",
-              productId,
-              productAnswer.getAnswerId()
-      );
+          "[SERVICE][BROADCAST][ANSWER_POSTED] Success productId={}, answerId={}",
+          productId,
+          productAnswer.getAnswerId());
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][BROADCAST][ANSWER_POSTED] Error occurred (productId={}): {}",
-              productId,
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][BROADCAST][ANSWER_POSTED] Error occurred (productId={}): {}",
+          productId,
+          e.getMessage(),
+          e);
       throw e;
     }
   }
@@ -314,29 +288,25 @@ public class AuctionService implements IAuctionService {
   @Override
   public void broadcastBidderBlocked(Integer blockedId, String reason) {
     log.info(
-            "[SERVICE][BROADCAST][BIDDER_BLOCKED] Input blockedId={}, reason={}",
-            blockedId,
-            reason
-    );
+        "[SERVICE][BROADCAST][BIDDER_BLOCKED] Input blockedId={}, reason={}",
+        blockedId,
+        reason);
 
     try {
       auctionMessagingTemplate.convertAndSend(
-              "/user/" + blockedId + "/queue/blocked-notification",
-              reason
-      );
+          "/user/" + blockedId + "/queue/blocked-notification",
+          reason);
 
       log.info(
-              "[SERVICE][BROADCAST][BIDDER_BLOCKED] Success blockedId={}",
-              blockedId
-      );
+          "[SERVICE][BROADCAST][BIDDER_BLOCKED] Success blockedId={}",
+          blockedId);
 
     } catch (Exception e) {
       log.error(
-              "[SERVICE][BROADCAST][BIDDER_BLOCKED] Error occurred (blockedId={}): {}",
-              blockedId,
-              e.getMessage(),
-              e
-      );
+          "[SERVICE][BROADCAST][BIDDER_BLOCKED] Error occurred (blockedId={}): {}",
+          blockedId,
+          e.getMessage(),
+          e);
       throw e;
     }
   }

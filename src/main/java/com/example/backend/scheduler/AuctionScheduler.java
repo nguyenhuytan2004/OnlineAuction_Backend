@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.entity.Product;
 import com.example.backend.entity.User;
@@ -39,7 +38,7 @@ public class AuctionScheduler {
   @Autowired
   private EmailProducer emailProducer;
 
-  @Scheduled(fixedDelay = 10000)
+  @Scheduled(fixedDelay = 60000)
   public void processExpiredAuctions() {
     try {
       List<Product> expiredProducts = _productRepository.findExpiredProductsWithoutResult(LocalDateTime.now());
@@ -76,7 +75,7 @@ public class AuctionScheduler {
     }
   }
 
-  @Scheduled(fixedDelay = 10000)
+  @Scheduled(fixedDelay = 60000)
   public void processExpiredSellers() {
     try {
       List<User> expiredSellers = _userRepository.findExpiredSellers(LocalDateTime.now());
