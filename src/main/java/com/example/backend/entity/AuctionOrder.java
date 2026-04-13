@@ -16,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -28,6 +29,7 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString(exclude = {
     "product",
     "seller",
@@ -72,6 +74,7 @@ public class AuctionOrder {
       "PAID", "ON_DELIVERING", "COMPLETED", "CANCELED" })
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
+  @Builder.Default
   private OrderStatus status = OrderStatus.WAIT_PAYMENT;
 
   @Schema(description = "Timestamp when payment was received", format = "date-time")
@@ -88,5 +91,6 @@ public class AuctionOrder {
 
   @Schema(description = "Order creation timestamp", format = "date-time")
   @Column(name = "created_at", updatable = false)
+  @Builder.Default
   private Instant createdAt = Instant.now();
 }

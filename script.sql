@@ -261,15 +261,15 @@ INSERT INTO `category` (category_id, category_name, description, parent_id) VALU
 
 -- USER (Realistic names + realistic emails)
 INSERT INTO `user` (full_name, email, encrypted_password, rating_score, rating_count, role, seller_expires_at, is_verified) VALUES
-('Nguyễn Hoàng Minh', 'minh.nguyen@gmail.com', '$2a$10$biWJYj6QdRH/uQQ8ZjhFL.uzgzRQQKptyuffdgR7jKQSpCiakyg42', 8, 10, "ADMIN", NULL, 1),
-('Trần Khánh Linh', 'linh.tran@gmail.com', '$2a$10$z848BvAPrkiyGesaKe4t.O.cl31Kbvi673w6cn3JAB6tTdhK9feoW', 10, 10, "BIDDER", NULL, 1),
-('Lê Quốc Huy', 'huy.le@gmail.com', '$2a$10$ar7nlwDhBGR0zhkdx91/TuWOvdcQvNvZKykwq.gvzPLg8QlPD1CHi', 12, 15, "SELLER", DATE_ADD(NOW(), INTERVAL 7 DAY), 1),
-('Phạm Bảo Trân', 'tran.pham@gmail.com', '$2a$10$nfeKkytJQVKgLf1oNPuqT./jaOU8VL2sfp1MCLQOhvlMEIOwgGkX6', 14, 20, "BIDDER", NULL, 1),
-('Hoàng Gia Bảo', 'bao.hoang@gmail.com', '$2a$10$eORh7G2q68kXUQmcsU7E1.vN5WrFHu9Yl1FHxrnq0EfPyukTdllFG', 16, 25, "BIDDER", NULL, 1),
-('Nguyễn Thu Hà', 'ha.nguyen@gmail.com', '$2a$10$ENoPzpks2zRYu1P/j8TELOHpGoF2KE4HUil7UbBGVZERsQh4qHXmi', 9, 12, "BIDDER", NULL, 1),
+('Nguyễn Hoàng Minh', 'nhminh@gmail.com', '$2a$10$biWJYj6QdRH/uQQ8ZjhFL.uzgzRQQKptyuffdgR7jKQSpCiakyg42', 8, 10, "ADMIN", NULL, 1),
+('Trần Khánh Linh', 'tklinh@gmail.com', '$2a$10$z848BvAPrkiyGesaKe4t.O.cl31Kbvi673w6cn3JAB6tTdhK9feoW', 10, 10, "BIDDER", NULL, 1),
+('Lê Quốc Huy', 'lqhuy@gmail.com', '$2a$10$ar7nlwDhBGR0zhkdx91/TuWOvdcQvNvZKykwq.gvzPLg8QlPD1CHi', 12, 15, "SELLER", DATE_ADD(NOW(), INTERVAL 7 DAY), 1),
+('Phạm Bảo Trân', 'pbtran@gmail.com', '$2a$10$nfeKkytJQVKgLf1oNPuqT./jaOU8VL2sfp1MCLQOhvlMEIOwgGkX6', 14, 20, "BIDDER", NULL, 1),
+('Hoàng Gia Bảo', 'hgbao@gmail.com', '$2a$10$eORh7G2q68kXUQmcsU7E1.vN5WrFHu9Yl1FHxrnq0EfPyukTdllFG', 16, 25, "BIDDER", NULL, 1),
+('Nguyễn Thu Hà', 'ntha@gmail.com', '$2a$10$ENoPzpks2zRYu1P/j8TELOHpGoF2KE4HUil7UbBGVZERsQh4qHXmi', 9, 12, "BIDDER", NULL, 1),
 ('Nguyễn Huy Tấn', 'nguyenhuytan0@gmail.com', '$2a$10$ENoPzpks2zRYu1P/j8TELOHpGoF2KE4HUil7UbBGVZERsQh4qHXmi', 15, 20, "BIDDER", NULL, 1),
-('Hà Duy Kiên', 'nguyenhuytan2004@gmail.com', '$2a$10$thxPlrABTReDFmAw5ktcAetlce9rDNUZfdoiUfhO8BwfUWbCli4o.', 17, 33, "BIDDER", NULL, 1),
-('Đăng Văn Quang', 'dvquang22@clc.fitus.edu.vn', '$2a$09$c/EAtme1ly8YmmeyaluffetqzxkivIyjRnlH9sqXJdlbwEyT7gEy.', 38, 43, "BIDDER", NULL, 1);
+('Hà Duy Kiên', 'hdkien@gmail.com', '$2a$10$thxPlrABTReDFmAw5ktcAetlce9rDNUZfdoiUfhO8BwfUWbCli4o.', 17, 33, "BIDDER", NULL, 1),
+('Đăng Văn Quang', 'dvquang@gmail.com', '$2a$09$c/EAtme1ly8YmmeyaluffetqzxkivIyjRnlH9sqXJdlbwEyT7gEy.', 38, 43, "BIDDER", NULL, 1);
 
 -- INSERT PRODUCT
 INSERT INTO `product` 

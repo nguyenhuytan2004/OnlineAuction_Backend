@@ -62,6 +62,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
 
             // 1. NHÓM CÔNG KHAI (Không cần đăng nhập)
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/ws/**",
                 "/api/payment/payos/webhook-handler")
             .permitAll()
@@ -82,6 +83,8 @@ public class SecurityConfig {
 
             // 3. NHÓM QUYỀN CHUNG (Yêu cầu đăng nhập - Mọi role)
             .requestMatchers(HttpMethod.POST, "/api/products/*/questions", "/api/payment/payos/create-payment-link")
+            .hasAnyRole("BIDDER", "SELLER", "ADMIN")
+            .requestMatchers(HttpMethod.PATCH, "/api/products/*/buy-now")
             .hasAnyRole("BIDDER", "SELLER", "ADMIN")
 
             // 4. NHÓM QUYỀN ADMIN (Quản trị viên)

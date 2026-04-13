@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.config.SearchAnalyzerConfig;
+import com.example.backend.entity.AuctionOrder;
 import com.example.backend.entity.AuctionResult;
 import com.example.backend.entity.BlockedBidder;
 import com.example.backend.entity.Product;
@@ -25,6 +26,7 @@ import com.example.backend.model.Email.EmailNotificationRequest.EmailType;
 import com.example.backend.model.Product.CreateProductRequest;
 import com.example.backend.model.Product.UpdateProductRequest;
 import com.example.backend.producer.EmailProducer;
+import com.example.backend.repository.IAuctionOrderRepository;
 import com.example.backend.repository.IAuctionResultRepository;
 import com.example.backend.repository.IBidRepository;
 import com.example.backend.repository.IBlockedBidderRepository;
@@ -50,6 +52,8 @@ public class ProductService implements IProductService {
   private ICategoryRepository _categoryRepository;
   @Autowired
   private IAuctionResultRepository _auctionResultRepository;
+  @Autowired
+  private IAuctionOrderRepository _auctionOrderRepository;
   @Autowired
   private IBidRepository _bidRepository;
   @Autowired
@@ -456,12 +460,6 @@ public class ProductService implements IProductService {
   @Override
   @Transactional
   public AuctionResult buyNowProduct(Integer productId, Integer buyerId) {
-
-    log.info(
-        "[SERVICE][POST][BUY_NOW_PRODUCT] Input productId={}, buyerId={}",
-        productId,
-        buyerId);
-
     try {
       Product product = _productRepository.findById(productId).orElse(null);
       if (product == null) {
@@ -491,6 +489,8 @@ public class ProductService implements IProductService {
       }
 
       // Update product status
+      product.setCurrentPrice(product.getBuyNowPrice());
+      product.setHighestBidder(buyer);
       product.setIsActive(false);
       product.setEndTime(LocalDateTime.now().plusSeconds(1));
       _productRepository.save(product);
@@ -502,8 +502,16 @@ public class ProductService implements IProductService {
       auctionResult.setFinalPrice(product.getBuyNowPrice());
       auctionResult.setResultTime(LocalDateTime.now());
       auctionResult.setPaymentStatus(AuctionResult.PaymentStatus.PENDING);
-
       AuctionResult savedAuctionResult = _auctionResultRepository.save(auctionResult);
+
+      // Create auction order
+      AuctionOrder auctionOrder = AuctionOrder.builder()
+          .product(product)
+          .seller(product.getSeller())
+          .buyer(buyer)
+          .finalPrice(product.getBuyNowPrice())
+          .build();
+      _auctionOrderRepository.save(auctionOrder);
 
       _auctionService.broadcastAuctionEnd(
           product,
