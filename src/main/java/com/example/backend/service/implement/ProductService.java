@@ -1,5 +1,6 @@
 package com.example.backend.service.implement;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -694,6 +695,10 @@ public class ProductService implements IProductService {
       User blocker = _userRepository.findById(blockerId)
           .orElseThrow(() -> new IllegalArgumentException(
               "Blocker not found with ID: " + blockerId));
+
+      if (!blocker.getUserId().equals(product.getSeller().getUserId())) {
+        throw new IllegalArgumentException("Only owner can block bidders on this product.");
+      }
 
       User blocked = _userRepository.findById(blockedId)
           .orElseThrow(() -> new IllegalArgumentException(

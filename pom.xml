@@ -169,6 +169,14 @@
       <version>2.0.1</version>
     </dependency>
 
+    <!-- DevTools for development -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
+
 	</dependencies>
 
 	<build>
@@ -200,6 +208,13 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+                <excludeDevtools>false</excludeDevtools>
+            </configuration>
+        </plugin>
 		</plugins>
 	</build>
 

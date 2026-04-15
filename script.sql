@@ -1,7 +1,9 @@
 DROP DATABASE IF EXISTS online_auction_db;
-CREATE DATABASE online_auction_db;
+CREATE DATABASE online_auction_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE online_auction_db;
+
+SET NAMES utf8mb4;
 
 -- Bảng chứa thông tin danh mục sản phẩm
 CREATE TABLE `category` (
